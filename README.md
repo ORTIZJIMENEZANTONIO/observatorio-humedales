@@ -233,6 +233,17 @@ Las fotografias del inventario provienen de [Unsplash](https://unsplash.com) baj
 
 ---
 
+## Licencia
+
+Este proyecto esta licenciado bajo la **Apache License 2.0** — ver el archivo [LICENSE](LICENSE) para mas detalles.
+
+Cualquier uso, redistribucion o trabajo derivado debe:
+- Conservar el aviso de copyright y atribucion ([NOTICE](NOTICE))
+- Indicar los cambios realizados al codigo original
+- Incluir una copia de la licencia
+
+---
+
 <p align="center">
   <sub>Hecho con Vue, Nuxt y datos abiertos para la Ciudad de Mexico</sub>
 </p>
