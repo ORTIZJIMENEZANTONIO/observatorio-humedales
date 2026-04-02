@@ -1,0 +1,156 @@
+<template>
+  <div>
+    <!-- Header -->
+    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
+      <div class="container-wide">
+        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de Humedales Artificiales</h1>
+        <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ store.alcaldias.length }} alcaldías de la Ciudad de México</p>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <div class="sticky top-16 z-30 border-b bg-white/95 backdrop-blur-sm">
+      <div class="container-wide py-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <input v-model="store.searchQuery" type="text" placeholder="Buscar por nombre, alcaldía..." class="input max-w-xs" />
+          <select v-model="store.filterAlcaldia" class="select max-w-[200px]">
+            <option value="">Todas las alcaldías</option>
+            <option v-for="a in store.alcaldias" :key="a" :value="a">{{ a }}</option>
+          </select>
+          <select v-model="store.filterTipo" class="select max-w-[200px]">
+            <option value="">Todos los tipos</option>
+            <option value="conservacion">Conservación</option>
+            <option value="tratamiento_aguas">Tratamiento de aguas</option>
+            <option value="recreativo">Recreativo</option>
+            <option value="captacion_pluvial">Captación pluvial</option>
+            <option value="restauracion_hidrologica">Restauración hidrológica</option>
+          </select>
+          <span class="ml-auto text-sm text-slate-custom">{{ store.filtered.length }} resultados</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <section class="bg-surface py-10">
+      <div class="container-wide">
+        <div ref="gridRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div v-for="h in store.filtered" :key="h.id" class="card-interactive overflow-hidden reveal" @click="selected = h">
+            <!-- Image header -->
+            <div class="relative h-40 overflow-hidden">
+              <img v-if="h.imagen" :src="h.imagen" :alt="h.nombre" class="h-full w-full object-cover" loading="lazy" />
+              <div v-else class="flex h-full items-center justify-center bg-gradient-to-br from-primary to-secondary/60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                </svg>
+              </div>
+            </div>
+            <div class="p-5">
+              <h3 class="text-base font-bold text-ink">{{ h.nombre }}</h3>
+              <p class="mt-1 text-xs text-slate-custom">{{ h.alcaldia }} · {{ h.anioImplementacion }}</p>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span :class="['badge', formatters.tipoHumedalBadgeClass(h.tipoHumedal)]">{{ formatters.formatTipoHumedal(h.tipoHumedal) }}</span>
+                <span :class="['badge', formatters.estadoHumedalBadgeClass(h.estado)]">{{ formatters.formatEstadoHumedal(h.estado) }}</span>
+              </div>
+              <div class="mt-4 space-y-1.5 text-xs text-slate-custom">
+                <p><strong>Función:</strong> {{ h.funcionPrincipal }}</p>
+                <p v-if="h.superficie"><strong>Superficie:</strong> {{ formatters.formatArea(h.superficie) }}</p>
+                <p><strong>Vegetación:</strong> {{ h.vegetacion.slice(0, 3).join(', ') }}</p>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1">
+                <span v-for="s in h.serviciosEcosistemicos.slice(0, 3)" :key="s" class="rounded-badge bg-primary-50/60 px-2 py-0.5 text-[10px] text-primary">
+                  {{ formatters.formatServicioEcosistemico(s) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detail Drawer -->
+    <Transition name="fade">
+      <div v-if="selected" class="fixed inset-0 z-[100] bg-black/30 backdrop-blur-sm" @click="selected = null" />
+    </Transition>
+    <Transition name="slide-right">
+      <div v-if="selected" class="fixed right-0 top-0 z-[101] flex h-full w-full max-w-lg flex-col bg-white shadow-2xl overflow-y-auto">
+        <div class="flex items-center justify-between border-b px-6 py-4">
+          <h2 class="text-lg font-bold text-ink">{{ selected.nombre }}</h2>
+          <button class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-gray-100" @click="selected = null">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          </button>
+        </div>
+        <div class="flex-1 p-6 space-y-6">
+          <div class="flex flex-wrap gap-2">
+            <span :class="['badge', formatters.tipoHumedalBadgeClass(selected.tipoHumedal)]">{{ formatters.formatTipoHumedal(selected.tipoHumedal) }}</span>
+            <span :class="['badge', formatters.estadoHumedalBadgeClass(selected.estado)]">{{ formatters.formatEstadoHumedal(selected.estado) }}</span>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Información general</h4>
+            <dl class="grid grid-cols-2 gap-3 text-sm">
+              <div><dt class="text-xs text-ink-muted">Alcaldía</dt><dd class="font-medium">{{ selected.alcaldia }}</dd></div>
+              <div><dt class="text-xs text-ink-muted">Año</dt><dd class="font-medium">{{ selected.anioImplementacion }}</dd></div>
+              <div><dt class="text-xs text-ink-muted">Función</dt><dd class="font-medium">{{ selected.funcionPrincipal }}</dd></div>
+              <div v-if="selected.superficie"><dt class="text-xs text-ink-muted">Superficie</dt><dd class="font-medium">{{ formatters.formatArea(selected.superficie) }}</dd></div>
+              <div v-if="selected.volumen"><dt class="text-xs text-ink-muted">Volumen</dt><dd class="font-medium">{{ formatters.formatVolume(selected.volumen) }}</dd></div>
+              <div v-if="selected.capacidadTratamiento"><dt class="text-xs text-ink-muted">Capacidad</dt><dd class="font-medium">{{ selected.capacidadTratamiento }}</dd></div>
+            </dl>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Sustrato</h4>
+            <p class="text-sm">{{ selected.sustrato }}</p>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Uso del agua</h4>
+            <p class="text-sm">{{ selected.usoAgua }}</p>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Vegetación</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="v in selected.vegetacion" :key="v" class="badge badge-eco">{{ v }}</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Servicios ecosistémicos</h4>
+            <ul class="space-y-1 text-sm">
+              <li v-for="s in selected.serviciosDescripcion" :key="s" class="flex items-start gap-2">
+                <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                {{ s }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Monitoreo / Resultados</h4>
+            <p class="text-sm text-slate-custom">{{ selected.monitoreo }}</p>
+          </div>
+
+          <div class="rounded-lg bg-surface p-3 text-xs text-ink-muted">
+            <strong>Coordenadas:</strong> {{ selected.lat }}, {{ selected.lng }}
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { Humedal } from '~/types'
+import { useHumedalesStore } from '~/stores/humedales'
+
+const store = useHumedalesStore()
+const formatters = useFormatters()
+const selected = ref<Humedal | null>(null)
+const { revealRef: gridRef } = useScrollReveal({ stagger: true })
+</script>
+
+<style scoped>
+.slide-right-enter-active { transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.slide-right-leave-active { transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1); }
+.slide-right-enter-from, .slide-right-leave-to { transform: translateX(100%); }
+</style>
