@@ -382,12 +382,16 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **No AI integration:** Data comes from PDF inventory, not vision analysis
 - **Simpler architecture:** No services/normalizers/repositories layer — direct mock data to store
 
-## Deployment
-- **Domain:** humedales.cercu.com.mx
-- **Server:** VPS 72.62.200.124 (Alpine Linux)
+## Deployment (LIVE)
+- **URL:** https://humedales.cercu.com.mx
+- **Server:** VPS 72.62.200.124 (Alpine Linux, srv1420267)
 - **Path:** `/var/www/cercu-frontend/humedales/`
 - **Port:** 3005 (PM2 process `humedales`)
-- **Reverse proxy:** Nginx → 127.0.0.1:3005
-- **SSL:** certbot
+- **Reverse proxy:** Nginx (`/etc/nginx/http.d/cercu.conf`) → 127.0.0.1:3005
+- **SSL:** Let's Encrypt via certbot (activo)
+- **License:** Apache 2.0
+- **Repo:** https://github.com/ORTIZJIMENEZANTONIO/observatorio-humedales.git
 - **Deploy:** rsync + `npm install && npm run build && pm2 restart humedales`
 - Also integrated in cercu-frontend `deploy/deploy.sh` and `deploy/ecosystem.config.cjs`
+- **PM2 start con ecosystem:** `pm2 start deploy/ecosystem.config.cjs` (asegura PORT=3005)
+- **Nginx config en servidor:** `/etc/nginx/http.d/cercu.conf` (Alpine usa `http.d/`, no `sites-available/`)
