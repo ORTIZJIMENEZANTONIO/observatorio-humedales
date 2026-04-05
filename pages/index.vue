@@ -59,7 +59,7 @@
     <!-- Qué es -->
     <section ref="aboutSection" class="bg-surface py-16">
       <div class="container-wide">
-        <CommonSectionTitle title="Qué es el Observatorio" subtitle="Una plataforma integral para el monitoreo, análisis y visualización de humedales artificiales en la Ciudad de México." :centered="true" tag="Acerca de" />
+        <CommonSectionTitle title="Qué es el observatorio" subtitle="Una plataforma integral para el monitoreo, análisis y visualización de humedales artificiales en la Ciudad de México." :centered="true" tag="Acerca de" />
         <div class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-3">
           <div v-for="feature in features" :key="feature.title" class="card-interactive p-6 reveal">
             <div :class="['mb-4 flex h-12 w-12 items-center justify-center rounded-xl', feature.bg]">
@@ -128,8 +128,23 @@
       </div>
     </section>
 
-    <!-- Map Teaser -->
+    <!-- ODS Teaser -->
     <section class="bg-surface py-16">
+      <div class="container-wide">
+        <CommonSectionTitle title="Alineación con la Agenda 2030" subtitle="Los humedales artificiales contribuyen directamente a cuatro Objetivos de Desarrollo Sostenible." :centered="true" tag="ODS" />
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <NuxtLink v-for="ods in odsTeaser" :key="ods.numero" to="/sobre#ods" class="card-interactive p-4 text-center">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white text-lg font-bold" :style="{ backgroundColor: ods.color }">
+              {{ ods.numero }}
+            </div>
+            <p class="mt-3 text-sm font-semibold text-ink">{{ ods.nombre }}</p>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Teaser -->
+    <section class="bg-white py-16">
       <div class="container-wide">
         <div class="grid items-center gap-10 md:grid-cols-2">
           <div>
@@ -170,6 +185,13 @@ import { kpis } from '~/data/kpis'
 
 const { kpiIconBg, kpiIconColor } = useFormatters()
 
+const odsTeaser = [
+  { numero: 6, nombre: 'Agua limpia', color: '#26BDE2' },
+  { numero: 11, nombre: 'Ciudades sostenibles', color: '#FD9D24' },
+  { numero: 13, nombre: 'Acción por el clima', color: '#3F7E44' },
+  { numero: 15, nombre: 'Vida de ecosistemas', color: '#56C02B' },
+]
+
 const { revealRef: kpiSection } = useScrollReveal({ stagger: true })
 const { revealRef: aboutSection } = useScrollReveal({ stagger: true })
 const { revealRef: stepsSection } = useScrollReveal({ stagger: true })
@@ -178,7 +200,7 @@ const { revealRef: servicesSection } = useScrollReveal({ stagger: true })
 
 const features = [
   {
-    title: 'Inventario Geoespacial',
+    title: 'Inventario geoespacial',
     description: 'Localización y caracterización de humedales artificiales en la Ciudad de México, con datos de ubicación, superficie y vegetación.',
     to: '/inventario',
     bg: 'bg-primary-50',
@@ -186,7 +208,7 @@ const features = [
     paths: ['M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z', 'M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0'],
   },
   {
-    title: 'Servicios Ecosistémicos',
+    title: 'Servicios ecosistémicos',
     description: 'Análisis de los beneficios ambientales: depuración de agua, hábitat para fauna, captura de carbono y regulación térmica.',
     to: '/indicadores',
     bg: 'bg-eco/10',
@@ -194,7 +216,7 @@ const features = [
     paths: ['M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'],
   },
   {
-    title: 'Metodología Científica',
+    title: 'Metodología científica',
     description: 'Sistematización basada en criterios técnicos: tipo de humedal, vegetación, sustrato y uso del agua tratada.',
     to: '/metodologia',
     bg: 'bg-secondary/10',

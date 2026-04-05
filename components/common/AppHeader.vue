@@ -88,6 +88,8 @@ const navLinks = [
   { to: '/sobre', label: 'Sobre' },
   { to: '/inventario', label: 'Inventario' },
   { to: '/indicadores', label: 'Indicadores' },
+  { to: '/brecha', label: 'Brecha' },
+  { to: '/hallazgos', label: 'Hallazgos' },
   { to: '/metodologia', label: 'Metodología' },
 ]
 

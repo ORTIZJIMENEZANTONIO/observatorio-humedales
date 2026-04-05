@@ -71,6 +71,8 @@ const quickLinks = [
   { to: '/mapa', label: 'Mapa interactivo' },
   { to: '/inventario', label: 'Inventario de humedales' },
   { to: '/indicadores', label: 'Indicadores' },
+  { to: '/brecha', label: 'Brecha de cobertura' },
+  { to: '/hallazgos', label: 'Hallazgos y recomendaciones' },
   { to: '/metodologia', label: 'Metodología' },
   { to: '/sobre', label: 'Sobre el proyecto' },
 ]

@@ -7,6 +7,12 @@ Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis, CII
 
 Contenido 100% en espanol (es-MX). Tono: institucional, tecnico pero accesible.
 
+### Capitalización en español
+Todos los títulos, encabezados, etiquetas de tabs y subtítulos siguen la convención del español: solo la primera palabra y nombres propios en mayúscula (sentence case). No usar Title Case en inglés.
+- Correcto: "Indicadores y análisis"
+- Incorrecto: "Indicadores y Análisis"
+- Excepción: nombres propios (Ciudad de México, CDMX, CIIEMAD, IPN, Observatorio de Humedales Artificiales CDMX como marca) y acrónimos (ODS, SEDEMA)
+
 ## Stack
 - **Framework:** Nuxt 3 + Vue 3 (Composition API, `<script setup lang="ts">`)
 - **State:** Pinia (setup/composable style)
@@ -30,9 +36,9 @@ npm run preview    # Preview production build
 observatorio-humedales/
   assets/css/main.css       # Global styles, animations, Leaflet overrides
   components/
-    common/                 # AppHeader, AppFooter, SectionTitle
+    common/                 # AppHeader, AppFooter, SectionTitle, ODSCard, PaginationControls
     charts/                 # DoughnutChart.client.vue, BarChart.client.vue
-    map/                    # MapPanel.client.vue
+    map/                    # MapPanel.client.vue, CoverageMap.client.vue
   composables/
     useFormatters.ts        # es-MX locale formatters (humedal types, estados, servicios)
     useMapConfig.ts         # Leaflet config, marker styles
@@ -40,14 +46,19 @@ observatorio-humedales/
   data/
     mock-humedales.ts       # 7 Humedal records (exported as `humedales`)
     kpis.ts                 # KPI data for dashboard
+    alcaldias-cdmx.ts       # 16 alcaldias with population (INEGI 2020), vulnerability indices, need index
+    ods-alignment.ts        # 4 ODS goals (6, 11, 13, 15) with targets, indicators, related wetlands
+    hallazgos.ts            # 4 findings + recommendations + cost comparison (policy brief)
   layouts/default.vue       # AppHeader + slot + AppFooter
   pages/
-    index.vue               # Home (hero, KPIs, que-es, como-funciona, tipologias, servicios, map teaser, disclaimer)
+    index.vue               # Home (hero, KPIs, que-es, como-funciona, tipologias, servicios, ODS teaser, map teaser, disclaimer)
     mapa/                   # Full-screen Leaflet map with all 7 humedales
     inventario/             # Humedal inventory with search/filters/detail drawer
     indicadores/            # Charts dashboard (4 tabs: Distribucion, Servicios, Comparativo, Evidencia Cientifica)
+    brecha/                 # Coverage gap: 16 alcaldias, need index, coverage map, priority ranking
+    hallazgos/              # Policy brief: 4 findings + recommendations, cost comparison, call to action
     metodologia/            # Criterios, tipologias, respaldo cientifico (IPN/CIIEMAD, UNAM, UAM, UACh), datos oficiales, normativa, fuentes
-    sobre/                  # About page + objectives + normative section
+    sobre/                  # About page + objectives + ODS alignment (4 goals + matrix) + normative section
   public/
     images/                 # Institutional logos (CIIEMAD, IPN)
     images/humedales/       # 7 Unsplash photos for inventory cards (free license)
@@ -76,6 +87,7 @@ Inventario PDF/Excel (Dominguez Solis, CIIEMAD-IPN)
 
 ### Environment Variables
 - `NUXT_PUBLIC_DATA_MODE`: `mock` (default) — controls data source; currently only mock data
+- `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3000/api/v1`) — for admin system
 
 ### Data Source
 The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (CIIEMAD-IPN). Data was extracted from PDF and Excel files containing 7 systematized wetland records.
@@ -161,6 +173,42 @@ interface Humedal {
   lat: number
   lng: number
   imagen?: string
+}
+```
+
+### Policy & Analysis Types
+```typescript
+interface AlcaldiaCDMX {
+  nombre: Alcaldia
+  poblacion: number              // INEGI 2020
+  superficie: number             // km²
+  densidadPoblacional: number
+  zonasInundacion: number        // 1-5
+  islasCalor: number             // 1-5
+  disponibilidadAgua: number     // 1-5
+  tieneHumedal: boolean
+  humedalesIds: number[]
+  indiceNecesidad?: number       // computed weighted score
+}
+
+interface ODSGoal {
+  id: ODS                        // 'ods_6' | 'ods_11' | 'ods_13' | 'ods_15'
+  numero: number
+  nombre: string
+  color: string                  // official UN SDG color
+  contribucionGeneral: string
+  metasEspecificas: string[]
+  humedalesRelacionados: number[]
+  indicadores: string[]
+}
+
+interface Hallazgo {
+  id: number
+  titulo: string
+  descripcion: string
+  evidencia: string[]
+  impacto: 'alto' | 'medio' | 'critico'
+  recomendacion: Recomendacion   // paired recommendation
 }
 ```
 
@@ -300,6 +348,26 @@ export const useHumedalesStore = defineStore('humedales', () => {
 })
 ```
 
+### Pagination (15 items per page)
+All data tables and card grids use client-side pagination with 15 results per page via `CommonPaginationControls.vue`. The component receives `v-model:current-page`, `totalPages`, `totalItems`, and `perPage` props. Controls auto-hide when `totalPages <= 1`.
+
+**Pattern:**
+```typescript
+const currentPage = ref(1)
+const perPage = 15
+const totalPages = computed(() => Math.ceil(filtered.value.length / perPage) || 1)
+const paginated = computed(() => filtered.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage))
+watch([/* filter refs */], () => { currentPage.value = 1 }) // reset on filter change
+```
+
+**Applied to:**
+- `AdminDataTable.vue` — built-in pagination (used by admin/humedales, admin/hallazgos)
+- `pages/inventario/index.vue` — humedal card grid (7 items, controls hidden when < 15)
+- `pages/brecha/index.vue` — alcaldía ranking table (16 rows, shows 2 pages)
+
+### Lazy Loading for Images
+Card grids with images use native `loading="lazy"` on `<img>` tags. Applied in `pages/inventario/index.vue` humedal cards.
+
 ### Map Popups
 Each humedal popup shows: nombre, alcaldia, anio, tipo, superficie, funcion, top 3 servicios ecosistemicos. Built via `buildPopup()` in `MapPanel.client.vue`.
 
@@ -312,10 +380,25 @@ Uses sticky tab navigation with `v-show` (not `v-if`) to avoid chart re-renders:
 ```
 
 ### Sortable Tables
-Tables support click-to-sort on column headers:
-- `sortCol` ref + `sortDir` ref (`'asc' | 'desc'`)
-- `toggleSort(col)` — toggles direction if same column
-- `sortIcon(col)` — returns `↕`, `↑`, or `↓`
+**All** data tables with `v-for` rows support click-to-sort on column headers (except static reference tables).
+
+**`AdminDataTable.vue`** — sorting built-in: click any `<th>` to sort by that column. Sort icon (`↑`/`↓`) only appears on the active column inside a fixed-width `w-3` span to avoid column width changes. Chain: `filtered` → `sorted` → `paginated`. Compares numbers numerically, strings with `localeCompare`, nulls pushed to end.
+
+**Per-page tables:**
+- `toggleSort(col, table?)` — toggles direction if same column, otherwise sets descending
+- For pages with multiple tables, use `SortState` per table via `reactive` object and pass table name as second arg
+- Hover feedback: scoped CSS `th.cursor-pointer:hover { background-color: rgba(0,0,0,0.03) }`
+
+**Card grids** use a `<select>` dropdown for ordering (no `<th>` available):
+- `inventario/index.vue` — nombre, alcaldía, año, superficie
+
+**Pages with sortable `<th>` tables:**
+- `brecha/index.vue` — ranking por alcaldía (7 sortable columns incl. Estado)
+- `indicadores/index.vue` — comparativa (6 cols), servicios matrix (by nombre), eficiencias (4 cols)
+- `hallazgos/index.vue` — comparativo de costos (3 sortable + 2 list columns)
+- `sobre/index.vue` — ODS matrix (by nombre)
+- `admin/*` — all pages via `AdminDataTable` (humedales, hallazgos)
+- `admin/prospectos/index.vue` — detector results (custom columns)
 
 ### Mobile-First Design
 All layouts follow mobile-first Tailwind convention (`grid-cols-1` base → `md:`/`lg:` breakpoints):
@@ -358,6 +441,30 @@ Cards show the image with `object-cover`; fallback to gradient + SVG icon if no 
 - **E.6** Datos oficiales CDMX — 34 humedales, 26.2 ha, 397 spp aves, 10x CO2 vs selvas
 - **E.7** Referencias academicas y oficiales completas
 
+## Brecha de Cobertura Page (`/brecha`)
+- 4 KPIs: 16 alcaldias, 5 con humedales, 11 sin, indice promedio
+- CoverageMap: Leaflet map with 16 alcaldias color-coded (teal=con, red=sin, radius=need index)
+- Ranking table: sortable by indice de necesidad, population, vulnerability metrics
+- Top 5 priority alcaldias without wetlands (cards with metrics)
+- Need index formula: `(inundacion * 0.3) + (calor * 0.25) + (agua * 0.3) + (densidadNorm * 0.15)`
+- Data source: INEGI 2020 census (population), estimated 1-5 scales (vulnerability)
+
+## Hallazgos Page (`/hallazgos`) — Policy Brief
+- Executive summary panel
+- 4 finding-recommendation pairs (grid md:grid-cols-2):
+  1. Ausencia de monitoreo estandarizado (critico) → protocolo estandarizado
+  2. Concentracion territorial (alto) → priorizacion por indice de necesidad
+  3. Datos de eficiencia limitados (alto) → monitoreo in-situ con universidades
+  4. Ventaja economica no cuantificada (alto) → analisis costo-beneficio formal
+- Cost comparison table: humedal ($0.50-2/m3) vs convencional ($5-15/m3) vs cloracion ($0.20-0.80/m3)
+- Call to action with links to /brecha, /indicadores, /metodologia
+
+## ODS Alignment (in `/sobre` and home teaser)
+- 4 UN SDGs: ODS 6 (agua), ODS 11 (ciudades), ODS 13 (clima), ODS 15 (ecosistemas)
+- ODSCard component with official UN colors and target badges
+- Matrix table: humedal x ODS (checkmarks)
+- Home teaser: 4 mini-cards linking to /sobre#ods
+
 ## Metodologia Page Sections
 - Criterios de sistematizacion (6 criterios)
 - Tipologias identificadas (3 categorias)
@@ -395,3 +502,97 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - Also integrated in cercu-frontend `deploy/deploy.sh` and `deploy/ecosystem.config.cjs`
 - **PM2 start con ecosystem:** `pm2 start deploy/ecosystem.config.cjs` (asegura PORT=3005)
 - **Nginx config en servidor:** `/etc/nginx/http.d/cercu.conf` (Alpine usa `http.d/`, no `sites-available/`)
+
+## Admin System
+
+### Architecture
+- **Backend:** cercu-backend (shared Express/TypeORM API at `NUXT_PUBLIC_API_BASE_URL`)
+- **Auth:** Email + password login via `/api/v1/observatory/auth/login` → JWT (15min access token)
+- **Entity:** `ObservatoryAdmin` (separate from CERCU users) — password bcrypt-hashed (12 rounds)
+- **Approval queue:** Prospects detected by external detector → pending review → admin approves/rejects
+
+### Pipeline
+```
+Detector → Prospectos → Inventario    |    Hallazgos (contenido editorial, fuera del pipeline)
+```
+Los prospectos detectados se aprueban y pasan al inventario público. Hallazgos es una sección de contenido editorial independiente del pipeline de detección.
+
+### Admin Files
+```
+stores/auth.ts              # Pinia auth store (login, logout, token in localStorage)
+composables/useApi.ts       # $fetch wrapper with Bearer token + 401 handling
+middleware/admin.ts          # Nuxt route middleware (redirects to /admin/login if unauthenticated)
+layouts/admin.vue            # Admin layout, sidebar en orden de pipeline, responsive
+components/admin/
+  AdminDataTable.vue         # Tabla con búsqueda, paginación, acciones, responsive
+pages/admin/
+  login.vue                  # Email + password login form
+  index.vue                  # Dashboard con pipeline visual, stats, quick links
+  prospectos/index.vue       # Tabs: Cola de aprobación + Detector geoespacial
+  humedales/index.vue        # Inventario: humedales registrados (7 del mapa público)
+  hallazgos/index.vue        # Hallazgos y recomendaciones (contenido editorial)
+  detector/index.vue         # Redirect → /admin/prospectos
+```
+
+### Admin Routes (orden de pipeline)
+- `/admin/login` — login (layout default)
+- `/admin` — dashboard con pipeline visual
+- `/admin/prospectos` — tabs: Cola de aprobación + Detector (entrada del pipeline)
+- `/admin/humedales` — inventario de humedales registrados (fin del pipeline)
+- `/admin/hallazgos` — hallazgos y recomendaciones (contenido editorial)
+
+### Admin UI/UX Patterns
+- **Pipeline banner:** Indicador horizontal de pasos en cada página del pipeline, resalta el paso actual
+- **Mobile-first responsive:** Sidebar oculto en mobile (toggle hamburger, cierre automático al navegar), tablas con scroll horizontal edge-to-edge (`-mx-4 px-4 sm:mx-0`), grids desde `grid-cols-1`, touch targets 44px, acciones siempre visibles en mobile
+- **Collapsible methodology:** Panel cerrado por defecto explicando scoring/detección
+- **Paginated tables:** Filtros avanzados + columnas ordenables + selector de filas por página
+- **Score breakdown:** Barras de progreso expandibles por fila mostrando componentes del score
+- **Column tooltips:** `title` nativo con subrayado punteado en headers
+- **TransitionGroup:** Animaciones fade + slide en listas
+- **Modal transitions:** `fade` + `scale-in` + `backdrop-blur`
+- **Active route indicator:** Sidebar con matching exacto de ruta
+- **Welcome greeting:** Saludo personalizado con nombre del admin
+- **Empty states:** Iconos contextuales + texto descriptivo + CTAs
+
+### Prospect Approval Flow
+```
+External detector → POST /api/v1/observatory/humedales/prospectos
+         ↓
+[ProspectSubmission] status: 'pendiente'
+         ↓
+Admin reviews at /admin/prospectos
+         ↓
+Approve → POST .../aprobar   |   Reject → POST .../rechazar (+ notas)
+```
+
+### Geospatial Detector (tab dentro de `/admin/prospectos`)
+Built-in detector that identifies potential wetland sites using OpenStreetMap data + Turf.js spatial analysis. Runs entirely in JS (no Python).
+
+**Pipeline:**
+```
+Admin defines bounding box + params → POST /api/v1/observatory/humedales/detector/run
+         ↓
+[cercu-backend] Overpass API → OSM water bodies, wetlands, waterways, wastewater plants, parks
+         ↓
+[Turf.js] area, centroid per feature
+         ↓
+Classification + scoring by type and attributes
+         ↓
+Ranked candidates returned to frontend
+         ↓
+Admin selects → POST .../detector/submit → ProspectSubmission (source: ia_detector)
+```
+
+**Detected feature types:**
+| Tipo | OSM tags | Score base |
+|------|----------|------------|
+| Humedal existente | natural=wetland | 35 |
+| Infraestructura hidrica | wastewater_plant | 30 |
+| Cuerpo de agua | natural=water | 25 |
+| Vaso regulador | landuse=basin/reservoir | 20 |
+| Via acuatica | waterway=* | 15 |
+| Area verde | leisure=park, landuse=grass | 10 |
+
+Additional scoring: superficie amplia (+15), feature nombrado (+5).
+
+**Cost: $0** — uses free OSM/Overpass API + Turf.js (no satellite imagery fees)

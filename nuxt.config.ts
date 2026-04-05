@@ -13,6 +13,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       dataMode: 'mock',
+      apiBaseUrl: 'http://localhost:3003/api/v1', // env: NUXT_PUBLIC_API_BASE_URL
+      observatory: 'humedales',
     },
   },
 

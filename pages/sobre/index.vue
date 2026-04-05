@@ -2,7 +2,7 @@
   <div>
     <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
       <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Sobre el Observatorio</h1>
+        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Sobre el observatorio</h1>
         <p class="mt-2 text-base text-white/80">Plataforma de monitoreo y análisis de humedales artificiales en la Ciudad de México</p>
       </div>
     </section>
@@ -54,7 +54,45 @@
       </div>
     </section>
 
-    <section class="bg-surface py-16">
+    <!-- Alineación ODS -->
+    <section id="ods" class="bg-surface py-16">
+      <div class="container-wide">
+        <CommonSectionTitle title="Alineación con los ODS" subtitle="Los humedales artificiales contribuyen a cuatro Objetivos de Desarrollo Sostenible de la Agenda 2030 de las Naciones Unidas." :centered="true" tag="Agenda 2030" />
+        <div ref="odsRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div v-for="ods in odsGoals" :key="ods.id" class="reveal">
+            <CommonODSCard :goal="ods" />
+          </div>
+        </div>
+
+        <!-- Matriz humedal × ODS -->
+        <div class="mt-10 panel">
+          <h3 class="mb-4 text-base font-semibold text-ink">Contribución por humedal</h3>
+          <div class="overflow-x-auto">
+            <table class="table-base min-w-[600px]">
+              <thead>
+                <tr>
+                  <th class="cursor-pointer select-none" @click="toggleOdsSort('nombre')">Humedal <span class="text-[10px] opacity-60">{{ odsSortIcon('nombre') }}</span></th>
+                  <th v-for="ods in odsGoals" :key="ods.id" class="text-center">
+                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold" :style="{ backgroundColor: ods.color }">{{ ods.numero }}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="h in sortedHumedalesOds" :key="h.id">
+                  <td class="font-medium whitespace-nowrap">{{ h.nombre }}</td>
+                  <td v-for="ods in odsGoals" :key="ods.id" class="text-center">
+                    <span v-if="ods.humedalesRelacionados.includes(h.id)" class="text-eco">&#10003;</span>
+                    <span v-else class="text-gray-300">—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16">
       <div class="container-narrow">
         <CommonSectionTitle title="Autoría y créditos" tag="Equipo" />
         <div class="card p-6 space-y-3">
@@ -82,8 +120,33 @@
 </template>
 
 <script setup lang="ts">
+import { odsGoals } from '~/data/ods-alignment'
+import { humedales } from '~/data/mock-humedales'
+
 const { revealRef: introRef } = useScrollReveal()
 const { revealRef: objSection } = useScrollReveal({ stagger: true })
+const { revealRef: odsRef } = useScrollReveal({ stagger: true })
+
+const odsSortCol = ref('')
+const odsSortDir = ref<'asc' | 'desc'>('asc')
+
+function toggleOdsSort(col: string) {
+  if (odsSortCol.value === col) { odsSortDir.value = odsSortDir.value === 'asc' ? 'desc' : 'asc' }
+  else { odsSortCol.value = col; odsSortDir.value = 'asc' }
+}
+
+function odsSortIcon(col: string) {
+  if (odsSortCol.value !== col) return '↕'
+  return odsSortDir.value === 'asc' ? '↑' : '↓'
+}
+
+const sortedHumedalesOds = computed(() => {
+  const data = [...humedales]
+  if (!odsSortCol.value) return data
+  const dir = odsSortDir.value === 'asc' ? 1 : -1
+  if (odsSortCol.value === 'nombre') return data.sort((a, b) => dir * a.nombre.localeCompare(b.nombre))
+  return data
+})
 
 const objetivos = [
   { title: 'Sistematizar', description: 'Organizar la información dispersa sobre humedales artificiales en la CDMX en un repositorio accesible.', icon: '📋' },

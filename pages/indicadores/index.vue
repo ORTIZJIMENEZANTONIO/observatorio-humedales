@@ -2,7 +2,7 @@
   <div>
     <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
       <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Indicadores y Análisis</h1>
+        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Indicadores y análisis</h1>
         <p class="mt-2 text-base text-white/80">Distribución, servicios ecosistémicos y análisis comparativo de humedales artificiales</p>
       </div>
     </section>
@@ -58,7 +58,7 @@
 
         <!-- Tab 2: Servicios -->
         <div v-show="activeTab === 'servicios'">
-          <CommonSectionTitle title="Servicios Ecosistémicos" subtitle="Frecuencia y distribución de servicios ambientales entre los humedales inventariados." tag="S" />
+          <CommonSectionTitle title="Servicios ecosistémicos" subtitle="Frecuencia y distribución de servicios ambientales entre los humedales inventariados." tag="S" />
 
           <div class="panel">
             <h3 class="mb-4 text-base font-semibold">Frecuencia de servicios</h3>
@@ -75,12 +75,12 @@
               <table class="table-base min-w-[700px]">
                 <thead>
                   <tr>
-                    <th>Humedal</th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('nombre', 'servicios')">Humedal <span class="text-[10px] opacity-60">{{ sortIcon('nombre', 'servicios') }}</span></th>
                     <th v-for="s in allServicios" :key="s.key" class="text-center text-[10px]">{{ s.short }}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="h in humedales" :key="h.id">
+                  <tr v-for="h in sortedHumedalesServicios" :key="h.id">
                     <td class="font-medium whitespace-nowrap">{{ h.nombre.replace('Humedal ', '') }}</td>
                     <td v-for="s in allServicios" :key="s.key" class="text-center">
                       <span v-if="h.serviciosEcosistemicos.includes(s.key as any)" class="text-eco font-bold">✓</span>
@@ -95,7 +95,7 @@
 
         <!-- Tab 3: Comparativo -->
         <div v-show="activeTab === 'comparativo'">
-          <CommonSectionTitle title="Análisis Comparativo" subtitle="Comparación técnica y temporal de los humedales inventariados." tag="A" />
+          <CommonSectionTitle title="Análisis comparativo" subtitle="Comparación técnica y temporal de los humedales inventariados." tag="A" />
 
           <!-- Timeline -->
           <div class="panel mb-8">
@@ -120,12 +120,12 @@
               <table class="table-base min-w-[800px]">
                 <thead>
                   <tr>
-                    <th class="cursor-pointer select-none" @click="toggleSort('nombre')">Humedal <span>{{ sortIcon('nombre') }}</span></th>
-                    <th>Alcaldía</th>
-                    <th class="cursor-pointer select-none" @click="toggleSort('anio')">Año <span>{{ sortIcon('anio') }}</span></th>
-                    <th>Tipo</th>
-                    <th class="cursor-pointer select-none" @click="toggleSort('superficie')">Superficie <span>{{ sortIcon('superficie') }}</span></th>
-                    <th class="cursor-pointer select-none" @click="toggleSort('servicios')">Servicios <span>{{ sortIcon('servicios') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('nombre')">Humedal <span class="text-[10px] opacity-60">{{ sortIcon('nombre') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('alcaldia')">Alcaldía <span class="text-[10px] opacity-60">{{ sortIcon('alcaldia') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('anio')">Año <span class="text-[10px] opacity-60">{{ sortIcon('anio') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('tipo')">Tipo <span class="text-[10px] opacity-60">{{ sortIcon('tipo') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('superficie')">Superficie <span class="text-[10px] opacity-60">{{ sortIcon('superficie') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('servicios')">Servicios <span class="text-[10px] opacity-60">{{ sortIcon('servicios') }}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -172,7 +172,7 @@
 
         <!-- Tab 4: Evidencia Científica -->
         <div v-show="activeTab === 'evidencia'">
-          <CommonSectionTitle title="Evidencia Científica" subtitle="Datos de eficiencia y hallazgos de investigación académica en IPN, UNAM, UAM y UACh aplicables a los humedales de la CDMX." tag="E" />
+          <CommonSectionTitle title="Evidencia científica" subtitle="Datos de eficiencia y hallazgos de investigación académica en IPN, UNAM, UAM y UACh aplicables a los humedales de la CDMX." tag="E" />
 
           <!-- E.1 Eficiencias de remoción -->
           <div class="panel mb-8">
@@ -182,14 +182,14 @@
               <table class="table-base min-w-[750px]">
                 <thead>
                   <tr>
-                    <th>Parámetro</th>
-                    <th>Eficiencia</th>
-                    <th>Institución / Estudio</th>
-                    <th>Tipo de sistema</th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('parametro', 'eficiencias')">Parámetro <span class="text-[10px] opacity-60">{{ sortIcon('parametro', 'eficiencias') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('eficiencia', 'eficiencias')">Eficiencia <span class="text-[10px] opacity-60">{{ sortIcon('eficiencia', 'eficiencias') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('institucion', 'eficiencias')">Institución / Estudio <span class="text-[10px] opacity-60">{{ sortIcon('institucion', 'eficiencias') }}</span></th>
+                    <th class="cursor-pointer select-none" @click="toggleSort('tipo', 'eficiencias')">Tipo de sistema <span class="text-[10px] opacity-60">{{ sortIcon('tipo', 'eficiencias') }}</span></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="row in eficienciasData" :key="row.parametro + row.institucion">
+                  <tr v-for="row in sortedEficiencias" :key="row.parametro + row.institucion">
                     <td class="font-medium">{{ row.parametro }}</td>
                     <td class="tabular-nums font-semibold" :class="eficienciaColor(row.valor)">{{ row.eficiencia }}</td>
                     <td class="text-xs whitespace-normal max-w-[200px]">{{ row.institucion }}</td>
@@ -350,9 +350,9 @@ const formatters = useFormatters()
 const activeTab = ref('distribucion')
 const tabs = [
   { id: 'distribucion', label: 'Distribución' },
-  { id: 'servicios', label: 'Servicios Ecosistémicos' },
-  { id: 'comparativo', label: 'Análisis Comparativo' },
-  { id: 'evidencia', label: 'Evidencia Científica' },
+  { id: 'servicios', label: 'Servicios ecosistémicos' },
+  { id: 'comparativo', label: 'Análisis comparativo' },
+  { id: 'evidencia', label: 'Evidencia científica' },
 ]
 
 const eficienciasData = [
@@ -451,19 +451,55 @@ const serviciosChartData = computed(() => {
   }
 })
 
-// Sort
-const sortCol = ref('')
-const sortDir = ref<'asc' | 'desc'>('desc')
+// Sort (generic per-table)
+type SortState = { col: string; dir: 'asc' | 'desc' }
+const sortStates = reactive<Record<string, SortState>>({
+  comparativo: { col: '', dir: 'desc' },
+  servicios: { col: '', dir: 'asc' },
+  eficiencias: { col: '', dir: 'desc' },
+})
 
-function toggleSort(col: string) {
-  if (sortCol.value === col) { sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc' }
-  else { sortCol.value = col; sortDir.value = 'desc' }
+// Legacy aliases for comparativo table
+const sortCol = computed({ get: () => sortStates.comparativo.col, set: (v) => { sortStates.comparativo.col = v } })
+const sortDir = computed({ get: () => sortStates.comparativo.dir, set: (v) => { sortStates.comparativo.dir = v } })
+
+function toggleSort(col: string, table = 'comparativo') {
+  const s = sortStates[table]
+  if (s.col === col) { s.dir = s.dir === 'asc' ? 'desc' : 'asc' }
+  else { s.col = col; s.dir = 'desc' }
 }
 
-function sortIcon(col: string) {
-  if (sortCol.value !== col) return '↕'
-  return sortDir.value === 'asc' ? '↑' : '↓'
+function sortIcon(col: string, table = 'comparativo') {
+  const s = sortStates[table]
+  if (s.col !== col) return '↕'
+  return s.dir === 'asc' ? '↑' : '↓'
 }
+
+// Sorted servicios matrix
+const sortedHumedalesServicios = computed(() => {
+  const s = sortStates.servicios
+  const data = [...humedales]
+  if (!s.col) return data
+  const dir = s.dir === 'asc' ? 1 : -1
+  if (s.col === 'nombre') return data.sort((a, b) => dir * a.nombre.localeCompare(b.nombre))
+  if (s.col === 'count') return data.sort((a, b) => dir * (a.serviciosEcosistemicos.length - b.serviciosEcosistemicos.length))
+  return data
+})
+
+// Sorted eficiencias
+const sortedEficiencias = computed(() => {
+  const s = sortStates.eficiencias
+  const data = [...eficienciasData]
+  if (!s.col) return data
+  const dir = s.dir === 'asc' ? 1 : -1
+  return data.sort((a, b) => {
+    if (s.col === 'parametro') return dir * a.parametro.localeCompare(b.parametro)
+    if (s.col === 'eficiencia') return dir * (a.valor - b.valor)
+    if (s.col === 'institucion') return dir * a.institucion.localeCompare(b.institucion)
+    if (s.col === 'tipo') return dir * a.tipo.localeCompare(b.tipo)
+    return 0
+  })
+})
 
 const sortedTable = computed(() => {
   const data = [...humedales]
@@ -471,7 +507,9 @@ const sortedTable = computed(() => {
   const dir = sortDir.value === 'asc' ? 1 : -1
   return data.sort((a, b) => {
     if (sortCol.value === 'nombre') return dir * a.nombre.localeCompare(b.nombre)
+    if (sortCol.value === 'alcaldia') return dir * a.alcaldia.localeCompare(b.alcaldia)
     if (sortCol.value === 'anio') return dir * a.anioImplementacion.localeCompare(b.anioImplementacion)
+    if (sortCol.value === 'tipo') return dir * a.tipoHumedal.localeCompare(b.tipoHumedal)
     if (sortCol.value === 'superficie') return dir * ((a.superficie || 0) - (b.superficie || 0))
     if (sortCol.value === 'servicios') return dir * (a.serviciosEcosistemicos.length - b.serviciosEcosistemicos.length)
     return 0

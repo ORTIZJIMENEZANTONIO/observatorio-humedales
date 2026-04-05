@@ -3,7 +3,7 @@
     <!-- Header -->
     <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
       <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de Humedales Artificiales</h1>
+        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de humedales artificiales</h1>
         <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ store.alcaldias.length }} alcaldías de la Ciudad de México</p>
       </div>
     </section>
@@ -25,6 +25,14 @@
             <option value="captacion_pluvial">Captación pluvial</option>
             <option value="restauracion_hidrologica">Restauración hidrológica</option>
           </select>
+          <select v-model="sortBy" class="select max-w-[200px]">
+            <option value="nombre_asc">Nombre (A-Z)</option>
+            <option value="nombre_desc">Nombre (Z-A)</option>
+            <option value="alcaldia_asc">Alcaldía (A-Z)</option>
+            <option value="anio_desc">Año (reciente)</option>
+            <option value="anio_asc">Año (antiguo)</option>
+            <option value="superficie_desc">Superficie (mayor)</option>
+          </select>
           <span class="ml-auto text-sm text-slate-custom">{{ store.filtered.length }} resultados</span>
         </div>
       </div>
@@ -34,7 +42,7 @@
     <section class="bg-surface py-10">
       <div class="container-wide">
         <div ref="gridRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div v-for="h in store.filtered" :key="h.id" class="card-interactive overflow-hidden reveal" @click="selected = h">
+          <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive overflow-hidden reveal" @click="selected = h">
             <!-- Image header -->
             <div class="relative h-40 overflow-hidden">
               <img v-if="h.imagen" :src="h.imagen" :alt="h.nombre" class="h-full w-full object-cover" loading="lazy" />
@@ -63,6 +71,15 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="mt-8">
+          <CommonPaginationControls
+            v-model:current-page="currentPage"
+            :total-pages="totalPages"
+            :total-items="store.filtered.length"
+            :per-page="perPage"
+          />
         </div>
       </div>
     </section>
@@ -146,7 +163,28 @@ import { useHumedalesStore } from '~/stores/humedales'
 const store = useHumedalesStore()
 const formatters = useFormatters()
 const selected = ref<Humedal | null>(null)
+const sortBy = ref('nombre_asc')
+const currentPage = ref(1)
+const perPage = 15
 const { revealRef: gridRef } = useScrollReveal({ stagger: true })
+
+const sortedHumedales = computed(() => {
+  const arr = [...store.filtered]
+  switch (sortBy.value) {
+    case 'nombre_asc': return arr.sort((a, b) => a.nombre.localeCompare(b.nombre))
+    case 'nombre_desc': return arr.sort((a, b) => b.nombre.localeCompare(a.nombre))
+    case 'alcaldia_asc': return arr.sort((a, b) => a.alcaldia.localeCompare(b.alcaldia))
+    case 'anio_desc': return arr.sort((a, b) => b.anioImplementacion.localeCompare(a.anioImplementacion))
+    case 'anio_asc': return arr.sort((a, b) => a.anioImplementacion.localeCompare(b.anioImplementacion))
+    case 'superficie_desc': return arr.sort((a, b) => (b.superficie || 0) - (a.superficie || 0))
+    default: return arr
+  }
+})
+
+const totalPages = computed(() => Math.ceil(sortedHumedales.value.length / perPage) || 1)
+const paginatedHumedales = computed(() => sortedHumedales.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage))
+
+watch(() => [store.searchQuery, store.filterAlcaldia, store.filterTipo, sortBy.value], () => { currentPage.value = 1 })
 </script>
 
 <style scoped>
