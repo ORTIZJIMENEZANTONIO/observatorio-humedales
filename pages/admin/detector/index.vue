@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin', pageTransition: false })
 // Detector merged into /admin/prospectos — redirect
 navigateTo('/admin/prospectos', { redirectCode: 301 })
 </script>

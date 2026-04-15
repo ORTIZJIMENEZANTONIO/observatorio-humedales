@@ -64,7 +64,7 @@ export function useFormatters() {
   function formatServicioEcosistemico(servicio: string): string {
     if (!servicio) return 'Sin datos'
     const map: Record<string, string> = {
-      depuracion_agua: 'Depuración de agua',
+      depuracion_agua: 'Tratamiento de agua',
       habitat_fauna: 'Hábitat de fauna',
       educacion_ambiental: 'Educación ambiental',
       captura_carbono: 'Captura de carbono',
@@ -73,8 +73,41 @@ export function useFormatters() {
       recarga_acuiferos: 'Recarga de acuíferos',
       banco_germoplasma: 'Banco de germoplasma',
       recreacion: 'Recreación',
+      reduccion_lst: 'Reducción LST',
     }
     return map[servicio] || servicio.charAt(0).toUpperCase() + servicio.slice(1).replace(/_/g, ' ')
+  }
+
+  function formatTipoFlujo(tipo: string): string {
+    if (!tipo) return 'Sin especificar'
+    const map: Record<string, string> = {
+      superficial: 'Flujo superficial',
+      subsuperficial_horizontal: 'Flujo subsuperficial horizontal',
+      subsuperficial_vertical: 'Flujo subsuperficial vertical',
+      combinado: 'Combinado (HAFSS + HAFS)',
+    }
+    return map[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).replace(/_/g, ' ')
+  }
+
+  function formatTipoVegetacion(tipo: string): string {
+    if (!tipo) return 'Sin datos'
+    const map: Record<string, string> = {
+      flotante: 'Flotante',
+      emergente: 'Emergente',
+      sumergida: 'Sumergida',
+    }
+    return map[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1)
+  }
+
+  function tipoFlujoBadgeClass(tipo: string): string {
+    if (!tipo) return 'bg-gray-100 text-ink-muted'
+    const map: Record<string, string> = {
+      superficial: 'bg-secondary/10 text-secondary-dark',
+      subsuperficial_horizontal: 'bg-primary-50 text-primary',
+      subsuperficial_vertical: 'bg-eco/10 text-eco-dark',
+      combinado: 'bg-accent/10 text-accent-dark',
+    }
+    return map[tipo] || 'bg-gray-100 text-ink-muted'
   }
 
   function tipoHumedalBadgeClass(tipo: string): string {
@@ -137,9 +170,12 @@ export function useFormatters() {
     formatPercent,
     formatDate,
     formatTipoHumedal,
+    formatTipoFlujo,
+    formatTipoVegetacion,
     formatEstadoHumedal,
     formatServicioEcosistemico,
     tipoHumedalBadgeClass,
+    tipoFlujoBadgeClass,
     estadoHumedalBadgeClass,
     kpiColor,
     kpiIconBg,

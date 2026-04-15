@@ -1,16 +1,29 @@
 import { defineStore } from 'pinia'
+import type { AdminRole, AdminPermission } from '~/types'
 
 interface AdminInfo {
   id: string
   email: string
   name: string
   observatories: string[]
+  role?: AdminRole
+  permissions?: AdminPermission[]
 }
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const admin = ref<AdminInfo | null>(null)
   const isAuthenticated = computed(() => !!token.value)
+  const isSuperadmin = computed(() => !admin.value?.role || admin.value.role === 'superadmin')
+
+  function hasPermission(perm: AdminPermission): boolean {
+    if (!admin.value) return false
+    // If backend doesn't send role yet, assume superadmin (backward compat)
+    if (!admin.value.role) return true
+    if (admin.value.role === 'superadmin') return true
+    if (admin.value.role === 'admin') return perm !== 'manage_users'
+    return admin.value.permissions?.includes(perm) ?? false
+  }
 
   function loadFromStorage() {
     if (import.meta.server) return
@@ -42,5 +55,5 @@ export const useAuthStore = defineStore('auth', () => {
     navigateTo('/admin/login')
   }
 
-  return { token, admin, isAuthenticated, login, logout, loadFromStorage }
+  return { token, admin, isAuthenticated, isSuperadmin, hasPermission, login, logout, loadFromStorage }
 })

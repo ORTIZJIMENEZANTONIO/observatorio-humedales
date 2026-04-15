@@ -94,7 +94,7 @@ export const alcaldiasCDMX: AlcaldiaCDMX[] = [
     islasCalor: 4,
     disponibilidadAgua: 4,
     tieneHumedal: true,
-    humedalesIds: [3, 4],
+    humedalesIds: [3, 4, 8],
     lat: 19.4839,
     lng: -99.1130,
   },

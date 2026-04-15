@@ -8,13 +8,15 @@
       </div>
     </section>
 
+    <CommonAnalisisSubNav />
+
     <!-- Executive summary -->
     <section class="bg-white py-16">
       <div class="container-narrow">
         <div class="panel border-l-4 border-primary">
           <h2 class="mb-3 text-lg font-semibold text-ink">Resumen ejecutivo</h2>
           <p class="text-sm leading-relaxed text-slate-custom">
-            El inventario Fase 1 de humedales artificiales en la Ciudad de Mexico revela avances significativos en la implementacion de infraestructura verde, pero tambien brechas criticas en monitoreo, cobertura territorial y documentacion de eficiencia. Los 7 humedales inventariados se concentran en solo 5 de 16 alcaldias y carecen, en su mayoria, de datos cuantitativos de desempeno. Sin embargo, la evidencia academica y la ventaja economica estimada (hasta 10 veces menor costo por metro cubico frente a tratamientos convencionales) respaldan la expansion de esta tecnologia como componente estrategico de la politica hidrica urbana.
+            El inventario Fase 1 de humedales artificiales en la Ciudad de Mexico revela avances significativos en la implementacion de infraestructura verde, pero tambien brechas criticas en monitoreo, cobertura territorial y documentacion de eficiencia. Los 8 humedales artificiales inventariados se concentran en solo 5 de 16 alcaldias y carecen, en su mayoria, de datos cuantitativos de desempeno. Sin embargo, la evidencia academica y la ventaja economica estimada (hasta 10 veces menor costo por metro cubico frente a tratamientos convencionales) respaldan la expansion de esta tecnologia como componente estrategico de la politica hidrica urbana.
           </p>
         </div>
       </div>
@@ -131,6 +133,15 @@
               </tbody>
             </table>
           </div>
+          <div class="mt-4 rounded-lg bg-surface p-4">
+            <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">Estimación de costos — fuentes</h4>
+            <ul class="space-y-1 text-xs text-slate-custom">
+              <li>Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1). Facultad de Química, UNAM.</li>
+              <li>Nava-Rojas, J. et al. (2023). Remoción de contaminantes en humedales artificiales de flujo subsuperficial: una revisión. <em>Ingeniería</em>, 28(1). TecNM Boca del Río.</li>
+              <li>Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. <em>Rev. Int. Contam. Ambie.</em>, 25(3).</li>
+              <li>CONAGUA. Datos de costos de operación de plantas de tratamiento convencional en México.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -143,13 +154,13 @@
           Estos hallazgos forman parte de un analisis integral de los humedales artificiales de la CDMX. Consulta la brecha de cobertura, los indicadores del inventario y la metodologia empleada para profundizar en el diagnostico.
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <NuxtLink to="/brecha" class="btn-primary">
+          <NuxtLink to="/analisis/brecha" class="btn-primary">
             Brecha de cobertura
           </NuxtLink>
-          <NuxtLink to="/indicadores" class="btn-outline">
+          <NuxtLink to="/analisis/indicadores" class="btn-outline">
             Indicadores
           </NuxtLink>
-          <NuxtLink to="/metodologia" class="btn-ghost">
+          <NuxtLink to="/sobre#metodologia" class="btn-ghost">
             Metodologia
           </NuxtLink>
         </div>
@@ -162,7 +173,7 @@
         <div class="rounded-card border border-accent/30 bg-accent/5 p-6">
           <h3 class="mb-2 text-sm font-semibold text-accent-dark">Nota metodologica</h3>
           <p class="text-sm leading-relaxed text-slate-custom">
-            Los hallazgos y recomendaciones presentados en esta pagina se basan exclusivamente en la informacion recopilada durante la Fase 1 del inventario de humedales artificiales (CIIEMAD-IPN, 2024). Las estimaciones de costos y eficiencia provienen de literatura academica y fuentes gubernamentales, no de mediciones directas en los humedales inventariados. Estas recomendaciones tienen caracter orientativo y no constituyen politica publica vinculante.
+            Los hallazgos y recomendaciones presentados en esta pagina se basan exclusivamente en la informacion recopilada durante la Fase 1 del inventario de humedales artificiales (Domínguez Solís, 2024) y en evidencia académica publicada. Las estimaciones de costos y eficiencia provienen de literatura academica y fuentes gubernamentales, no de mediciones directas en los humedales artificiales inventariados. Estas recomendaciones tienen caracter orientativo y no constituyen politica publica vinculante.
           </p>
         </div>
       </div>

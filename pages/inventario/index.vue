@@ -12,7 +12,10 @@
     <div class="sticky top-16 z-30 border-b bg-white/95 backdrop-blur-sm">
       <div class="container-wide py-3">
         <div class="flex flex-wrap items-center gap-3">
-          <input v-model="store.searchQuery" type="text" placeholder="Buscar por nombre, alcaldía..." class="input max-w-xs" />
+          <div class="input-icon-wrapper max-w-xs">
+            <Icon name="lucide:search" size="18" class="input-icon" />
+            <input v-model="store.searchQuery" type="text" placeholder="Buscar por nombre, alcaldía..." class="input" />
+          </div>
           <select v-model="store.filterAlcaldia" class="select max-w-[200px]">
             <option value="">Todas las alcaldías</option>
             <option v-for="a in store.alcaldias" :key="a" :value="a">{{ a }}</option>
@@ -33,13 +36,36 @@
             <option value="anio_asc">Año (antiguo)</option>
             <option value="superficie_desc">Superficie (mayor)</option>
           </select>
-          <span class="ml-auto text-sm text-slate-custom">{{ store.filtered.length }} resultados</span>
+          <span class="text-sm text-slate-custom">{{ store.filtered.length }} resultados</span>
+          <!-- View toggle -->
+          <div class="ml-auto flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
+            <button @click="viewMode = 'list'" :class="[viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-ink-muted hover:bg-gray-50']" class="rounded-md px-2.5 py-1.5 transition-all" aria-label="Vista lista">
+              <Icon name="lucide:layout-grid" size="16" />
+            </button>
+            <button @click="viewMode = 'mapa'" :class="[viewMode === 'mapa' ? 'bg-primary text-white shadow-sm' : 'text-ink-muted hover:bg-gray-50']" class="rounded-md px-2.5 py-1.5 transition-all" aria-label="Vista mapa">
+              <Icon name="lucide:map" size="16" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Map View -->
+    <section v-show="viewMode === 'mapa'" class="bg-surface">
+      <div class="h-[calc(100vh-12rem)]">
+        <ClientOnly>
+          <MapPanel />
+          <template #fallback>
+            <div class="flex h-full items-center justify-center bg-gray-100">
+              <p class="text-sm text-ink-muted">Cargando mapa...</p>
+            </div>
+          </template>
+        </ClientOnly>
+      </div>
+    </section>
+
     <!-- Cards -->
-    <section class="bg-surface py-10">
+    <section v-show="viewMode === 'list'" class="bg-surface py-10">
       <div class="container-wide">
         <div ref="gridRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive overflow-hidden reveal" @click="selected = h">
@@ -57,12 +83,14 @@
               <p class="mt-1 text-xs text-slate-custom">{{ h.alcaldia }} · {{ h.anioImplementacion }}</p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span :class="['badge', formatters.tipoHumedalBadgeClass(h.tipoHumedal)]">{{ formatters.formatTipoHumedal(h.tipoHumedal) }}</span>
+                <span v-if="h.tipoFlujo" :class="['badge', formatters.tipoFlujoBadgeClass(h.tipoFlujo)]">{{ formatters.formatTipoFlujo(h.tipoFlujo) }}</span>
                 <span :class="['badge', formatters.estadoHumedalBadgeClass(h.estado)]">{{ formatters.formatEstadoHumedal(h.estado) }}</span>
               </div>
               <div class="mt-4 space-y-1.5 text-xs text-slate-custom">
                 <p><strong>Función:</strong> {{ h.funcionPrincipal }}</p>
                 <p v-if="h.superficie"><strong>Superficie:</strong> {{ formatters.formatArea(h.superficie) }}</p>
-                <p><strong>Vegetación:</strong> {{ h.vegetacion.slice(0, 3).join(', ') }}</p>
+                <p><strong>Sustrato:</strong> {{ h.sustrato }}</p>
+                <p v-if="h.tipoVegetacion?.length"><strong>Vegetación:</strong> {{ h.tipoVegetacion.map(v => formatters.formatTipoVegetacion(v)).join(', ') }}</p>
               </div>
               <div class="mt-3 flex flex-wrap gap-1">
                 <span v-for="s in h.serviciosEcosistemicos.slice(0, 3)" :key="s" class="rounded-badge bg-primary-50/60 px-2 py-0.5 text-[10px] text-primary">
@@ -93,12 +121,13 @@
         <div class="flex items-center justify-between border-b px-6 py-4">
           <h2 class="text-lg font-bold text-ink">{{ selected.nombre }}</h2>
           <button class="flex h-9 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-gray-100" @click="selected = null">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            <Icon name="lucide:x" size="20" />
           </button>
         </div>
         <div class="flex-1 p-6 space-y-6">
           <div class="flex flex-wrap gap-2">
             <span :class="['badge', formatters.tipoHumedalBadgeClass(selected.tipoHumedal)]">{{ formatters.formatTipoHumedal(selected.tipoHumedal) }}</span>
+            <span v-if="selected.tipoFlujo" :class="['badge', formatters.tipoFlujoBadgeClass(selected.tipoFlujo)]">{{ formatters.formatTipoFlujo(selected.tipoFlujo) }}</span>
             <span :class="['badge', formatters.estadoHumedalBadgeClass(selected.estado)]">{{ formatters.formatEstadoHumedal(selected.estado) }}</span>
           </div>
 
@@ -146,6 +175,23 @@
             <p class="text-sm text-slate-custom">{{ selected.monitoreo }}</p>
           </div>
 
+          <div v-if="selected.tipoVegetacion?.length" class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Tipo de vegetación</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <span v-for="v in selected.tipoVegetacion" :key="v" class="badge badge-eco">{{ formatters.formatTipoVegetacion(v) }}</span>
+            </div>
+          </div>
+
+          <div v-if="selected.fuente" class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Fuente de datos</h4>
+            <p class="text-sm text-slate-custom">{{ selected.fuente }}</p>
+          </div>
+
+          <div v-if="selected.fuenteImagen" class="space-y-2">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Crédito de imagen</h4>
+            <p class="text-sm text-slate-custom">{{ selected.fuenteImagen }}</p>
+          </div>
+
           <div class="rounded-lg bg-surface p-3 text-xs text-ink-muted">
             <strong>Coordenadas:</strong> {{ selected.lat }}, {{ selected.lng }}
           </div>
@@ -160,10 +206,12 @@ import { ref } from 'vue'
 import type { Humedal } from '~/types'
 import { useHumedalesStore } from '~/stores/humedales'
 
+const route = useRoute()
 const store = useHumedalesStore()
 const formatters = useFormatters()
 const selected = ref<Humedal | null>(null)
 const sortBy = ref('nombre_asc')
+const viewMode = ref<'list' | 'mapa'>(route.query.vista === 'mapa' ? 'mapa' : 'list')
 const currentPage = ref(1)
 const perPage = 15
 const { revealRef: gridRef } = useScrollReveal({ stagger: true })

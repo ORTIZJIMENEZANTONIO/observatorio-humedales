@@ -45,18 +45,18 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-4 w-4 shrink-0 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
               </svg>
-              <span>CIIEMAD — Instituto Politécnico Nacional</span>
+              <span>Instituto Politécnico Nacional</span>
             </li>
           </ul>
         </div>
       </div>
       <div class="mt-10 border-t border-white/10 pt-6">
         <div class="flex items-center justify-center gap-6 mb-4">
-          <a href="https://www.ciiemad.ipn.mx/" target="_blank" rel="noopener noreferrer">
-            <img src="/images/logo-ciiemad.png" alt="CIIEMAD - IPN" class="h-14 w-auto rounded-full bg-white p-1" />
+          <a href="https://www.ipn.mx/" target="_blank" rel="noopener noreferrer">
+            <img src="/images/logo-ciiemad.png" alt="IPN" class="h-14 w-auto rounded-full bg-white p-1" loading="lazy" />
           </a>
           <a href="https://www.ipn.mx/" target="_blank" rel="noopener noreferrer">
-            <img src="/images/logo-ipn.svg" alt="Instituto Politécnico Nacional" class="h-12 w-auto brightness-0 invert" />
+            <img src="/images/logo-ipn.svg" alt="Instituto Politécnico Nacional" class="h-12 w-auto brightness-0 invert" loading="lazy" />
           </a>
         </div>
         <p class="text-center text-xs text-white/40">&copy; 2024 Observatorio de Humedales Artificiales CDMX. Todos los derechos reservados.</p>
@@ -68,12 +68,13 @@
 <script setup lang="ts">
 const quickLinks = [
   { to: '/', label: 'Inicio' },
-  { to: '/mapa', label: 'Mapa interactivo' },
-  { to: '/inventario', label: 'Inventario de humedales' },
-  { to: '/indicadores', label: 'Indicadores' },
-  { to: '/brecha', label: 'Brecha de cobertura' },
-  { to: '/hallazgos', label: 'Hallazgos y recomendaciones' },
-  { to: '/metodologia', label: 'Metodología' },
+  { to: '/inventario', label: 'Inventario de humedales artificiales' },
+  { to: '/analisis', label: 'Análisis' },
+  { to: '/analisis/indicadores', label: 'Indicadores' },
+  { to: '/analisis/brecha', label: 'Brecha de cobertura' },
+  { to: '/analisis/hallazgos', label: 'Hallazgos y recomendaciones' },
+  { to: '/notihumedal', label: 'Notihumedal' },
   { to: '/sobre', label: 'Sobre el proyecto' },
+  { to: '/registra', label: 'Registra tu humedal' },
 ]
 </script>

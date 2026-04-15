@@ -15,12 +15,12 @@ export const odsGoals: ODSGoal[] = [
       'Garantizar la disponibilidad y la gestión sostenible del agua y el saneamiento para todos.',
     color: '#26BDE2',
     contribucionGeneral:
-      'Los humedales artificiales de tratamiento contribuyen directamente a la depuración de aguas residuales mediante procesos de filtración biológica, remoción de contaminantes y cumplimiento de los parámetros establecidos en la NOM-001-SEMARNAT-2021. Sistemas como los de Bosque de Aragón y Parque Ecológico Cuitláhuac demuestran la viabilidad de soluciones basadas en la naturaleza para el saneamiento urbano.',
+      'Los humedales artificiales de tratamiento contribuyen directamente al saneamiento de aguas residuales mediante procesos de filtración biológica, remoción de contaminantes y cumplimiento de los parámetros establecidos en la NOM-001-SEMARNAT-2021. Los dos sistemas del Bosque de Aragón (STHA 2012 y Segundo Humedal 2020, diseñados por GAIA — Facultad de Química, UNAM) y el Parque Ecológico Cuitláhuac demuestran la viabilidad de soluciones basadas en la naturaleza para el saneamiento urbano.',
     metasEspecificas: [
       'Meta 6.3 — Mejorar la calidad del agua reduciendo la contaminación, eliminando vertimientos y minimizando la emisión de productos químicos y materiales peligrosos, reduciendo a la mitad el porcentaje de aguas residuales sin tratar.',
       'Meta 6.6 — Proteger y restablecer los ecosistemas relacionados con el agua, incluidos los humedales, ríos, acuíferos y lagos.',
     ],
-    humedalesRelacionados: [2, 3, 7],
+    humedalesRelacionados: [2, 3, 7, 8],
     indicadores: [
       'Capacidad de tratamiento (m³/día)',
       'Eficiencia de remoción de contaminantes (%)',

@@ -29,6 +29,17 @@ export type TipoHumedal =
 
 export type EstadoHumedal = 'activo' | 'en_construccion' | 'en_expansion' | 'piloto'
 
+export type TipoFlujo =
+  | 'superficial'
+  | 'subsuperficial_horizontal'
+  | 'subsuperficial_vertical'
+  | 'combinado'
+
+export type TipoVegetacion =
+  | 'flotante'
+  | 'emergente'
+  | 'sumergida'
+
 export type ServicioEcosistemico =
   | 'depuracion_agua'
   | 'habitat_fauna'
@@ -39,6 +50,7 @@ export type ServicioEcosistemico =
   | 'recarga_acuiferos'
   | 'banco_germoplasma'
   | 'recreacion'
+  | 'reduccion_lst'
 
 export interface Humedal {
   id: number
@@ -46,6 +58,8 @@ export interface Humedal {
   alcaldia: Alcaldia
   ubicacion: string
   tipoHumedal: TipoHumedal
+  tipoFlujo?: TipoFlujo
+  tipoVegetacion?: TipoVegetacion[]
   funcionPrincipal: string
   superficie?: number
   volumen?: number
@@ -61,7 +75,61 @@ export interface Humedal {
   lat: number
   lng: number
   imagen?: string
+  fuente?: string
+  fuenteImagen?: string
 }
+
+// ── Notihumedal (Blog) ──
+export interface ArticuloNotihumedal {
+  id: number
+  slug: string
+  titulo: string
+  fecha: string
+  resumen: string
+  contenido: string
+  imagen?: string
+  autor: string
+  tags: string[]
+}
+
+// ── Prospectos de noticias (scraping pipeline) ──
+export type EstadoProspectoNoticia = 'pendiente' | 'aprobado' | 'rechazado'
+
+export interface ProspectoNoticia {
+  id: number
+  titulo: string
+  resumen: string
+  url: string
+  fuente: string
+  fecha: string
+  fechaScraping: string
+  estado: EstadoProspectoNoticia
+  notasRechazo?: string
+}
+
+// ── Admin roles & permissions ──
+export type AdminRole = 'superadmin' | 'admin' | 'editor'
+
+export type AdminPermission =
+  | 'manage_users'
+  | 'manage_cms'
+  | 'manage_humedales'
+  | 'manage_hallazgos'
+  | 'manage_notihumedal'
+  | 'manage_prospectos'
+
+export interface AdminUser {
+  id: string
+  email: string
+  name: string
+  role: AdminRole
+  permissions: AdminPermission[]
+  createdAt?: string
+  lastLogin?: string
+}
+
+// ── Registro de humedales ──
+export type EstadoRegistro = 'borrador' | 'enviado' | 'aprobado' | 'rechazado'
 
 export interface KPI {
   label: string

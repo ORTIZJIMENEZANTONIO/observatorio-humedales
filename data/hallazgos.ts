@@ -1,6 +1,6 @@
 // ============================================================================
 // Observatorio de Humedales Artificiales CDMX — Hallazgos y Comparativo de Costos
-// Fuente: Inventario Fase 1, CIIEMAD-IPN (Domínguez Solís)
+// Fuente: Inventario Fase 1, IPN (Domínguez Solís)
 // ============================================================================
 
 import type { Hallazgo, ComparativoCostos } from '~/types'
@@ -13,7 +13,7 @@ export const hallazgos: Hallazgo[] = [
     descripcion:
       'La mayoría de los humedales inventariados carecen de datos cuantitativos de desempeño. Solo 2 de 7 registros presentan información parcial de eficiencia; el resto indica "No se reportan datos de monitoreo cuantitativo", lo que impide evaluar el impacto real de estas infraestructuras.',
     evidencia: [
-      'Solo 2-3 de los 7 humedales cuentan con datos cuantitativos parciales de remoción de contaminantes.',
+      'Solo 2-3 de los 8 humedales artificiales cuentan con datos cuantitativos parciales de remoción de contaminantes.',
       'La mayoría de las fichas del inventario señalan "No se reportan datos de monitoreo cuantitativo".',
       'No existe un protocolo común de medición entre los humedales de distintas alcaldías.',
       'Las fuentes públicas (prensa, boletines institucionales) reportan capacidades de diseño, pero no resultados operativos.',
@@ -40,11 +40,11 @@ export const hallazgos: Hallazgo[] = [
     id: 2,
     titulo: 'Concentración territorial desigual',
     descripcion:
-      'Los 7 humedales artificiales se ubican en solo 5 de las 16 alcaldías de la Ciudad de México. Las 11 alcaldías restantes no cuentan con ningún humedal inventariado, a pesar de que varias presentan altos índices de estrés hídrico, islas de calor e inundaciones recurrentes.',
+      'Los 8 humedales artificiales se ubican en solo 5 de las 16 alcaldías de la Ciudad de México. Las 11 alcaldías restantes no cuentan con ningún humedal artificial inventariado, a pesar de que varias presentan altos índices de estrés hídrico, islas de calor e inundaciones recurrentes.',
     evidencia: [
       'Solo 5 de 16 alcaldías (31 %) cuentan con al menos un humedal artificial.',
-      '11 alcaldías no tienen ningún humedal inventariado.',
-      'Iztapalapa y Gustavo A. Madero concentran múltiples instalaciones (2 cada una).',
+      '11 alcaldías no tienen ningún humedal artificial inventariado.',
+      'Iztapalapa y Gustavo A. Madero concentran múltiples instalaciones (2 y 3, respectivamente).',
       'Alcaldías con alta necesidad hídrica —como Iztacalco, Venustiano Carranza y Tláhuac— carecen de humedales.',
     ],
     impacto: 'alto',
@@ -72,7 +72,7 @@ export const hallazgos: Hallazgo[] = [
     evidencia: [
       'Los estudios de la UNAM y UAM reportan eficiencias de remoción del 50-95 % en condiciones experimentales controladas.',
       'Dichas mediciones corresponden a pilotos académicos, no a los humedales operativos del inventario.',
-      'No existen datos publicados de eficiencia in situ para ninguno de los 7 humedales inventariados.',
+      'No existen datos publicados de eficiencia in situ para ninguno de los 8 humedales artificiales inventariados.',
       'Las condiciones reales (variabilidad de carga, clima, mantenimiento) pueden reducir significativamente la eficiencia.',
     ],
     impacto: 'alto',
@@ -100,7 +100,7 @@ export const hallazgos: Hallazgo[] = [
       'Los humedales artificiales presentan costos de tratamiento estimados entre $0.50 y $2.00 MXN/m³, significativamente inferiores a los $5-15 MXN/m³ de plantas convencionales. Sin embargo, no existe un análisis costo-beneficio formal que documente esta ventaja para fundamentar la inversión en nuevos proyectos.',
     evidencia: [
       'El costo estimado de tratamiento en humedales artificiales es de ~$0.50-2.00 MXN/m³ frente a $5-15 MXN/m³ en plantas convencionales.',
-      'Los 7 humedales inventariados podrían procesar un volumen estimado de ~2,640 m³/día en conjunto.',
+      'Los 8 humedales artificiales inventariados podrían procesar un volumen estimado de ~2,890 m³/día en conjunto.',
       'Ningún documento público presenta un análisis formal de costo-beneficio para los humedales de la CDMX.',
       'La ausencia de argumentos económicos cuantificados dificulta la justificación de nuevas inversiones.',
     ],

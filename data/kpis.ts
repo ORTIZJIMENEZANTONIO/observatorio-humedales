@@ -2,18 +2,18 @@ import type { KPI } from '~/types'
 
 export const kpis: KPI[] = [
   {
-    label: 'Humedales inventariados',
-    valor: '7',
+    label: 'Humedales artificiales inventariados',
+    valor: '8',
     color: 'primary',
   },
   {
     label: 'Superficie total',
-    valor: '60,195',
+    valor: '71,188',
     unidad: 'm² documentados',
     color: 'eco',
   },
   {
-    label: 'Alcaldías con humedales',
+    label: 'Alcaldías con humedales artificiales',
     valor: '5',
     color: 'secondary',
   },

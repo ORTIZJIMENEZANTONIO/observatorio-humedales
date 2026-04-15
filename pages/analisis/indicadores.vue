@@ -7,6 +7,8 @@
       </div>
     </section>
 
+    <CommonAnalisisSubNav />
+
     <!-- Tabs -->
     <div class="sticky top-16 z-30 border-b bg-white/95 backdrop-blur-sm">
       <div class="container-wide">
@@ -25,7 +27,7 @@
 
         <!-- Tab 1: Distribución -->
         <div v-show="activeTab === 'distribucion'">
-          <CommonSectionTitle title="Distribución" subtitle="Análisis de la distribución geográfica y tipológica de los humedales." tag="D" />
+          <CommonSectionTitle title="Distribución" subtitle="Análisis de la distribución geográfica y tipológica de los humedales artificiales." tag="D" />
 
           <div class="grid gap-8 md:grid-cols-2">
             <div class="panel">
@@ -58,7 +60,7 @@
 
         <!-- Tab 2: Servicios -->
         <div v-show="activeTab === 'servicios'">
-          <CommonSectionTitle title="Servicios ecosistémicos" subtitle="Frecuencia y distribución de servicios ambientales entre los humedales inventariados." tag="S" />
+          <CommonSectionTitle title="Servicios ecosistémicos" subtitle="Frecuencia y distribución de servicios ambientales entre los humedales artificiales inventariados." tag="S" />
 
           <div class="panel">
             <h3 class="mb-4 text-base font-semibold">Frecuencia de servicios</h3>
@@ -70,7 +72,7 @@
           </div>
 
           <div class="panel mt-8">
-            <h3 class="mb-4 text-base font-semibold">Matriz de servicios por humedal</h3>
+            <h3 class="mb-4 text-base font-semibold">Matriz de servicios por humedal artificial</h3>
             <div class="overflow-x-auto">
               <table class="table-base min-w-[700px]">
                 <thead>
@@ -81,7 +83,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="h in sortedHumedalesServicios" :key="h.id">
-                    <td class="font-medium whitespace-nowrap">{{ h.nombre.replace('Humedal ', '') }}</td>
+                    <td class="font-medium whitespace-nowrap">{{ h.nombre.replace(/^Humedal (Artificial )?/, '') }}</td>
                     <td v-for="s in allServicios" :key="s.key" class="text-center">
                       <span v-if="h.serviciosEcosistemicos.includes(s.key as any)" class="text-eco font-bold">✓</span>
                       <span v-else class="text-gray-300">—</span>
@@ -95,7 +97,7 @@
 
         <!-- Tab 3: Comparativo -->
         <div v-show="activeTab === 'comparativo'">
-          <CommonSectionTitle title="Análisis comparativo" subtitle="Comparación técnica y temporal de los humedales inventariados." tag="A" />
+          <CommonSectionTitle title="Análisis comparativo" subtitle="Comparación técnica y temporal de los humedales artificiales inventariados." tag="A" />
 
           <!-- Timeline -->
           <div class="panel mb-8">
@@ -130,7 +132,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="h in sortedTable" :key="h.id">
-                    <td class="font-medium">{{ h.nombre.replace('Humedal ', '') }}</td>
+                    <td class="font-medium">{{ h.nombre.replace(/^Humedal (Artificial )?/, '') }}</td>
                     <td>{{ h.alcaldia }}</td>
                     <td>{{ h.anioImplementacion }}</td>
                     <td><span :class="['badge', formatters.tipoHumedalBadgeClass(h.tipoHumedal)]">{{ formatters.formatTipoHumedal(h.tipoHumedal) }}</span></td>
@@ -160,7 +162,7 @@
               <li>Gobierno de la Ciudad de México. (2022). Cerro de la Estrella.</li>
               <li>Gobierno de la Ciudad de México. (2023). Áreas Naturales Protegidas reabiertas.</li>
               <li>Máspormás. (2021). Humedales artificiales: innovación para tratar aguas residuales.</li>
-              <li>Domínguez Solís, D. (2024). Inventario de humedales artificiales en la CDMX, Fase 1. CIIEMAD-IPN.</li>
+              <li>Domínguez Solís, D. (2024). Inventario de humedales artificiales en la CDMX, Fase 1. IPN.</li>
               <li>SEDEMA. (2023a). Transforma Sedema parcelas inactivas en humedal.</li>
               <li>SEDEMA. (2023b). Produce plantas acuáticas en vivero San Luis Tlaxialtemalco.</li>
               <li>UNAM. (2020). Humedal artificial en Bosque de Aragón.</li>
@@ -172,7 +174,7 @@
 
         <!-- Tab 4: Evidencia Científica -->
         <div v-show="activeTab === 'evidencia'">
-          <CommonSectionTitle title="Evidencia científica" subtitle="Datos de eficiencia y hallazgos de investigación académica en IPN, UNAM, UAM y UACh aplicables a los humedales de la CDMX." tag="E" />
+          <CommonSectionTitle title="Evidencia científica" subtitle="Datos de eficiencia y hallazgos de investigación académica en UNAM, UAM, UACh e IPN aplicables a los humedales artificiales de la CDMX." tag="E" />
 
           <!-- E.1 Eficiencias de remoción -->
           <div class="panel mb-8">
@@ -202,18 +204,18 @@
 
           <!-- E.2 IPN -->
           <div class="panel mb-8">
-            <h3 class="mb-2 text-base font-semibold">E.2 Investigación IPN-CIIEMAD</h3>
+            <h3 class="mb-2 text-base font-semibold">E.2 Investigación IPN</h3>
             <div class="space-y-3 text-sm text-slate-custom">
-              <p>El CIIEMAD del IPN mantiene líneas de investigación activas en manejo de calidad del agua y recuperación de cuerpos de agua contaminados, incluyendo el proyecto "Sistema de regeneración de cuerpos de agua artificiales para el saneamiento del Lago del Bosque de San Juan de Aragón, CDMX".</p>
+              <p>El IPN mantiene líneas de investigación activas en manejo de calidad del agua y recuperación de cuerpos de agua contaminados, incluyendo el proyecto "Sistema de regeneración de cuerpos de agua artificiales para el saneamiento del Lago del Bosque de San Juan de Aragón, CDMX".</p>
               <p>En el repositorio de tesis del IPN se documentan propuestas de diseño de humedales artificiales para tratamiento de aguas residuales en la CDMX, incluyendo diseños para riego de parques urbanos.</p>
-              <p>El presente inventario fue elaborado por M. en C. Diego Domínguez Solís del CIIEMAD-IPN como parte de la sistematización de infraestructura verde en la ciudad.</p>
+              <p>El presente inventario fue elaborado por M. en C. Diego Domínguez Solís como parte de la sistematización de infraestructura verde en la ciudad.</p>
             </div>
           </div>
 
           <!-- E.3 Aragón case study -->
           <div class="panel mb-8">
-            <h3 class="mb-2 text-base font-semibold">E.3 Caso de estudio: Humedal del Bosque de Aragón (GAIA-UNAM)</h3>
-            <p class="mb-4 text-xs text-slate-custom">Sistema diseñado por el Grupo Académico Interdisciplinario Ambiental (GAIA) de la Facultad de Química, UNAM. Investigador principal: Dr. Víctor Manuel Luna Pabello.</p>
+            <h3 class="mb-2 text-base font-semibold">E.3 Caso de estudio: STHA Bosque de Aragón (Facultad de Química, UNAM)</h3>
+            <p class="mb-4 text-xs text-slate-custom">Sistema de Tratamiento a base de Humedales Artificiales (STHA) diseñado por el Grupo Académico Interdisciplinario Ambiental (GAIA) de la Facultad de Química, UNAM. Investigador principal: Dr. Víctor Manuel Luna Pabello. Inaugurado en 2012, es el mayor humedal artificial de la CDMX. Un segundo humedal fue construido en 2020 (3,108 m², 140 m³/d). Fuente: Luna-Pabello &amp; Aburto-Castañeda (2014), <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1).</p>
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div v-for="stat in aragonStats" :key="stat.label" class="card-flat p-4 text-center">
                 <p class="text-2xl font-bold text-primary">{{ stat.value }}</p>
@@ -314,10 +316,10 @@
             <h3 class="mb-3 text-base font-semibold">Referencias académicas y oficiales</h3>
             <div class="space-y-2 text-xs text-slate-custom">
               <p><strong class="text-ink">IPN</strong></p>
-              <p class="ml-3">Domínguez Solís, D. (2024). Inventario de humedales artificiales en la Ciudad de México, Fase 1. CIIEMAD-IPN.</p>
-              <p class="ml-3">CIIEMAD-IPN. Proyecto: Sistema de regeneración de cuerpos de agua artificiales — Lago del Bosque de San Juan de Aragón, CDMX.</p>
+              <p class="ml-3">Domínguez Solís, D. (2024). Inventario de humedales artificiales en la Ciudad de México, Fase 1. IPN.</p>
+              <p class="ml-3">IPN. Proyecto: Sistema de regeneración de cuerpos de agua artificiales — Lago del Bosque de San Juan de Aragón, CDMX.</p>
               <p class="mt-2"><strong class="text-ink">UNAM</strong></p>
-              <p class="ml-3">Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1).</p>
+              <p class="ml-3">Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1). <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&amp;pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">SciELO</a></p>
               <p class="ml-3">Luna Pabello, V.M. / GAIA, Facultad de Química, UNAM. (2020-2024). Desarrollo tecnológico SHATTO y sistemas de humedales artificiales en UNAM (30+ años de investigación, 2 patentes).</p>
               <p class="ml-3">Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales: evaluación de la remoción de la carga orgánica. <em>Rev. Int. Contam. Ambie.</em>, 25(3), 157-167.</p>
               <p class="mt-2"><strong class="text-ink">UAM</strong></p>
@@ -346,6 +348,8 @@ import { ref, computed } from 'vue'
 import { humedales } from '~/data/mock-humedales'
 
 const formatters = useFormatters()
+
+const chartPalette = ['#0D6B7E', '#43A047', '#F2A81D', '#4FC3F7', '#D9363E', '#8E44AD', '#1088A0', '#E67E22', '#2ECC71']
 
 const activeTab = ref('distribucion')
 const tabs = [
@@ -406,6 +410,7 @@ const allServicios = [
   { key: 'recarga_acuiferos', short: 'Recarga' },
   { key: 'banco_germoplasma', short: 'Germop.' },
   { key: 'recreacion', short: 'Recreac.' },
+  { key: 'reduccion_lst', short: 'LST' },
 ]
 
 // Chart data
@@ -418,7 +423,7 @@ const alcaldiaChartData = computed(() => {
   humedales.forEach((h) => { counts[h.alcaldia] = (counts[h.alcaldia] || 0) + 1 })
   return {
     labels: Object.keys(counts),
-    datasets: [{ data: Object.values(counts), backgroundColor: ['#0D6B7E', '#1088A0', '#4DB2C7', '#80C8D7', '#B3DEE7'] }],
+    datasets: [{ data: Object.values(counts), backgroundColor: ['#0D6B7E', '#43A047', '#F2A81D', '#4FC3F7', '#D9363E', '#8E44AD', '#1088A0'] }],
   }
 })
 
@@ -434,8 +439,8 @@ const tipoChartData = computed(() => {
 const superficieChartData = computed(() => {
   const withSurface = humedales.filter((h) => h.superficie).sort((a, b) => (b.superficie || 0) - (a.superficie || 0))
   return {
-    labels: withSurface.map((h) => h.nombre.replace('Humedal ', '')),
-    datasets: [{ data: withSurface.map((h) => h.superficie), backgroundColor: '#0D6B7E', borderRadius: 4 }],
+    labels: withSurface.map((h) => h.nombre.replace(/^Humedal (Artificial )?/, '')),
+    datasets: [{ data: withSurface.map((h) => h.superficie), backgroundColor: withSurface.map((_, i) => chartPalette[i % chartPalette.length]), borderRadius: 4 }],
   }
 })
 
@@ -447,7 +452,7 @@ const serviciosChartData = computed(() => {
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1])
   return {
     labels: sorted.map(([k]) => k),
-    datasets: [{ data: sorted.map(([, v]) => v), backgroundColor: '#0D6B7E', borderRadius: 4 }],
+    datasets: [{ data: sorted.map(([, v]) => v), backgroundColor: sorted.map((_, i) => chartPalette[i % chartPalette.length]), borderRadius: 4 }],
   }
 })
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin', pageTransition: false })
 
 const { apiFetch } = useApi()
 const config = useRuntimeConfig()
