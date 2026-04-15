@@ -1,4 +1,5 @@
 const _status = ref<boolean | null>(null)
+let _pending: Promise<boolean> | null = null
 
 export function useBackendStatus() {
   const available = computed(() => _status.value === true)
@@ -6,24 +7,31 @@ export function useBackendStatus() {
 
   async function check() {
     if (_status.value !== null) return _status.value
+    // Deduplicate parallel calls — all await the same promise
+    if (_pending) return _pending
+    _pending = _doCheck()
+    const result = await _pending
+    _pending = null
+    return result
+  }
+
+  async function _doCheck() {
     try {
       const config = useRuntimeConfig()
-      // Use a simple GET to the public hallazgos endpoint (no auth required, always exists)
       await $fetch(`${config.public.apiBaseUrl}/observatory/${config.public.observatory}/hallazgos`, {
         timeout: 3000,
       })
       _status.value = true
     } catch (e: any) {
-      // If we get an HTTP response (even 401/403/404), the backend IS running
       const status = e?.statusCode || e?.status || e?.response?.status
       _status.value = status ? true : false
     }
-    return _status.value
+    return _status.value!
   }
 
-  // Allow resetting (e.g., after login)
   function reset() {
     _status.value = null
+    _pending = null
   }
 
   return { available, checked, check, reset }
