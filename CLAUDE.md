@@ -50,7 +50,7 @@ observatorio-humedales/
     useFormatters.ts        # es-MX locale formatters (humedal types, flujo, vegetacion, estados, servicios)
     useMapConfig.ts         # Leaflet config, marker styles
     useScrollReveal.ts      # IntersectionObserver scroll-reveal animations
-    useCmsContent.ts        # CMS content loader (API → fallback to cms-defaults.ts)
+    useCmsContent.ts        # CMS content composable (reads from Pinia cms store)
     useBackendStatus.ts     # Global backend availability check (cached, one request)
   data/
     mock-humedales.ts       # 8 Humedal records (exported as `humedales`)
@@ -83,6 +83,7 @@ observatorio-humedales/
   stores/
     humedales.ts            # Pinia store (composable style, reactive filters)
     auth.ts                 # Auth store (login, logout, roles, permissions, isSuperadmin, hasPermission)
+    cms.ts                  # CMS store (page sections, fetch from API, shared between admin and public)
   types/
     index.ts                # Core types (Humedal, TipoFlujo, AdminRole, AdminPermission, AdminUser, ProspectoNoticia, etc.)
   tests/
@@ -726,19 +727,24 @@ Los prospectos detectados se aprueban y pasan al inventario público. Hallazgos 
 ### Admin Files
 ```
 stores/auth.ts              # Pinia auth store (login, logout, token in localStorage)
+stores/cms.ts               # Pinia CMS store (page sections, API persistence, shared state)
 composables/useApi.ts       # $fetch wrapper with Bearer token + 401 handling
+composables/useCmsContent.ts # CMS composable (computed from cms store, fetches on mount)
 middleware/admin.ts          # Nuxt route middleware (redirects to /admin/login if unauthenticated)
 layouts/admin.vue            # Admin layout, sidebar en orden de pipeline, responsive
 components/admin/
   AdminDataTable.vue         # Tabla con búsqueda, paginación, acciones, responsive
-  ArticleEditor.client.vue   # GrapesJS visual editor for Notihumedal articles
+  ArticleEditor.client.vue   # GrapesJS visual editor (fullscreen, dynamic import, Axend-based)
+  ColorClassPicker.vue       # Visual color picker for CMS content (bg, icon, badge, accent)
 pages/admin/
   login.vue                  # Email + password login form
   index.vue                  # Dashboard con pipeline visual, stats, quick links
   prospectos/index.vue       # Tabs: Cola de aprobación + Detector geoespacial
   humedales/index.vue        # Inventario: humedales registrados (8 del mapa público)
   hallazgos/index.vue        # Hallazgos y recomendaciones (contenido editorial)
-  notihumedal/index.vue      # CRUD artículos + cola de prospectos scrapeados (2 tabs)
+  notihumedal/index.vue      # CRUD artículos (fullscreen editor) + cola de prospectos (2 tabs)
+  contenido/index.vue        # CMS page list (home, sobre, analisis)
+  contenido/[pageSlug].vue   # CMS section editor (accordion, color pickers, auto-save to API)
   detector/index.vue         # Redirect → /admin/prospectos
 ```
 
@@ -748,13 +754,17 @@ pages/admin/
 - `/admin/prospectos` — tabs: Cola de aprobación + Detector (entrada del pipeline)
 - `/admin/humedales` — inventario de humedales registrados (fin del pipeline)
 - `/admin/hallazgos` — hallazgos y recomendaciones (contenido editorial)
-- `/admin/notihumedal` — CRUD artículos + cola de prospectos scrapeados (2 tabs)
+- `/admin/notihumedal` — CRUD artículos con editor fullscreen + cola de prospectos (2 tabs)
+- `/admin/contenido` — CMS: editar secciones de páginas públicas (home, sobre, analisis)
+- `/admin/contenido/{pageSlug}` — editor de secciones con auto-guardado a API
 
 ### Notihumedal Admin (CRUD + Scraping Pipeline)
 
 **Tab 1: Artículos publicados**
 - `AdminDataTable` con CRUD completo (crear, editar, eliminar)
-- Editor visual GrapesJS (`ArticleEditor.client.vue`) para el contenido
+- Editor visual fullscreen GrapesJS (`ArticleEditor.client.vue`) — al abrir nuevo/editar, toma todo el viewport
+- Layout fullscreen: toolbar teal (cerrar, cancelar, previsualizar, guardar) + campos con labels en grid + editor GrapesJS
+- Preview dialog con selector de dispositivo (Escritorio, Tablet 768px, Movil 375px)
 - Fallback a `data/notihumedal.ts` sin backend
 
 **Tab 2: Prospectos scrapeados**
@@ -776,16 +786,59 @@ POST   /observatory/{obs}/admin/notihumedal/scraper/run
 
 ### GrapesJS Article Editor (`ArticleEditor.client.vue`)
 
-Visual editor para contenido de artículos Notihumedal. Configuración basada en Axend (`/Axend/axend-bo-front`).
+Visual editor para contenido de artículos Notihumedal. Arquitectura basada en Axend CrmEmailEditor (`/Axend/axend-bo-front/components/crm-cmpnts/CrmEmailEditor.vue`).
 
-- **Plugin:** `grapesjs-preset-webpage` (bloques: columnas, texto, imagen, video, mapa)
-- **Bloques personalizados** (categoría "Articulo"): Título, Párrafo, Cita, Imagen con pie, Destacado, Separador, Fuente/Referencia
-- **Device preview:** Desktop, Tablet (768px), Mobile (375px)
+- **Dynamic import:** GrapesJS y preset se cargan con `await import()` en `initEditor()`. CSS cargado desde CDN.
+- **Plugin:** `grapesjs-preset-webpage` (bloques renombrados a español: "1 columna", "2 columnas", "Texto", "Enlace", "Imagen", "Video", "Mapa")
+- **Bloques personalizados** (categoría "Contenido"): Titulo, Parrafo, Enlace/Boton, Cita, Imagen con pie, Destacado, Separador, Fuente/Referencia
+- **Bloques de tablas** (categoría "Tablas"): Tabla 2 columnas, Tabla 3 columnas, Tabla detalle
+- **Categorías del preset** renombradas: "Basic" → "Estructura"
+- **RTE toolbar:** Selector de fuente (Inter, Arial, Georgia, Times, Verdana, Courier), selector de tamaño (10-48px), editor de enlaces con modal (URL, texto, estilo, color, preview, quitar enlace)
+- **Code editor:** Botón `</>` abre panel inferior con tabs HTML/CSS, sync bidireccional (600ms debounce), soporte Tab
+- **Cell type extension:** `DomComponents.addType('cell', { extendView: 'text' })` — doble-click edita celdas de tabla
+- **Upload button:** Botón "+ Subir imagen" en asset manager, emite `upload-image` al padre, expone `addAssets()`
+- **Tooltips 100% en español:** "Mostrar/ocultar bordes", "Vista previa sin paneles", "Pantalla completa", "Escritorio", "Tablet (768px)", "Movil (375px)", "Estilos del elemento seleccionado", "Capas (estructura del documento)", "Bloques para arrastrar al editor", "Configuracion del componente", "Editar codigo HTML y CSS directamente"
+- **Device preview:** Escritorio, Tablet (768px), Movil (375px)
 - **Style manager:** General, Espaciado, Bordes, Dimensiones
-- **Theme:** Colores del design system (primary `#0D6B7E`)
-- **Persistencia:** `getOutput()` → `{ html, css, editorData }`. El `editorData` se guarda en el backend para recarga completa del estado del editor.
+- **Theme:** Colores del design system (primary `#0D6B7E`), custom CSS con `:deep()` para `.gjs-*`
+- **Persistencia:** `getOutput()` → `{ html, css, editorData }`, `getPreviewHtml()` genera HTML completo para iframe
 - **Patrón `.client.vue`:** Solo renderiza en cliente, envuelto en `<ClientOnly>` con fallback
 - **`storageManager: false`** — sin localStorage, el estado se persiste vía API
+
+### CMS Content System (`/admin/contenido`)
+
+Editor de secciones de páginas públicas (home, sobre, analisis). Los cambios se guardan en BD via API.
+
+**Arquitectura:**
+```
+Admin edita → auto-PUT /admin/cms/{page}/{section} → BD (tabla obs_cms_sections)
+                                                          ↓
+Página pública → GET /cms/{page}/{section} → BD → useCmsContent() → renderiza
+```
+
+**Pinia CMS Store** (`stores/cms.ts`):
+- `getSection(page, section)` — devuelve items del store o defaults como fallback
+- `setSection(page, section, items)` — actualiza estado reactivo (propagación inmediata)
+- `fetchSection(page, section)` — consulta API pública, sin cache (siempre consulta)
+- `initPage(page)` — inicializa todas las secciones de una página desde defaults
+
+**Composable** (`useCmsContent.ts`): Retorna `computed` desde el store + fetch en `onMounted`. Usado en `pages/index.vue`, `pages/sobre/index.vue`, `pages/analisis/index.vue`.
+
+**Admin page** (`/admin/contenido/[pageSlug]`):
+- Accordion con secciones editables por página
+- Auto-guardado a API en cada edición (aplicar cambio, reordenar)
+- Indicador "Guardando..." / "Guardado" por sección
+- `ColorClassPicker` visual para campos de color (bg, iconColor, accentColor, badgeClass)
+- Botones de edición deshabilitados sin backend
+
+**Backend endpoints** (cercu-backend, ya implementados):
+```
+GET  /observatory/{obs}/cms/{pageSlug}/{sectionKey}           # público, sin auth
+GET  /observatory/{obs}/admin/cms/{pageSlug}                  # admin, auth requerido
+PUT  /observatory/{obs}/admin/cms/{pageSlug}/{sectionKey}     # admin, body: { items: [...] }
+```
+
+**BD:** Tabla `obs_cms_sections` con columnas: `id`, `pageSlug`, `sectionKey`, `items` (JSON), `updatedBy`, `updatedAt`.
 
 ### Admin UI/UX Patterns
 - **Pipeline banner:** Indicador horizontal de pasos en cada página del pipeline, resalta el paso actual

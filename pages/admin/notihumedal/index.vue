@@ -34,6 +34,34 @@ const form = reactive({
   imagen: '',
 })
 
+// ── Preview state ──
+const showPreview = ref(false)
+const previewDevice = ref<'desktop' | 'tablet' | 'mobile'>('desktop')
+const previewFrame = ref<HTMLIFrameElement | null>(null)
+
+const previewContainerStyle = computed(() => {
+  const widths = { desktop: '100%', tablet: '768px', mobile: '375px' }
+  return { maxWidth: widths[previewDevice.value], margin: '0 auto' }
+})
+
+function handlePreview() {
+  const html = editorRef.value?.getPreviewHtml?.() || ''
+  if (!html) return
+
+  showPreview.value = true
+  nextTick(() => {
+    const iframe = previewFrame.value
+    if (iframe) {
+      const doc = iframe.contentDocument || iframe.contentWindow?.document
+      if (doc) {
+        doc.open()
+        doc.write(html)
+        doc.close()
+      }
+    }
+  })
+}
+
 function resetForm() {
   form.titulo = ''
   form.resumen = ''
@@ -94,7 +122,7 @@ async function saveArticulo() {
     editor_data: editorOutput.editorData,
     autor: form.autor,
     fecha: form.fecha,
-    tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+    tags: form.tags.split(',').map((t: string) => t.trim()).filter(Boolean),
     imagen: form.imagen || undefined,
   }
   try {
@@ -198,13 +226,6 @@ const articuloColumns = [
   { key: 'tags', label: 'Tags' },
 ]
 
-const prospectoColumns = [
-  { key: 'titulo', label: 'Titulo' },
-  { key: 'fuente', label: 'Fuente', class: 'w-32' },
-  { key: 'fecha', label: 'Fecha', class: 'w-28' },
-  { key: 'estado', label: 'Estado', class: 'w-28' },
-]
-
 // ── Computed rows ──
 const articuloRows = computed(() => items.value.map(a => ({
   ...a,
@@ -268,29 +289,64 @@ watch(activeTab, (tab) => {
         </button>
       </div>
 
-      <!-- Inline form -->
-      <Transition name="slide-up">
-        <div v-if="showForm" class="mb-6 rounded-2xl border border-gray-200 bg-white p-5 md:p-6 space-y-4">
-          <h3 class="text-base font-semibold text-ink">{{ editingId ? 'Editar articulo' : 'Nuevo articulo' }}</h3>
+      <!-- Fullscreen editor (like Axend CrmTemplateForm) -->
+      <Transition name="fade">
+        <div v-if="showForm" class="notihumedal-editor-fullscreen">
+          <!-- Toolbar (like CrmTemplateForm toolbar) -->
+          <div class="notihumedal-editor-toolbar">
+            <button @click="showForm = false; resetForm()" class="rounded-lg p-1.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Cerrar editor">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <span class="text-sm font-semibold text-white">{{ editingId ? 'Editar articulo' : 'Nuevo articulo' }}</span>
+            <div class="flex-1" />
+            <button @click="showForm = false; resetForm()" class="px-3 py-1.5 text-sm text-white/70 hover:text-white transition-colors">
+              Cancelar
+            </button>
+            <button @click="handlePreview" class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white/70 hover:text-white transition-colors" title="Vista previa en distintos dispositivos">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              Previsualizar
+            </button>
+            <button @click="saveArticulo" class="flex items-center gap-1.5 rounded-lg bg-white/15 px-4 py-1.5 text-sm font-semibold text-white hover:bg-white/25 transition-colors disabled:opacity-40" :disabled="saving || !form.titulo || !form.resumen">
+              <svg v-if="saving" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+              {{ saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Publicar') }}
+            </button>
+          </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Titulo *</label>
-              <input v-model="form.titulo" type="text" class="input" placeholder="Titulo del articulo..." />
+          <!-- Form fields with labels -->
+          <div class="notihumedal-editor-fields">
+            <div class="grid grid-cols-[1fr_180px_140px_180px] gap-x-3 gap-y-1 items-end">
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Titulo *</label>
+                <input v-model="form.titulo" type="text" class="input !py-1.5 text-sm" placeholder="Titulo del articulo" />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Autor</label>
+                <input v-model="form.autor" type="text" class="input !py-1.5 text-sm" placeholder="Nombre o fuente" />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Fecha</label>
+                <input v-model="form.fecha" type="date" class="input !py-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Tags</label>
+                <input v-model="form.tags" type="text" class="input !py-1.5 text-sm" placeholder="UNAM, SEDEMA..." />
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Autor</label>
-              <input v-model="form.autor" type="text" class="input" placeholder="Nombre o fuente..." />
+            <div class="mt-2 grid grid-cols-[1fr_280px] gap-x-3 gap-y-1 items-end">
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Resumen *</label>
+                <input v-model="form.resumen" type="text" class="input !py-1.5 text-sm" placeholder="Resumen breve del articulo" />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Imagen (URL)</label>
+                <input v-model="form.imagen" type="url" class="input !py-1.5 text-sm" placeholder="https://..." />
+              </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Resumen *</label>
-            <textarea v-model="form.resumen" class="input" rows="2" placeholder="Resumen breve del articulo..." />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Contenido</label>
+          <!-- Editor fills remaining space -->
+          <div class="notihumedal-editor-canvas">
             <ClientOnly>
               <AdminArticleEditor
                 ref="editorRef"
@@ -299,34 +355,14 @@ watch(activeTab, (tab) => {
                 :editor-data="form.editorData"
               />
               <template #fallback>
-                <div class="flex h-[600px] items-center justify-center rounded-xl border border-gray-200 bg-gray-50">
-                  <p class="text-sm text-ink-muted">Cargando editor...</p>
+                <div class="flex h-full items-center justify-center bg-gray-50">
+                  <div class="flex flex-col items-center gap-3">
+                    <div class="animate-spin-smooth h-8 w-8 rounded-full border-2 border-primary border-t-transparent" />
+                    <p class="text-sm text-ink-muted">Cargando editor visual...</p>
+                  </div>
                 </div>
               </template>
             </ClientOnly>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Fecha</label>
-              <input v-model="form.fecha" type="date" class="input" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tags (separados por coma)</label>
-              <input v-model="form.tags" type="text" class="input" placeholder="UNAM, SEDEMA, aragon..." />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">URL de imagen (opcional)</label>
-            <input v-model="form.imagen" type="url" class="input" placeholder="https://..." />
-          </div>
-
-          <div class="flex items-center gap-3">
-            <button @click="saveArticulo" class="btn-primary" :disabled="saving || !form.titulo || !form.resumen">
-              {{ saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Publicar') }}
-            </button>
-            <button @click="showForm = false; resetForm()" class="btn-ghost">Cancelar</button>
           </div>
         </div>
       </Transition>
@@ -411,6 +447,60 @@ watch(activeTab, (tab) => {
       </div>
     </div>
 
+    <!-- Preview Dialog (adapted from Axend CrmTemplateForm) -->
+    <Transition name="fade">
+      <div v-if="showPreview" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4" @click.self="showPreview = false">
+        <div class="flex h-[90vh] w-full max-w-[900px] flex-col rounded-2xl bg-white shadow-xl overflow-hidden">
+          <!-- Preview header -->
+          <div class="flex items-center gap-3 border-b border-gray-100 px-5 py-3">
+            <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            <span class="text-sm font-semibold text-ink">Vista previa del articulo</span>
+            <div class="mx-auto flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+              <button
+                @click="previewDevice = 'desktop'; handlePreview()"
+                :class="previewDevice === 'desktop' ? 'bg-white shadow-sm text-primary' : 'text-ink-muted hover:text-ink'"
+                class="rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+                title="Escritorio (100%)"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </button>
+              <button
+                @click="previewDevice = 'tablet'; handlePreview()"
+                :class="previewDevice === 'tablet' ? 'bg-white shadow-sm text-primary' : 'text-ink-muted hover:text-ink'"
+                class="rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+                title="Tablet (768px)"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+              </button>
+              <button
+                @click="previewDevice = 'mobile'; handlePreview()"
+                :class="previewDevice === 'mobile' ? 'bg-white shadow-sm text-primary' : 'text-ink-muted hover:text-ink'"
+                class="rounded-md px-3 py-1.5 text-xs font-medium transition-all"
+                title="Movil (375px)"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+              </button>
+            </div>
+            <button @click="showPreview = false" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-ink transition-colors" title="Cerrar">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <!-- Preview body -->
+          <div class="flex-1 overflow-auto bg-gray-100 p-6">
+            <div :style="previewContainerStyle" class="transition-all duration-300">
+              <iframe
+                ref="previewFrame"
+                class="h-full min-h-[500px] w-full rounded-xl border border-gray-200 bg-white shadow-sm"
+                style="height: 70vh;"
+                sandbox="allow-same-origin"
+                frameborder="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Reject modal -->
     <Transition name="fade">
       <div v-if="rejectingId" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4" @click.self="rejectingId = null">
@@ -430,3 +520,50 @@ watch(activeTab, (tab) => {
     </Transition>
   </div>
 </template>
+
+<style scoped>
+/* Fullscreen editor layout (like Axend CrmTemplateForm) */
+.notihumedal-editor-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Toolbar: primary color bar at top */
+.notihumedal-editor-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0D6B7E;
+  flex-wrap: wrap;
+}
+
+/* Compact fields row */
+.notihumedal-editor-fields {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Editor fills all remaining space */
+.notihumedal-editor-canvas {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Override editor component height to fill parent */
+.notihumedal-editor-canvas :deep(.article-editor) {
+  border: none;
+  border-radius: 0;
+  height: 100%;
+}
+.notihumedal-editor-canvas :deep(.editor-canvas) {
+  height: 100%;
+}
+</style>

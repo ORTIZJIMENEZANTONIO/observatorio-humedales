@@ -11,7 +11,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3005,
-        NUXT_PUBLIC_DATA_MODE: 'mock',
+        NUXT_PUBLIC_DATA_MODE: 'api',
+        NUXT_PUBLIC_API_BASE_URL: 'https://humedales.cercu.com.mx/api/v1',
       },
       max_memory_restart: '200M',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
