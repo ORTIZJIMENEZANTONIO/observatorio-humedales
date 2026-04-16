@@ -98,11 +98,11 @@ import { ref, watch } from 'vue'
 const mobileOpen = ref(false)
 const navLinks = [
   { to: '/', label: 'Inicio', icon: 'lucide:home' },
+  { to: '/sobre', label: 'Sobre', icon: 'lucide:info' },
   { to: '/mapa', label: 'Mapa', icon: 'lucide:map' },
   { to: '/inventario', label: 'Inventario', icon: 'lucide:list' },
   { to: '/analisis', label: 'Análisis', icon: 'lucide:bar-chart-3' },
   { to: '/notihumedal', label: 'Notihumedal', icon: 'lucide:newspaper' },
-  { to: '/sobre', label: 'Sobre', icon: 'lucide:info' },
 ]
 
 const route = useRoute()

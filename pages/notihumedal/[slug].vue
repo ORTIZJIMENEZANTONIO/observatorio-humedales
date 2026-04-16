@@ -16,6 +16,10 @@
 
     <section class="bg-white py-16">
       <div class="container-narrow">
+        <figure v-if="articulo?.imagen" class="mb-8 overflow-hidden rounded-2xl">
+          <img :src="articulo.imagen" :alt="articulo.titulo" class="w-full object-cover max-h-[400px]" />
+          <figcaption v-if="articulo.fuenteImagen" class="mt-2 text-xs text-ink-muted/70 text-center">Foto: {{ articulo.fuenteImagen }}</figcaption>
+        </figure>
         <div v-if="articulo" class="prose prose-sm max-w-none text-slate-custom" v-html="articulo.contenido" />
 
         <div v-if="articulo" class="mt-8 flex flex-wrap gap-2">
@@ -45,15 +49,14 @@
 </template>
 
 <script setup lang="ts">
-import { articulos } from '~/data/notihumedal'
-
 const formatters = useFormatters()
 const route = useRoute()
+const store = useNotihumedalStore()
 
-const articulo = computed(() => articulos.find(a => a.slug === route.params.slug))
+const articulo = computed(() => store.articulos.find(a => a.slug === route.params.slug))
 
 const related = computed(() => {
   if (!articulo.value) return []
-  return articulos.filter(a => a.id !== articulo.value!.id).slice(0, 3)
+  return store.articulos.filter(a => a.id !== articulo.value!.id).slice(0, 3)
 })
 </script>

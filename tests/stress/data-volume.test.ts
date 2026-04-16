@@ -4,8 +4,7 @@ import { humedales as realHumedales } from '~/data/mock-humedales'
 
 function generateHumedales(count: number): Humedal[] {
   const alcaldias = ['Miguel Hidalgo', 'Iztapalapa', 'Gustavo A. Madero', 'Xochimilco', 'Coyoacán', 'Tlalpan'] as any[]
-  const tipos = ['conservacion', 'tratamiento_aguas', 'recreativo', 'captacion_pluvial', 'restauracion_hidrologica'] as any[]
-  const flujos = ['superficial', 'subsuperficial_horizontal', 'subsuperficial_vertical', 'combinado'] as any[]
+  const tipos = ['ha_fws', 'ha_sfs_horizontal', 'ha_sfs_vertical', 'ha_hibrido'] as any[]
 
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
@@ -13,7 +12,6 @@ function generateHumedales(count: number): Humedal[] {
     alcaldia: alcaldias[i % alcaldias.length],
     ubicacion: `Ubicación ${i + 1}`,
     tipoHumedal: tipos[i % tipos.length],
-    tipoFlujo: flujos[i % flujos.length],
     tipoVegetacion: ['emergente'] as any[],
     funcionPrincipal: `Función ${i + 1}`,
     superficie: Math.floor(Math.random() * 50000),
@@ -86,7 +84,7 @@ describe('Stress — Large dataset filtering', () => {
 
   it('combined filter + sort + paginate in < 100ms', () => {
     const start = performance.now()
-    const filtered = bigData.filter(h => h.tipoHumedal === 'tratamiento_aguas')
+    const filtered = bigData.filter(h => h.tipoHumedal === 'ha_sfs_horizontal')
     const sorted = filtered.sort((a, b) => a.nombre.localeCompare(b.nombre))
     const paginated = sorted.slice(0, 15)
     const duration = performance.now() - start

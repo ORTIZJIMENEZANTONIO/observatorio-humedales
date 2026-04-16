@@ -21,9 +21,15 @@ export const useAuthStore = defineStore('auth', () => {
     // If backend doesn't send role yet, assume superadmin (backward compat)
     if (!admin.value.role) return true
     if (admin.value.role === 'superadmin') return true
-    if (admin.value.role === 'admin') return perm !== 'manage_users'
+    // admin and editor check their assigned permissions
     return admin.value.permissions?.includes(perm) ?? false
   }
+
+  const roleLabel = computed(() => {
+    if (!admin.value?.role) return 'Superadmin'
+    const labels: Record<string, string> = { superadmin: 'Superadmin', admin: 'Administrador', editor: 'Editor' }
+    return labels[admin.value.role] || admin.value.role
+  })
 
   function loadFromStorage() {
     if (import.meta.server) return
@@ -55,5 +61,5 @@ export const useAuthStore = defineStore('auth', () => {
     navigateTo('/admin/login')
   }
 
-  return { token, admin, isAuthenticated, isSuperadmin, hasPermission, login, logout, loadFromStorage }
+  return { token, admin, isAuthenticated, isSuperadmin, roleLabel, hasPermission, login, logout, loadFromStorage }
 })

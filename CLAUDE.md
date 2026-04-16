@@ -3,9 +3,16 @@
 ## Product
 Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 8 humedales artificiales identificados en 5 alcaldias.
 
-Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis — Instituto Politecnico Nacional, y en evidencia academica publicada (Luna-Pabello & Aburto-Castañeda, 2014; GAIA — Facultad de Quimica, UNAM).
+Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis — Instituto Politecnico Nacional, y en evidencia academica publicada (Luna-Pabello & Aburto-Castañeda, 2014; Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa, 2009; GAIA — Facultad de Quimica, UNAM).
 
 Contenido 100% en espanol (es-MX). Tono: institucional, tecnico pero accesible.
+
+### Jerarquia de fuentes (PRIORIDAD ALTA)
+Al buscar e integrar informacion, seguir siempre esta jerarquia:
+1. **PDFs proporcionados por el usuario** — prioridad absoluta
+2. **Bases de datos academicas indexadas:** Scopus, Springer, Google Scholar, Web of Science/Clarivate, ScienceDirect (Biblioteca IPN), SciELO, Redalyc
+3. **Fuentes institucionales:** CONAGUA, CONABIO, Gobierno CDMX, UNAM, IPN, UAM
+4. **Prensa y comunicados** — solo como complemento, nunca como fuente primaria de datos tecnicos
 
 ### Capitalización en español
 Todos los títulos, encabezados, etiquetas de tabs y subtítulos siguen la convención del español: solo la primera palabra y nombres propios en mayúscula (sentence case). No usar Title Case en inglés.
@@ -79,13 +86,15 @@ observatorio-humedales/
     sobre/                  # About + ODS + metodologia (#metodologia) + fuentes (#fuentes) + normativa
   public/
     images/                 # Institutional logos (IPN)
-    images/humedales/       # 8 Unsplash photos for inventory cards (free license)
+    images/humedales/       # 7 fotos reales de humedales (fuentes institucionales: UNAM, SEDEMA, Gobierno CDMX)
   stores/
-    humedales.ts            # Pinia store (composable style, reactive filters)
-    auth.ts                 # Auth store (login, logout, roles, permissions, isSuperadmin, hasPermission)
+    humedales.ts            # Pinia store (composable style, reactive filters, CRUD: add/update/delete)
+    notihumedal.ts          # Pinia store for articles (shared admin↔public, CRUD: add/update/delete)
+    prospectos.ts           # Pinia store for wetland prospects (formulario→admin pipeline, approve/reject)
+    auth.ts                 # Auth store (login, logout, roles, permissions — granular per role)
     cms.ts                  # CMS store (page sections, fetch from API, shared between admin and public)
   types/
-    index.ts                # Core types (Humedal, TipoFlujo, AdminRole, AdminPermission, AdminUser, ProspectoNoticia, etc.)
+    index.ts                # Core types (Humedal, TipoHumedal, AdminRole, AdminPermission, AdminUser, ProspectoNoticia, etc.)
   tests/
     setup.ts                # Vitest setup (Nuxt auto-import mocks, localStorage mock)
     unit/                   # useFormatters, auth store, mock data integrity
@@ -111,37 +120,43 @@ Inventario PDF/Excel (Dominguez Solis, IPN) + Articulo SciELO (Luna-Pabello, UNA
 - `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3000/api/v1`) — for admin system
 
 ### Data Source
-The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. Total: 8 wetland records.
+The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Total: 8 wetland records.
 
 ### References
 
 #### Academic Research
 - Dominguez Solis, D. (2024). Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1. **CIIEMAD-IPN.**
-- Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficacion del lago del Bosque de San Juan de Aragon. *TIP Rev. Esp. Ciencias Quimico-Biologicas*, 17(1). **UNAM-GAIA, Fac. Quimica.**
+- Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficacion del lago del Bosque de San Juan de Aragon. *TIP Rev. Esp. Ciencias Quimico-Biologicas*, 17(1). **UNAM-GAIA, Fac. Quimica.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003)
+- Ramirez-Carrillo, H.F., Luna-Pabello, V.M. y Arredondo-Figueroa, J.L. (2009). Evaluacion de un humedal artificial de flujo vertical intermitente, para obtener agua de buena calidad para la acuicultura. *Rev. Mex. Ing. Quim.*, 8(1), 93-99. **UNAM / UAM.** [PDF SciELO](https://www.scielo.org.mx/pdf/rmiq/v8n1/v8n1a9.pdf)
 - Luna Pabello, V.M. / GAIA (2020-2024). Desarrollo tecnologico SHATTO y sistemas de humedales artificiales en UNAM. 30+ años investigacion, 2 patentes, ~10 instalaciones.
-- Martinez-Cruz, P. et al. (2006). Empleo de humedales artificiales para el tratamiento de aguas de un canal experimental de Xochimilco. *Hidrobiologica*, 16(3), 211-219. **UAM-Iztapalapa.**
-- FQ-UNAM y UAM-Xochimilco. (2007). Planta piloto HAFC en CIBAC, Cuemanco — unica en su tipo a nivel mundial.
-- Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. *Rev. Int. Contam. Ambie.*, 25(3). **UAEMor / UAEMex.**
-- Nava-Rojas, J. et al. (2023). Remocion de contaminantes en humedales artificiales de flujo subsuperficial: una revision. *Ingenieria*, 28(1). **TecNM Boca del Rio.**
+- Martinez-Cruz, P. et al. (2006). Empleo de humedales artificiales para el tratamiento de aguas de un canal experimental de Xochimilco. *Hidrobiologica*, 16(3), 211-219. **UAM-Iztapalapa.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-88972006000300001&script=sci_abstract)
+- Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. *Rev. Int. Contam. Ambie.*, 25(3). **UAEMor / UAEMex.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-49992009000300004&script=sci_abstract)
+- Nava-Rojas, J. et al. (2023). Remocion de contaminantes en humedales artificiales de flujo subsuperficial: una revision. *Terra Latinoamericana*, 41, e1715. **TecNM Boca del Rio.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0187-57792023000100402)
 - UACh, Depto. de Agroecologia. Evaluacion de humedal del Barrio Santiaguito, Texcoco. Eficiencias: 100% coliformes, 98.47% solidos sedimentables.
 
 #### Key Efficiency Data
 | Parameter | Efficiency | Source |
 |-----------|-----------|--------|
+| DQO | 92% | Ramirez-Carrillo et al. (2009), CIBAC Cuemanco, 12 meses |
 | DQO | 95.7% | Romero-Aguilar et al. (2009), estiaje |
-| DQO | 80% | GAIA-UNAM, Aragon (2014) |
+| DQO | 80% | Luna-Pabello & Aburto-Castañeda (2014), Aragon STHA |
+| N-NH₄ | 85% | Ramirez-Carrillo et al. (2009), CIBAC Cuemanco |
 | N amoniacal | 89.7% | Romero-Aguilar et al. (2009), lluvias |
 | N amoniacal | 86.4% | Martinez-Cruz et al. (2006), S. americanus |
-| Coliformes fecales | >90% | GAIA-UNAM, Aragon |
+| PO₄³⁻ | 80% | Ramirez-Carrillo et al. (2009), CIBAC Cuemanco |
+| Nitrogeno | 50% | Luna-Pabello & Aburto-Castañeda (2014), Aragon HAFSS |
+| Fosforo | 50% | Luna-Pabello & Aburto-Castañeda (2014), Aragon HAFS |
+| Coliformes fecales | >90% | Luna-Pabello & Aburto-Castañeda (2014), Aragon |
 | Coliformes | 100% | UACh, Texcoco |
 | Solidos sedimentables | 98.5% | UACh, Texcoco |
 
-#### Official Sources
-- SEDEMA (2024) — 34 humedales creados/recuperados en CDMX, 26.2 ha, >$1,000 M MXN inversion
-- SEDEMA (2024) — Beneficios de humedales del Bosque de Aragon, 210 spp aves, visita Ministerio aleman
-- SEDEMA (2023) — Humedales de la CDMX: generadores de agua y refugio de biodiversidad. 397 spp aves
-- CONAGUA — Inventario Nacional de Humedales, Visualizador geoespacial
-- CONABIO — Sistema de Monitoreo de Humedales (SIMOH-Mx). Humedales capturan 10x mas CO2 que selvas
+#### Official & Institutional Sources
+- CONAGUA — [Inventario Nacional de Humedales](https://sigagis.conagua.gob.mx/humedales/), [Programa INH](https://www.gob.mx/conagua/acciones-y-programas/inventario-nacional-de-humedales-inh)
+- CONABIO — [Sistema de Monitoreo de Humedales (SIMOH-Mx)](https://www.biodiversidad.gob.mx/monitoreo/simoh-mx). Humedales capturan 10x mas CO2 que selvas
+- Gobierno CDMX (2021) — [Playa de Aves en Bosque de Aragon](https://gobierno.cdmx.gob.mx/noticias/playa-de-aves-en-bosque-de-aragon/)
+- Gobierno CDMX (2021) — [Parque Cuitlahuac](https://gobierno.cdmx.gob.mx/noticias/parque-cuitlahuac/)
+- Fundacion UNAM (2020) — [Inauguracion humedal artificial Bosque de Aragon](https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/)
+- DGCS-UNAM (2020) — [Desarrollan universitarios humedal artificial](https://www.dgcs.unam.mx/boletin/bdboletin/2020_150.html), Boletin 150
 - NOM-001-SEMARNAT-2021 — Limites de contaminantes en descargas de aguas residuales
 - NOM-003-SEMARNAT-1997 — Agua tratada para reuso en servicios publicos
 - Convencion Ramsar — Xochimilco y San Gregorio Atlapulco (2,657 ha, importancia internacional)
@@ -153,18 +168,14 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 
 ### Core Types
 ```typescript
+// Clasificacion tecnica de humedales artificiales por sistema de flujo
+// FWS = Free Water Surface (agua visible sobre el sustrato)
+// SFS = Subsurface Flow (agua fluye a traves del sustrato)
 type TipoHumedal =
-  | 'conservacion'
-  | 'tratamiento_aguas'
-  | 'recreativo'
-  | 'captacion_pluvial'
-  | 'restauracion_hidrologica'
-
-type TipoFlujo =
-  | 'superficial'
-  | 'subsuperficial_horizontal'
-  | 'subsuperficial_vertical'
-  | 'combinado'
+  | 'ha_fws'                  // HA de flujo superficial (FWS) — agua visible
+  | 'ha_sfs_horizontal'       // HA de flujo subsuperficial horizontal (HSSF)
+  | 'ha_sfs_vertical'         // HA de flujo subsuperficial vertical (VSSF)
+  | 'ha_hibrido'              // HA hibrido (FWS + SFS en serie)
 
 type TipoVegetacion = 'flotante' | 'emergente' | 'sumergida'
 
@@ -188,7 +199,6 @@ interface Humedal {
   alcaldia: Alcaldia
   ubicacion: string
   tipoHumedal: TipoHumedal
-  tipoFlujo?: TipoFlujo
   tipoVegetacion?: TipoVegetacion[]
   funcionPrincipal: string
   superficie?: number       // m²
@@ -215,7 +225,7 @@ interface Humedal {
 interface ArticuloNotihumedal {
   id: number; slug: string; titulo: string; fecha: string
   resumen: string; contenido: string; imagen?: string
-  autor: string; tags: string[]
+  fuenteImagen?: string; autor: string; tags: string[]
 }
 
 type EstadoProspectoNoticia = 'pendiente' | 'aprobado' | 'rechazado'
@@ -265,21 +275,21 @@ interface Hallazgo {
 
 ## Inventario de Humedales Artificiales (8 registros)
 
-| # | Nombre | Alcaldia | Tipo | Flujo | Superficie | Ano |
-|---|--------|----------|------|-------|-----------|-----|
-| 1 | Anfibium | Miguel Hidalgo | Conservacion | Superficial | 1,200 m² | 2023 |
-| 2 | Parque Ecologico Cuitlahuac | Iztapalapa | Tratamiento | Subsup. horiz. | 8,795 m² | 2021-2023 |
-| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Tratamiento | Combinado | 8,085 m² | 2012 |
-| 8 | Segundo Aragon (HAFSS) | Gustavo A. Madero | Tratamiento | Subsup. horiz. | 3,108 m² | 2020 |
-| 4 | Playa de Aves | Gustavo A. Madero | Recreativo | Superficial | 1,100 m² | 2021 |
-| 5 | Cerro de la Estrella | Iztapalapa | Captacion pluvial | Superficial | — | 2022 |
-| 6 | Vivero San Luis Tlaxialtemalco | Xochimilco | Conservacion | Superficial | 48,900 m² | 2023 |
-| 7 | Bajo Puente Cuemanco | Xochimilco | Restauracion | Subsup. horiz. | — | 2023 |
+| # | Nombre | Alcaldia | Tipo HA | Superficie | Ano | Fuente academica |
+|---|--------|----------|---------|-----------|-----|------------------|
+| 1 | Anfibium | Miguel Hidalgo | FWS | 1,200 m² | 2023 | Dominguez Solis (2024) |
+| 2 | Parque Ecologico Cuitlahuac | Iztapalapa | HSSF | 8,795 m² | 2021-2023 | Dominguez Solis (2024) |
+| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Hibrido | 8,085 m² | 2012 | Luna-Pabello & Aburto-Castañeda (2014) |
+| 8 | Segundo Aragon (HAFSS) | Gustavo A. Madero | HSSF | 3,108 m² | 2020 | DGCS-UNAM (2020) |
+| 4 | Playa de Aves | Gustavo A. Madero | FWS | 1,100 m² | 2021 | Gobierno CDMX (2021) |
+| 5 | Cerro de la Estrella | Iztapalapa | FWS | — | 2022 | Gobierno CDMX (2022) |
+| 6 | Vivero San Luis Tlaxialtemalco | Xochimilco | FWS | 48,900 m² | 2023 | Dominguez Solis (2024) |
+| 7 | CIBAC Cuemanco | Xochimilco | VSSF | 55 m² | 2007 | Ramirez-Carrillo et al. (2009) |
 
-### Tipologias identificadas
-1. **Tratamiento de aguas residuales:** Aragon STHA (2012), Segundo Aragon (2020), Cuitlahuac
-2. **Conservacion y biodiversidad:** Anfibium, Vivero San Luis
-3. **Regulacion hidrologica urbana:** Cuemanco, Cerro de la Estrella
+### Tipologias por sistema de flujo
+1. **HA flujo superficial (FWS):** Anfibium, Playa de Aves, Cerro de la Estrella, Vivero Tlaxialtemalco — agua visible
+2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF) — agua a traves del sustrato
+3. **HA hibrido (FWS + SFS):** Aragon STHA — HAFSS (2,351 m²) + HAFS (5,734 m²) en serie
 
 ### Limitaciones del inventario
 - Falta de datos de monitoreo cuantitativo
@@ -387,7 +397,7 @@ Inicio | Mapa | Inventario | Análisis | Notihumedal | Sobre | [Registra tu hume
   - `/analisis/hallazgos` — Policy brief
 - **Notihumedal** (`/notihumedal`) — Blog listing + `/notihumedal/[slug]` detail (static data from `data/notihumedal.ts`)
 - **Sobre** (`/sobre`) — About + ODS + Metodología (`#metodologia`) + Fuentes (`#fuentes`) + Normativa
-- **Registra** (`/registra`) — Multi-step wizard (3 pasos: datos técnicos, documento, confirmación)
+- **Registra** (`/registra`) — Multi-step wizard (3 pasos: datos técnicos, documento, confirmación). Envia prospecto a prospectos store/API → aparece en /admin/prospectos
 
 ### Redirects (`middleware/redirects.global.ts`)
 Old routes redirect to new locations:
@@ -480,16 +490,22 @@ Properties use **camelCase** in TypeScript (not snake_case):
 Always add null guards: `if (!value) return 'Sin tipo'`
 Use fallback: `map[value] || value.charAt(0).toUpperCase() + value.slice(1)`
 
-### Stores (Pinia composable style)
+### Stores (Pinia composable style, with CRUD)
+All data stores expose CRUD operations for admin pages. API-first with local fallback.
 ```typescript
+// humedales.ts — shared between /inventario (public) and /admin/humedales
 export const useHumedalesStore = defineStore('humedales', () => {
-  const humedales = ref<Humedal[]>(mockData)
-  const searchQuery = ref('')
-  const filterAlcaldia = ref('')
-  const filterTipo = ref('')
-  const filtered = computed(() => { /* ... */ })
-  return { humedales, searchQuery, filterAlcaldia, filterTipo, filtered }
+  const humedales = ref<Humedal[]>(mockData.map(h => ({ ...h })))
+  const filtered = computed(() => { /* search + filter */ })
+  function addHumedal(data) { /* ... */ }
+  function updateHumedal(id, data) { /* ... */ }
+  function deleteHumedal(id) { /* ... */ }
+  return { humedales, filtered, addHumedal, updateHumedal, deleteHumedal, ... }
 })
+
+// notihumedal.ts — shared between /notihumedal (public) and /admin/notihumedal
+// prospectos.ts — shared between /registra (public form) and /admin/prospectos
+}
 ```
 
 ### Pagination (15 items per page)
@@ -556,8 +572,8 @@ Slide-out right drawer for wetland details:
 - Shows complete information: tipo, funcion, superficie, volumen, capacidad, sustrato, uso del agua, vegetacion, servicios ecosistemicos, monitoreo, coordenadas
 
 ### Inventory Card Images
-Each humedal has an optional `imagen` field pointing to `/images/humedales/*.jpg` (Unsplash, free license).
-Cards show the image with `object-cover`; fallback to gradient + SVG icon if no image.
+Each humedal has an optional `imagen` field pointing to `/images/humedales/*.jpg` (fotos reales de fuentes institucionales: Fundacion UNAM, SEDEMA, Gobierno CDMX, UAM).
+Cards show the image with `object-cover`; fallback to gradient + SVG icon if no image. Credit shown via `fuenteImagen` field.
 
 ## Indicadores Page (`/analisis/indicadores`, 4 tabs)
 
@@ -600,7 +616,7 @@ Cards show the image with `object-cover`; fallback to gradient + SVG icon if no 
   2. Concentracion territorial (alto) → priorizacion por indice de necesidad
   3. Datos de eficiencia limitados (alto) → monitoreo in-situ con universidades
   4. Ventaja economica no cuantificada (alto) → analisis costo-beneficio formal
-- Cost comparison table: humedal ($0.50-2/m3) vs convencional ($5-15/m3) vs cloracion ($0.20-0.80/m3) + fuentes de estimacion
+- Cost comparison cards (redesigned): humedal ($0.50-2/m3) vs convencional ($5-15/m3) vs cloracion ($0.20-0.80/m3) con barra visual de costo relativo, fuente por metodo, y links a SciELO
 - Call to action with links to /analisis/brecha, /analisis/indicadores, /sobre#metodologia
 
 ## ODS Alignment (in `/sobre` and home teaser)
@@ -611,9 +627,9 @@ Cards show the image with `object-cover`; fallback to gradient + SVG icon if no 
 
 ## Metodologia (in `/sobre#metodologia`)
 Content merged into Sobre page as anchor sections. Old `/metodologia` route redirects via middleware.
-- Criterios de sistematizacion (6 criterios)
-- Tipologias identificadas (3 categorias)
-- Fuentes y referencias (`#fuentes`)
+- Criterios de sistematizacion (6 criterios, incluye "Tipo de humedal artificial" con clasificacion FWS/SFS)
+- Tipologias por sistema de flujo (3 categorias: FWS, SFS, hibrido)
+- Fuentes y referencias (`#fuentes`) — sin SEDEMA, con links a SciELO para cada articulo
 - Respaldo cientifico (IPN, UNAM/GAIA, UAM, UACh) — in `analisis/indicadores` Tab 4
 - Marco normativo — in Sobre page
 
@@ -638,12 +654,12 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **@vue/test-utils** — Vue component testing
 - **happy-dom** — lightweight DOM environment
 
-### Test Files (85 tests total)
+### Test Files (87 tests total)
 | File | Type | Count | Coverage |
 |------|------|-------|----------|
-| `tests/unit/useFormatters.test.ts` | Unit | 25 | All 17 formatters |
-| `tests/unit/auth.store.test.ts` | Unit | 14 | Auth state, roles, permissions, backward compat |
-| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 8 humedales, KPIs, ODS, hallazgos, notihumedal, CMS defaults |
+| `tests/unit/useFormatters.test.ts` | Unit | 26 | All formatters (TipoHumedal ha_fws/sfs/hibrido, badges, KPI) |
+| `tests/unit/auth.store.test.ts` | Unit | 15 | Auth state, roles (granular admin perms), backward compat |
+| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 8 humedales (ha_ prefix validation), KPIs, ODS, hallazgos, notihumedal, CMS defaults |
 | `tests/stress/data-volume.test.ts` | Stress | 16 | 1000-5000 items: filter/sort/paginate (<50ms) |
 
 ### Backend Tests (cercu-backend, 25 tests)
@@ -716,22 +732,43 @@ El procesamiento de GEE/Sentinel Hub ocurre en **cercu-backend**, no en Nitro. E
 - **Backend:** cercu-backend (shared Express/TypeORM API at `NUXT_PUBLIC_API_BASE_URL`)
 - **Auth:** Email + password login via `/api/v1/observatory/auth/login` → JWT (15min access token)
 - **Entity:** `ObservatoryAdmin` (separate from CERCU users) — password bcrypt-hashed (12 rounds)
-- **Approval queue:** Prospects detected by external detector → pending review → admin approves/rejects
+- **Approval queue:** Prospects from public form (/registra) + detector → pending review → admin approves → humedal added to store/inventory
+- **Dynamic data:** All admin sections use Pinia stores shared with public pages. CRUD works with API first, fallback to local store.
+
+### Roles & Permissions
+| Rol | Comportamiento |
+|-----|---------------|
+| `superadmin` | Acceso total (unico con `manage_users`) |
+| `admin` | Solo permisos asignados explicitamente (sin `manage_users`) |
+| `editor` | Solo permisos asignados explicitamente (sin `manage_users`) |
+
+Permisos asignables: `manage_cms`, `manage_humedales`, `manage_hallazgos`, `manage_notihumedal`, `manage_prospectos`, `manage_users` (solo superadmin).
+Route-level enforcement in `middleware/admin.ts`. Sidebar filters nav items by `hasPermission()`. Role badge visible in sidebar.
 
 ### Pipeline
 ```
-Detector → Prospectos → Inventario    |    Hallazgos (contenido editorial, fuera del pipeline)
+/registra (formulario publico) → POST /prospectos
+Detector (OSM + Turf.js)       → POST /detector/submit
+                                      ↓
+                               /admin/prospectos (cola de aprobacion)
+                                      ↓ Aprobar
+                               /admin/humedales (inventario) ↔ /inventario (publico)
+                                      
+Hallazgos (contenido editorial, fuera del pipeline)
+Notihumedal (CRUD articulos) ↔ /notihumedal (publico)
+Contenido CMS ↔ paginas publicas (home, sobre, analisis)
 ```
-Los prospectos detectados se aprueban y pasan al inventario público. Hallazgos es una sección de contenido editorial independiente del pipeline de detección.
 
 ### Admin Files
 ```
-stores/auth.ts              # Pinia auth store (login, logout, token in localStorage)
+stores/auth.ts              # Pinia auth store (login, logout, granular permissions per role)
 stores/cms.ts               # Pinia CMS store (page sections, API persistence, shared state)
+stores/notihumedal.ts       # Pinia notihumedal store (shared admin↔public, CRUD)
+stores/prospectos.ts        # Pinia prospectos store (formulario→admin pipeline)
 composables/useApi.ts       # $fetch wrapper with Bearer token + 401 handling
 composables/useCmsContent.ts # CMS composable (computed from cms store, fetches on mount)
-middleware/admin.ts          # Nuxt route middleware (redirects to /admin/login if unauthenticated)
-layouts/admin.vue            # Admin layout, sidebar en orden de pipeline, responsive
+middleware/admin.ts          # Nuxt route middleware (auth + route-level permission check)
+layouts/admin.vue            # Admin layout, sidebar with role badge, permission-filtered nav
 components/admin/
   AdminDataTable.vue         # Tabla con búsqueda, paginación, acciones, responsive
   ArticleEditor.client.vue   # GrapesJS visual editor (fullscreen, dynamic import, Axend-based)
@@ -739,23 +776,25 @@ components/admin/
 pages/admin/
   login.vue                  # Email + password login form
   index.vue                  # Dashboard con pipeline visual, stats, quick links
-  prospectos/index.vue       # Tabs: Cola de aprobación + Detector geoespacial
-  humedales/index.vue        # Inventario: humedales registrados (8 del mapa público)
+  prospectos/index.vue       # Tabs: Cola de aprobación (prospectos store) + Detector geoespacial
+  humedales/index.vue        # CRUD inventario (humedales store, mismos datos que /inventario)
   hallazgos/index.vue        # Hallazgos y recomendaciones (contenido editorial)
-  notihumedal/index.vue      # CRUD artículos (fullscreen editor) + cola de prospectos (2 tabs)
+  notihumedal/index.vue      # CRUD artículos (notihumedal store, mismos datos que /notihumedal)
+  usuarios/index.vue         # Gestión de usuarios y permisos (solo superadmin)
   contenido/index.vue        # CMS page list (home, sobre, analisis)
   contenido/[pageSlug].vue   # CMS section editor (accordion, color pickers, auto-save to API)
   detector/index.vue         # Redirect → /admin/prospectos
 ```
 
-### Admin Routes (orden de pipeline)
+### Admin Routes (orden de pipeline, filtradas por permisos)
 - `/admin/login` — login (layout default)
-- `/admin` — dashboard con pipeline visual
-- `/admin/prospectos` — tabs: Cola de aprobación + Detector (entrada del pipeline)
-- `/admin/humedales` — inventario de humedales registrados (fin del pipeline)
-- `/admin/hallazgos` — hallazgos y recomendaciones (contenido editorial)
-- `/admin/notihumedal` — CRUD artículos con editor fullscreen + cola de prospectos (2 tabs)
-- `/admin/contenido` — CMS: editar secciones de páginas públicas (home, sobre, analisis)
+- `/admin` — dashboard con pipeline visual (acceso: todos los autenticados)
+- `/admin/prospectos` — cola de aprobación + detector (perm: `manage_prospectos`)
+- `/admin/humedales` — CRUD inventario, mismos datos que /inventario (perm: `manage_humedales`)
+- `/admin/hallazgos` — hallazgos y recomendaciones (perm: `manage_hallazgos`)
+- `/admin/notihumedal` — CRUD artículos, mismos datos que /notihumedal (perm: `manage_notihumedal`)
+- `/admin/contenido` — CMS páginas públicas (perm: `manage_cms`)
+- `/admin/usuarios` — gestión de usuarios y roles (perm: `manage_users`, solo superadmin)
 - `/admin/contenido/{pageSlug}` — editor de secciones con auto-guardado a API
 
 ### Notihumedal Admin (CRUD + Scraping Pipeline)
@@ -855,14 +894,19 @@ PUT  /observatory/{obs}/admin/cms/{pageSlug}/{sectionKey}     # admin, body: { i
 
 ### Prospect Approval Flow
 ```
-External detector → POST /api/v1/observatory/humedales/prospectos
-         ↓
-[ProspectSubmission] status: 'pendiente'
-         ↓
-Admin reviews at /admin/prospectos
-         ↓
-Approve → POST .../aprobar   |   Reject → POST .../rechazar (+ notas)
+/registra (formulario publico) → POST /prospectos (source: 'formulario')
+                                       ↓
+                                  prospectos store (pendiente)
+                                       ↓
+Detector (OSM + Turf.js)   ────→ POST /detector/submit (source: 'ia_detector')
+                                       ↓
+                                  /admin/prospectos — cola de aprobacion
+                                       ↓
+                          Aprobar → humedalesStore.addHumedal() → aparece en /inventario
+                          Rechazar → notas de rechazo (prospecto no reaparece)
 ```
+**Datos del prospecto (formulario):** nombre, alcaldia, ubicacion, tipoHumedal, tipoVegetacion, funcionPrincipal, superficie, volumen, anio, sustrato, vegetacion, documentoLink, documentoDescripcion, institucion, email.
+**Visualizacion en admin:** grid legible con campos etiquetados (ya no JSON crudo). Badge indica origen: "Formulario publico" o "Detector IA".
 
 ### Geospatial Detector (tab dentro de `/admin/prospectos`)
 Built-in detector that identifies potential wetland sites using OpenStreetMap data + Turf.js spatial analysis. Runs entirely in JS (no Python).

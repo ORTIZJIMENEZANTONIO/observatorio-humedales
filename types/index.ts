@@ -20,20 +20,16 @@ export type Alcaldia =
   | 'Venustiano Carranza'
   | 'Xochimilco'
 
+// Clasificación técnica de humedales artificiales por sistema de flujo
+// FWS = Free Water Surface (agua visible sobre el sustrato)
+// SFS = Subsurface Flow (agua fluye a través del sustrato)
 export type TipoHumedal =
-  | 'conservacion'
-  | 'tratamiento_aguas'
-  | 'recreativo'
-  | 'captacion_pluvial'
-  | 'restauracion_hidrologica'
+  | 'ha_fws'                  // HA de flujo superficial (FWS) — agua visible
+  | 'ha_sfs_horizontal'       // HA de flujo subsuperficial horizontal (HSSF)
+  | 'ha_sfs_vertical'         // HA de flujo subsuperficial vertical (VSSF)
+  | 'ha_hibrido'              // HA híbrido (FWS + SFS en serie)
 
 export type EstadoHumedal = 'activo' | 'en_construccion' | 'en_expansion' | 'piloto'
-
-export type TipoFlujo =
-  | 'superficial'
-  | 'subsuperficial_horizontal'
-  | 'subsuperficial_vertical'
-  | 'combinado'
 
 export type TipoVegetacion =
   | 'flotante'
@@ -58,7 +54,6 @@ export interface Humedal {
   alcaldia: Alcaldia
   ubicacion: string
   tipoHumedal: TipoHumedal
-  tipoFlujo?: TipoFlujo
   tipoVegetacion?: TipoVegetacion[]
   funcionPrincipal: string
   superficie?: number
@@ -88,6 +83,7 @@ export interface ArticuloNotihumedal {
   resumen: string
   contenido: string
   imagen?: string
+  fuenteImagen?: string
   autor: string
   tags: string[]
 }
@@ -192,7 +188,9 @@ export interface Hallazgo {
 export interface ComparativoCostos {
   metodo: string
   costoM3: string
+  costoRango?: [number, number]
   eficiencia: string
   ventajas: string[]
   desventajas: string[]
+  fuente: string
 }

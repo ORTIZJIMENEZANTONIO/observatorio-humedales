@@ -3,7 +3,7 @@ export const cmsDefaults: Record<string, Record<string, any[]>> = {
     features: [
       { title: 'Inventario geoespacial', description: 'Localización y caracterización de humedales artificiales en la Ciudad de México, con datos de ubicación, superficie y vegetación.', to: '/inventario', bg: 'bg-primary-50', iconColor: 'text-primary', icon: 'lucide:map-pin' },
       { title: 'Servicios ecosistémicos', description: 'Análisis de los beneficios ambientales: tratamiento de agua, hábitat para fauna, captura de carbono y regulación térmica.', to: '/analisis/indicadores', bg: 'bg-eco/10', iconColor: 'text-eco', icon: 'lucide:droplets' },
-      { title: 'Metodología científica', description: 'Sistematización basada en criterios técnicos: tipo de humedal, vegetación, sustrato y uso del agua tratada.', to: '/sobre#metodologia', bg: 'bg-secondary/10', iconColor: 'text-secondary', icon: 'lucide:microscope' },
+      { title: 'Metodología científica', description: 'Sistematización basada en criterios técnicos: clasificación del humedal artificial por sistema de flujo (FWS, SFS), vegetación, sustrato y uso del agua tratada.', to: '/sobre#metodologia', bg: 'bg-secondary/10', iconColor: 'text-secondary', icon: 'lucide:microscope' },
     ],
     steps: [
       { title: 'Identificación', description: 'Localización de humedales artificiales existentes en la CDMX mediante fuentes oficiales, académicas y de trabajo de campo.' },
@@ -12,9 +12,9 @@ export const cmsDefaults: Record<string, Record<string, any[]>> = {
       { title: 'Visualización', description: 'Presentación interactiva en mapas y gráficas para tomadores de decisiones.' },
     ],
     tipologias: [
-      { title: 'Tratamiento de aguas', description: 'Sistemas diseñados para depurar aguas residuales y pluviales mediante procesos biológicos naturales.', examples: 'Aragón STHA, Segundo Aragón, Parque Ecológico Cuitláhuac', badge: 'Tratamiento', badgeClass: 'badge-secondary' },
-      { title: 'Conservación y biodiversidad', description: 'Humedales enfocados en la preservación de ecosistemas acuáticos y el refugio de fauna nativa.', examples: 'Anfibium (Chapultepec)', badge: 'Conservación', badgeClass: 'badge-eco' },
-      { title: 'Regulación hidrológica', description: 'Infraestructura verde para el control de escorrentías, captación pluvial y recarga de acuíferos.', examples: 'Bajo Puente Cuemanco, Cerro de la Estrella', badge: 'Regulación', badgeClass: 'badge-primary' },
+      { title: 'HA flujo superficial (FWS)', description: 'El agua fluye visiblemente sobre el sustrato, similar a un humedal natural. Usado para conservación, hábitat y tratamiento secundario.', examples: 'Anfibium, Playa de Aves, Vivero Tlaxialtemalco, Cerro de la Estrella', badge: 'FWS', badgeClass: 'badge-secondary' },
+      { title: 'HA flujo subsuperficial (SFS)', description: 'El agua fluye a través del sustrato (grava, arena, tezontle) sin ser visible en la superficie. Mayor eficiencia en remoción de contaminantes.', examples: 'Parque Ecológico Cuitláhuac, Segundo Aragón, Bajo Puente Cuemanco', badge: 'HSSF', badgeClass: 'badge-primary' },
+      { title: 'HA híbrido (FWS + SFS)', description: 'Combina módulos de flujo superficial y subsuperficial en serie para maximizar la remoción de contaminantes.', examples: 'Aragón STHA (HAFSS + HAFS)', badge: 'Híbrido', badgeClass: 'badge-eco' },
     ],
     servicios: [
       { title: 'Tratamiento de agua', icon: 'lucide:droplets' },
@@ -33,7 +33,7 @@ export const cmsDefaults: Record<string, Record<string, any[]>> = {
     ],
     criterios: [
       { title: 'Ubicación y año', description: 'Coordenadas geográficas y año de implementación de cada humedal.', icon: '📍' },
-      { title: 'Tipo de humedal', description: 'Clasificación funcional: conservación, tratamiento, recreativo, captación o restauración.', icon: '🏷️' },
+      { title: 'Tipo de humedal artificial', description: 'Clasificación por sistema de flujo: HA de flujo superficial (FWS), HA de flujo subsuperficial horizontal (HSSF) o vertical (VSSF), y sistemas híbridos (FWS + SFS).', icon: '🏷️' },
       { title: 'Características técnicas', description: 'Vegetación utilizada, tipo de sustrato, volumen o superficie documentada.', icon: '🔬' },
       { title: 'Uso del agua tratada', description: 'Destino del agua procesada: riego, recirculación, infiltración o mantenimiento.', icon: '💧' },
       { title: 'Servicios ecosistémicos', description: 'Beneficios ambientales documentados: depuración, hábitat, captura de carbono, etc.', icon: '🌿' },

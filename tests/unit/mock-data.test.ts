@@ -35,9 +35,10 @@ describe('Data Integrity — Humedales', () => {
       expect(h.nombre).toMatch(/Artificial|Segundo/)
     })
   })
-  it('all have tipoFlujo field', () => {
+  it('all have valid tipoHumedal (ha_ prefix)', () => {
+    const validTypes = ['ha_fws', 'ha_sfs_horizontal', 'ha_sfs_vertical', 'ha_hibrido']
     humedales.forEach(h => {
-      expect(h.tipoFlujo).toBeTruthy()
+      expect(validTypes).toContain(h.tipoHumedal)
     })
   })
   it('all have tipoVegetacion array', () => {
@@ -53,14 +54,14 @@ describe('Data Integrity — Humedales', () => {
   })
   it('Aragon STHA (id=3) has correct data', () => {
     const aragon = humedales.find(h => h.id === 3)!
-    expect(aragon.tipoFlujo).toBe('combinado')
+    expect(aragon.tipoHumedal).toBe('ha_hibrido')
     expect(aragon.superficie).toBe(8085)
     expect(aragon.capacidadTratamiento).toContain('250')
     expect(aragon.anioImplementacion).toBe('2012')
   })
   it('Segundo Aragon (id=8) has correct data', () => {
     const segundo = humedales.find(h => h.id === 8)!
-    expect(segundo.tipoFlujo).toBe('subsuperficial_horizontal')
+    expect(segundo.tipoHumedal).toBe('ha_sfs_horizontal')
     expect(segundo.superficie).toBe(3108)
     expect(segundo.capacidadTratamiento).toContain('140')
   })

@@ -129,6 +129,12 @@ const tableRows = computed(() => users.value.map(u => ({
   permissions: (u.permissions || []).join(', '),
 })))
 
+// Admin can't have manage_users; editor can't have manage_users
+const availablePermissions = computed(() => {
+  if (form.role === 'admin') return allPermissions.filter(p => p.key !== 'manage_users')
+  return allPermissions.filter(p => p.key !== 'manage_users')
+})
+
 function roleBadgeClass(role: string) {
   if (role === 'superadmin') return 'badge-primary'
   if (role === 'admin') return 'badge-eco'
@@ -185,15 +191,20 @@ onMounted(() => loadUsers())
                 <option value="superadmin">Superadministrador</option>
               </select>
               <p class="form-hint">
-                {{ form.role === 'superadmin' ? 'Acceso total, incluyendo gestion de usuarios' : form.role === 'admin' ? 'Acceso a todo excepto gestion de usuarios' : 'Acceso limitado segun permisos asignados' }}
+                {{ form.role === 'superadmin' ? 'Acceso total a todas las secciones, incluyendo gestion de usuarios' : form.role === 'admin' ? 'Acceso a las secciones asignadas (sin gestion de usuarios)' : 'Acceso limitado segun permisos asignados' }}
               </p>
             </div>
           </div>
 
-          <div v-if="form.role === 'editor'" class="form-group">
-            <label class="form-label">Permisos</label>
+          <div v-if="form.role !== 'superadmin'" class="form-group">
+            <label class="form-label">Permisos asignados</label>
+            <p class="form-hint mb-2">Selecciona las secciones a las que tendra acceso este usuario</p>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <label v-for="perm in allPermissions.filter(p => p.key !== 'manage_users')" :key="perm.key" class="checkbox-label">
+              <label
+                v-for="perm in availablePermissions"
+                :key="perm.key"
+                class="checkbox-label"
+              >
                 <input type="checkbox" :value="perm.key" v-model="form.permissions" class="checkbox" />
                 <span>{{ perm.label }}</span>
               </label>

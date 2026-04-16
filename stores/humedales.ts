@@ -4,7 +4,7 @@ import type { Humedal } from '~/types'
 import { humedales as mockData } from '~/data/mock-humedales'
 
 export const useHumedalesStore = defineStore('humedales', () => {
-  const humedales = ref<Humedal[]>(mockData)
+  const humedales = ref<Humedal[]>(mockData.map(h => ({ ...h })))
   const loading = ref(false)
   const searchQuery = ref('')
   const filterAlcaldia = ref('')
@@ -41,5 +41,49 @@ export const useHumedalesStore = defineStore('humedales', () => {
 
   const totalCount = computed(() => humedales.value.length)
 
-  return { humedales, loading, searchQuery, filterAlcaldia, filterTipo, filtered, alcaldias, totalSuperficie, totalCount }
+  // ── CRUD operations ──
+  function addHumedal(data: Partial<Humedal>) {
+    const maxId = humedales.value.reduce((max, h) => Math.max(max, h.id), 0)
+    const nuevo: Humedal = {
+      id: maxId + 1,
+      nombre: data.nombre || '',
+      alcaldia: data.alcaldia as any || 'Miguel Hidalgo',
+      ubicacion: data.ubicacion || '',
+      tipoHumedal: data.tipoHumedal || 'ha_fws',
+      tipoVegetacion: data.tipoVegetacion || [],
+      funcionPrincipal: data.funcionPrincipal || '',
+      superficie: data.superficie,
+      volumen: data.volumen,
+      capacidadTratamiento: data.capacidadTratamiento,
+      anioImplementacion: data.anioImplementacion || '',
+      vegetacion: data.vegetacion || [],
+      sustrato: data.sustrato || '',
+      usoAgua: data.usoAgua || '',
+      serviciosEcosistemicos: data.serviciosEcosistemicos || [],
+      serviciosDescripcion: data.serviciosDescripcion || [],
+      monitoreo: data.monitoreo || '',
+      estado: data.estado || 'activo',
+      lat: data.lat || 19.4326,
+      lng: data.lng || -99.1332,
+      imagen: data.imagen,
+      fuente: data.fuente,
+      fuenteImagen: data.fuenteImagen,
+    }
+    humedales.value = [...humedales.value, nuevo]
+    return nuevo
+  }
+
+  function updateHumedal(id: number, data: Partial<Humedal>) {
+    const idx = humedales.value.findIndex(h => h.id === id)
+    if (idx === -1) return null
+    const updated = { ...humedales.value[idx], ...data, id }
+    humedales.value = humedales.value.map(h => h.id === id ? updated : h)
+    return updated
+  }
+
+  function deleteHumedal(id: number) {
+    humedales.value = humedales.value.filter(h => h.id !== id)
+  }
+
+  return { humedales, loading, searchQuery, filterAlcaldia, filterTipo, filtered, alcaldias, totalSuperficie, totalCount, addHumedal, updateHumedal, deleteHumedal }
 })

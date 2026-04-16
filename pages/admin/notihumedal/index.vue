@@ -1,18 +1,18 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin', middleware: 'admin', pageTransition: false })
 
-import type { ArticuloNotihumedal, ProspectoNoticia } from '~/types'
-import { articulos as localArticulos } from '~/data/notihumedal'
+import type { ProspectoNoticia } from '~/types'
 
 const { apiFetch } = useApi()
 const config = useRuntimeConfig()
 const obs = config.public.observatory as string
+const store = useNotihumedalStore()
+const { available: backendUp, check: checkBackend } = useBackendStatus()
 
 // ── State ──
 const activeTab = ref<'publicados' | 'prospectos'>('publicados')
 const loading = ref(true)
 const backendAvailable = ref(false)
-const items = ref<ArticuloNotihumedal[]>([])
 const prospectos = ref<ProspectoNoticia[]>([])
 const prospectosLoading = ref(false)
 const prospectosFilter = ref<'pendiente' | 'aprobado' | 'rechazado'>('pendiente')
@@ -85,13 +85,13 @@ const scraping = ref(false)
 // ── Load published articles ──
 async function loadArticulos() {
   loading.value = true
-  try {
-    const res = await apiFetch(`/observatory/${obs}/admin/notihumedal`)
-    items.value = (res as any).items || (res as any).data || []
-    backendAvailable.value = true
-  } catch {
-    items.value = [...localArticulos]
-    backendAvailable.value = false
+  backendAvailable.value = await checkBackend()
+  if (backendAvailable.value) {
+    try {
+      const res = await apiFetch(`/observatory/${obs}/admin/notihumedal`)
+      const items = (res as any).items || (res as any).data || []
+      if (items.length) store.setArticulos(items)
+    } catch { /* use store fallback */ }
   }
   loading.value = false
 }
@@ -118,35 +118,52 @@ async function saveArticulo() {
     slug: form.titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
     resumen: form.resumen,
     contenido: editorOutput.html,
-    css_content: editorOutput.css,
-    editor_data: editorOutput.editorData,
     autor: form.autor,
     fecha: form.fecha,
     tags: form.tags.split(',').map((t: string) => t.trim()).filter(Boolean),
     imagen: form.imagen || undefined,
   }
   try {
-    if (editingId.value) {
-      await apiFetch(`/observatory/${obs}/admin/notihumedal/${editingId.value}`, { method: 'PATCH', body })
+    if (backendAvailable.value) {
+      if (editingId.value) {
+        await apiFetch(`/observatory/${obs}/admin/notihumedal/${editingId.value}`, { method: 'PATCH', body: { ...body, css_content: editorOutput.css, editor_data: editorOutput.editorData } })
+      } else {
+        await apiFetch(`/observatory/${obs}/admin/notihumedal`, { method: 'POST', body: { ...body, css_content: editorOutput.css, editor_data: editorOutput.editorData } })
+      }
+      await loadArticulos()
     } else {
-      await apiFetch(`/observatory/${obs}/admin/notihumedal`, { method: 'POST', body })
+      if (editingId.value) {
+        store.updateArticulo(editingId.value, body)
+      } else {
+        store.addArticulo(body)
+      }
     }
     showForm.value = false
     resetForm()
-    await loadArticulos()
-  } catch (e: any) {
-    alert(e?.data?.error?.message || 'Error al guardar el articulo')
+  } catch {
+    // API failed — save locally
+    if (editingId.value) {
+      store.updateArticulo(editingId.value, body)
+    } else {
+      store.addArticulo(body)
+    }
+    showForm.value = false
+    resetForm()
   }
   saving.value = false
 }
 
 async function deleteArticulo(row: any) {
-  if (!confirm(`Eliminar "${row.titulo}"?`)) return
+  if (!confirm(`¿Eliminar "${row.titulo}"?`)) return
   try {
-    await apiFetch(`/observatory/${obs}/admin/notihumedal/${row.id}`, { method: 'DELETE' })
-    await loadArticulos()
-  } catch (e: any) {
-    alert(e?.data?.error?.message || 'Error al eliminar')
+    if (backendAvailable.value) {
+      await apiFetch(`/observatory/${obs}/admin/notihumedal/${row.id}`, { method: 'DELETE' })
+      await loadArticulos()
+    } else {
+      store.deleteArticulo(row.id)
+    }
+  } catch {
+    store.deleteArticulo(row.id)
   }
 }
 
@@ -227,7 +244,7 @@ const articuloColumns = [
 ]
 
 // ── Computed rows ──
-const articuloRows = computed(() => items.value.map(a => ({
+const articuloRows = computed(() => store.articulos.map(a => ({
   ...a,
   tags: Array.isArray(a.tags) ? a.tags.join(', ') : a.tags,
 })))
@@ -253,7 +270,7 @@ watch(activeTab, (tab) => {
     <!-- Offline banner -->
     <div v-if="!loading && !backendAvailable" class="mb-4 flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3">
       <svg class="h-5 w-5 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-      <p class="text-sm text-accent-dark">Modo offline — mostrando datos locales. Conecte el backend para habilitar CRUD y scraper.</p>
+      <p class="text-sm text-accent-dark">Modo local — mostrando datos del store. Los cambios se aplican localmente. Conecte el backend para sincronizar con el servidor.</p>
     </div>
 
     <!-- Tabs -->

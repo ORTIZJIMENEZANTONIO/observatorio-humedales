@@ -16,7 +16,7 @@
         <div class="panel border-l-4 border-primary">
           <h2 class="mb-3 text-lg font-semibold text-ink">Resumen ejecutivo</h2>
           <p class="text-sm leading-relaxed text-slate-custom">
-            El inventario Fase 1 de humedales artificiales en la Ciudad de Mexico revela avances significativos en la implementacion de infraestructura verde, pero tambien brechas criticas en monitoreo, cobertura territorial y documentacion de eficiencia. Los 8 humedales artificiales inventariados se concentran en solo 5 de 16 alcaldias y carecen, en su mayoria, de datos cuantitativos de desempeno. Sin embargo, la evidencia academica y la ventaja economica estimada (hasta 10 veces menor costo por metro cubico frente a tratamientos convencionales) respaldan la expansion de esta tecnologia como componente estrategico de la politica hidrica urbana.
+            El inventario Fase 1 de humedales artificiales en la Ciudad de Mexico (Dominguez Solis, 2025, CIIEMAD-IPN) revela avances significativos en la implementacion de infraestructura verde, pero tambien brechas criticas en monitoreo, cobertura territorial y documentacion de eficiencia. Los 8 humedales artificiales inventariados se concentran en solo 5 de 16 alcaldias y carecen, en su mayoria, de datos cuantitativos de desempeno. Sin embargo, la evidencia academica (Dominguez Solis, 2025; Luna-Pabello &amp; Aburto-Castañeda, 2014) y la ventaja economica estimada — entre $0.50 y $2.00 MXN/m³ frente a $5-15 MXN/m³ en plantas convencionales — respaldan la expansion de esta tecnologia como componente estrategico de la politica hidrica urbana.
           </p>
         </div>
       </div>
@@ -94,52 +94,66 @@
       <div class="container-wide">
         <CommonSectionTitle title="Comparativo de costos de tratamiento" subtitle="Analisis comparativo entre humedales artificiales y metodos convencionales de tratamiento de agua." tag="Economia" />
 
-        <div ref="tablaRevealRef" class="panel reveal">
-          <div class="overflow-x-auto">
-            <table class="table-base">
-              <thead>
-                <tr>
-                  <th class="cursor-pointer select-none" @click="toggleCostSort('metodo')">Método <span class="text-[10px] opacity-60">{{ costSortIcon('metodo') }}</span></th>
-                  <th class="cursor-pointer select-none" @click="toggleCostSort('costoM3')">Costo/m³ <span class="text-[10px] opacity-60">{{ costSortIcon('costoM3') }}</span></th>
-                  <th class="cursor-pointer select-none" @click="toggleCostSort('eficiencia')">Eficiencia <span class="text-[10px] opacity-60">{{ costSortIcon('eficiencia') }}</span></th>
-                  <th>Ventajas</th>
-                  <th class="min-w-[220px]">Desventajas</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="c in sortedCostos" :key="c.metodo" :class="{ 'bg-primary-50': c.metodo === 'Humedal artificial' }">
-                  <td class="font-semibold whitespace-nowrap">
-                    {{ c.metodo }}
-                  </td>
-                  <td class="whitespace-nowrap">{{ c.costoM3 }}</td>
-                  <td class="whitespace-nowrap">{{ c.eficiencia }}</td>
-                  <td class="whitespace-normal min-w-[220px]">
-                    <ul class="space-y-1">
-                      <li v-for="(v, i) in c.ventajas" :key="i" class="flex items-start gap-1.5 text-xs text-slate-custom">
-                        <span class="mt-0.5 text-eco">+</span>
-                        <span>{{ v }}</span>
-                      </li>
-                    </ul>
-                  </td>
-                  <td class="whitespace-normal min-w-[220px]">
-                    <ul class="space-y-1">
-                      <li v-for="(d, i) in c.desventajas" :key="i" class="flex items-start gap-1.5 text-xs text-slate-custom">
-                        <span class="mt-0.5 text-alert">-</span>
-                        <span>{{ d }}</span>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <div ref="tablaRevealRef" class="reveal space-y-6">
+          <!-- Card per method -->
+          <div v-for="c in sortedCostos" :key="c.metodo" class="panel" :class="{ 'border-l-4 border-primary': c.metodo === 'Humedal artificial' }">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:gap-8">
+              <!-- Header -->
+              <div class="md:w-1/4 shrink-0">
+                <h3 class="text-base font-semibold text-ink">{{ c.metodo }}</h3>
+                <div class="mt-2 flex flex-wrap gap-3">
+                  <div>
+                    <span class="text-xs text-ink-muted">Costo/m³</span>
+                    <p class="text-lg font-bold" :class="c.metodo === 'Humedal artificial' ? 'text-primary' : 'text-ink'">{{ c.costoM3 }}</p>
+                  </div>
+                  <div>
+                    <span class="text-xs text-ink-muted">Eficiencia</span>
+                    <p class="text-lg font-bold text-ink">{{ c.eficiencia }}</p>
+                  </div>
+                </div>
+                <!-- Cost bar -->
+                <div class="mt-3">
+                  <div class="h-2 w-full rounded-full bg-gray-100">
+                    <div class="h-2 rounded-full" :class="c.metodo === 'Humedal artificial' ? 'bg-primary' : c.metodo === 'Cloración básica' ? 'bg-secondary' : 'bg-alert'" :style="{ width: costBarWidth(c) }" />
+                  </div>
+                  <p class="mt-0.5 text-[10px] text-ink-muted">Costo relativo (escala: $0 – $15 MXN/m³)</p>
+                </div>
+              </div>
+              <!-- Ventajas / Desventajas -->
+              <div class="flex-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-eco">Ventajas</h4>
+                  <ul class="space-y-1.5">
+                    <li v-for="(v, i) in c.ventajas" :key="i" class="flex items-start gap-1.5 text-sm text-slate-custom">
+                      <span class="mt-0.5 text-eco shrink-0">+</span>
+                      <span>{{ v }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-alert">Desventajas</h4>
+                  <ul class="space-y-1.5">
+                    <li v-for="(d, i) in c.desventajas" :key="i" class="flex items-start gap-1.5 text-sm text-slate-custom">
+                      <span class="mt-0.5 text-alert shrink-0">-</span>
+                      <span>{{ d }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- Per-row source -->
+            <div class="mt-4 border-t border-gray-100 pt-3">
+              <p class="text-xs text-ink-muted"><strong>Fuente del costo:</strong> {{ c.fuente }}</p>
+            </div>
           </div>
-          <div class="mt-4 rounded-lg bg-surface p-4">
-            <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">Estimación de costos — fuentes</h4>
+
+          <!-- General sources -->
+          <div class="rounded-lg bg-surface p-4">
+            <h4 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">Referencias bibliográficas del comparativo</h4>
             <ul class="space-y-1 text-xs text-slate-custom">
-              <li>Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1). Facultad de Química, UNAM.</li>
-              <li>Nava-Rojas, J. et al. (2023). Remoción de contaminantes en humedales artificiales de flujo subsuperficial: una revisión. <em>Ingeniería</em>, 28(1). TecNM Boca del Río.</li>
-              <li>Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. <em>Rev. Int. Contam. Ambie.</em>, 25(3).</li>
-              <li>CONAGUA. Datos de costos de operación de plantas de tratamiento convencional en México.</li>
+              <li><strong>Domínguez Solís, D. (2025). <em>Inventario de humedales artificiales en la Ciudad de México, Fase 1</em>. Tesis de maestría. CIIEMAD-IPN.</strong></li>
+              <li>Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1), 32-55. <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">SciELO</a></li>
+              <li>Fundación UNAM. (2020). UNAM inaugura humedal artificial en el Bosque de San Juan de Aragón. <a href="https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Enlace</a></li>
             </ul>
           </div>
         </div>
@@ -173,7 +187,7 @@
         <div class="rounded-card border border-accent/30 bg-accent/5 p-6">
           <h3 class="mb-2 text-sm font-semibold text-accent-dark">Nota metodologica</h3>
           <p class="text-sm leading-relaxed text-slate-custom">
-            Los hallazgos y recomendaciones presentados en esta pagina se basan exclusivamente en la informacion recopilada durante la Fase 1 del inventario de humedales artificiales (Domínguez Solís, 2024) y en evidencia académica publicada. Las estimaciones de costos y eficiencia provienen de literatura academica y fuentes gubernamentales, no de mediciones directas en los humedales artificiales inventariados. Estas recomendaciones tienen caracter orientativo y no constituyen politica publica vinculante.
+            Los hallazgos y recomendaciones presentados en esta pagina se basan exclusivamente en la informacion recopilada durante la Fase 1 del inventario de humedales artificiales (Domínguez Solís, 2025) y en evidencia académica publicada (Luna-Pabello & Aburto-Castañeda, 2014). Las estimaciones de costos y eficiencia provienen de literatura academica, no de mediciones directas en los humedales artificiales inventariados. Estas recomendaciones tienen caracter orientativo y no constituyen politica publica vinculante.
           </p>
         </div>
       </div>
@@ -182,7 +196,9 @@
 </template>
 
 <script setup lang="ts">
-import { hallazgos, comparativoCostos } from '~/data/hallazgos'
+const store = useHallazgosStore()
+const hallazgos = computed(() => store.hallazgos)
+const comparativoCostos = computed(() => store.comparativoCostos)
 
 const { revealRef: hallazgosRef } = useScrollReveal({ stagger: true })
 const { revealRef: tablaRevealRef } = useScrollReveal()
@@ -211,6 +227,12 @@ const sortedCostos = computed(() => {
     return 0
   })
 })
+
+function costBarWidth(c: typeof comparativoCostos[number]): string {
+  const max = 15
+  const avg = c.costoRango ? (c.costoRango[0] + c.costoRango[1]) / 2 : 0
+  return `${Math.min((avg / max) * 100, 100)}%`
+}
 
 function plazoClass(plazo: 'corto' | 'mediano' | 'largo'): string {
   const map: Record<string, string> = {

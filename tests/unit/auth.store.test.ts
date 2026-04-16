@@ -77,10 +77,18 @@ describe('Auth Store', () => {
       expect(auth.hasPermission('manage_users')).toBe(true)
       expect(auth.hasPermission('manage_cms')).toBe(true)
     })
-    it('returns true for all except manage_users when admin', () => {
+    it('admin role checks assigned permissions (no implicit access)', () => {
+      const auth = useAuthStore()
+      auth.admin = { id: '1', email: 'a@b.com', name: 'A', observatories: [], role: 'admin', permissions: ['manage_cms', 'manage_humedales'] } as any
+      expect(auth.hasPermission('manage_cms')).toBe(true)
+      expect(auth.hasPermission('manage_humedales')).toBe(true)
+      expect(auth.hasPermission('manage_notihumedal')).toBe(false)
+      expect(auth.hasPermission('manage_users')).toBe(false)
+    })
+    it('admin without permissions has no access', () => {
       const auth = useAuthStore()
       auth.admin = { id: '1', email: 'a@b.com', name: 'A', observatories: [], role: 'admin', permissions: [] } as any
-      expect(auth.hasPermission('manage_cms')).toBe(true)
+      expect(auth.hasPermission('manage_cms')).toBe(false)
       expect(auth.hasPermission('manage_users')).toBe(false)
     })
     it('checks permissions array for editor role', () => {

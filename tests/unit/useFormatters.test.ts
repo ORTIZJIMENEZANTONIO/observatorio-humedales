@@ -49,18 +49,21 @@ describe('useFormatters', () => {
     })
   })
 
-  // ── Tipo humedal ──
+  // ── Tipo humedal (clasificación por sistema de flujo) ──
   describe('formatTipoHumedal', () => {
-    it('maps conservacion', () => {
-      expect(fmt.formatTipoHumedal('conservacion')).toBe('Conservación')
+    it('maps ha_fws', () => {
+      expect(fmt.formatTipoHumedal('ha_fws')).toContain('FWS')
     })
-    it('maps tratamiento_aguas', () => {
-      expect(fmt.formatTipoHumedal('tratamiento_aguas')).toBe('Tratamiento de aguas')
+    it('maps ha_sfs_horizontal', () => {
+      expect(fmt.formatTipoHumedal('ha_sfs_horizontal')).toContain('HSSF')
     })
-    it('maps all 5 types', () => {
-      const types = ['conservacion', 'tratamiento_aguas', 'recreativo', 'captacion_pluvial', 'restauracion_hidrologica']
+    it('maps ha_hibrido', () => {
+      expect(fmt.formatTipoHumedal('ha_hibrido')).toContain('híbrido')
+    })
+    it('maps all 4 types', () => {
+      const types = ['ha_fws', 'ha_sfs_horizontal', 'ha_sfs_vertical', 'ha_hibrido']
       types.forEach(t => {
-        expect(fmt.formatTipoHumedal(t)).not.toBe(t) // should be human-readable
+        expect(fmt.formatTipoHumedal(t)).not.toBe(t)
       })
     })
     it('returns fallback for unknown type', () => {
@@ -71,16 +74,16 @@ describe('useFormatters', () => {
     })
   })
 
-  // ── Tipo flujo ──
+  // ── Tipo flujo (alias de tipoHumedal) ──
   describe('formatTipoFlujo', () => {
-    it('maps superficial', () => {
-      expect(fmt.formatTipoFlujo('superficial')).toBe('Flujo superficial')
+    it('maps ha_fws', () => {
+      expect(fmt.formatTipoFlujo('ha_fws')).toContain('superficial')
     })
-    it('maps subsuperficial_horizontal', () => {
-      expect(fmt.formatTipoFlujo('subsuperficial_horizontal')).toBe('Flujo subsuperficial horizontal')
+    it('maps ha_sfs_horizontal', () => {
+      expect(fmt.formatTipoFlujo('ha_sfs_horizontal')).toContain('horizontal')
     })
-    it('maps combinado', () => {
-      expect(fmt.formatTipoFlujo('combinado')).toContain('Combinado')
+    it('maps ha_hibrido', () => {
+      expect(fmt.formatTipoFlujo('ha_hibrido')).toContain('brido')
     })
     it('returns Sin especificar for empty', () => {
       expect(fmt.formatTipoFlujo('')).toBe('Sin especificar')
@@ -129,13 +132,14 @@ describe('useFormatters', () => {
   // ── Badge classes ──
   describe('badge classes', () => {
     it('tipoHumedalBadgeClass returns correct classes', () => {
-      expect(fmt.tipoHumedalBadgeClass('conservacion')).toContain('eco')
-      expect(fmt.tipoHumedalBadgeClass('tratamiento_aguas')).toContain('secondary')
+      expect(fmt.tipoHumedalBadgeClass('ha_fws')).toContain('secondary')
+      expect(fmt.tipoHumedalBadgeClass('ha_sfs_horizontal')).toContain('primary')
+      expect(fmt.tipoHumedalBadgeClass('ha_hibrido')).toContain('accent')
       expect(fmt.tipoHumedalBadgeClass('')).toContain('gray')
     })
     it('tipoFlujoBadgeClass returns correct classes', () => {
-      expect(fmt.tipoFlujoBadgeClass('superficial')).toContain('secondary')
-      expect(fmt.tipoFlujoBadgeClass('combinado')).toContain('accent')
+      expect(fmt.tipoFlujoBadgeClass('ha_fws')).toContain('secondary')
+      expect(fmt.tipoFlujoBadgeClass('ha_hibrido')).toContain('accent')
       expect(fmt.tipoFlujoBadgeClass('')).toContain('gray')
     })
     it('estadoHumedalBadgeClass returns correct classes', () => {

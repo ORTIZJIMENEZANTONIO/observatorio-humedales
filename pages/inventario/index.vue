@@ -20,13 +20,12 @@
             <option value="">Todas las alcaldías</option>
             <option v-for="a in store.alcaldias" :key="a" :value="a">{{ a }}</option>
           </select>
-          <select v-model="store.filterTipo" class="select max-w-[200px]">
+          <select v-model="store.filterTipo" class="select max-w-[240px]">
             <option value="">Todos los tipos</option>
-            <option value="conservacion">Conservación</option>
-            <option value="tratamiento_aguas">Tratamiento de aguas</option>
-            <option value="recreativo">Recreativo</option>
-            <option value="captacion_pluvial">Captación pluvial</option>
-            <option value="restauracion_hidrologica">Restauración hidrológica</option>
+            <option value="ha_fws">HA flujo superficial (FWS)</option>
+            <option value="ha_sfs_horizontal">HA subsuperficial horizontal (HSSF)</option>
+            <option value="ha_sfs_vertical">HA subsuperficial vertical (VSSF)</option>
+            <option value="ha_hibrido">HA híbrido (FWS + SFS)</option>
           </select>
           <select v-model="sortBy" class="select max-w-[200px]">
             <option value="nombre_asc">Nombre (A-Z)</option>
@@ -83,7 +82,6 @@
               <p class="mt-1 text-xs text-slate-custom">{{ h.alcaldia }} · {{ h.anioImplementacion }}</p>
               <div class="mt-3 flex flex-wrap gap-1.5">
                 <span :class="['badge', formatters.tipoHumedalBadgeClass(h.tipoHumedal)]">{{ formatters.formatTipoHumedal(h.tipoHumedal) }}</span>
-                <span v-if="h.tipoFlujo" :class="['badge', formatters.tipoFlujoBadgeClass(h.tipoFlujo)]">{{ formatters.formatTipoFlujo(h.tipoFlujo) }}</span>
                 <span :class="['badge', formatters.estadoHumedalBadgeClass(h.estado)]">{{ formatters.formatEstadoHumedal(h.estado) }}</span>
               </div>
               <div class="mt-4 space-y-1.5 text-xs text-slate-custom">
@@ -127,7 +125,6 @@
         <div class="flex-1 p-6 space-y-6">
           <div class="flex flex-wrap gap-2">
             <span :class="['badge', formatters.tipoHumedalBadgeClass(selected.tipoHumedal)]">{{ formatters.formatTipoHumedal(selected.tipoHumedal) }}</span>
-            <span v-if="selected.tipoFlujo" :class="['badge', formatters.tipoFlujoBadgeClass(selected.tipoFlujo)]">{{ formatters.formatTipoFlujo(selected.tipoFlujo) }}</span>
             <span :class="['badge', formatters.estadoHumedalBadgeClass(selected.estado)]">{{ formatters.formatEstadoHumedal(selected.estado) }}</span>
           </div>
 

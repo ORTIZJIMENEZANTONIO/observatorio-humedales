@@ -158,16 +158,11 @@
           <div class="panel mt-8">
             <h3 class="mb-3 text-base font-semibold">Fuentes y referencias</h3>
             <ul class="space-y-1 text-xs text-slate-custom">
+              <li><strong>Domínguez Solís, D. (2025). Inventario de humedales artificiales en la CDMX, Fase 1. Tesis de maestría, CIIEMAD-IPN.</strong></li>
+              <li>Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales... <em>TIP Rev.</em>, 17(1), 32-55. UNAM.</li>
+              <li>Fundación UNAM. (2020). UNAM inaugura humedal artificial en Bosque de Aragón.</li>
               <li>Gobierno de la Ciudad de México. (2021). Playa de aves en Bosque de Aragón.</li>
               <li>Gobierno de la Ciudad de México. (2022). Cerro de la Estrella.</li>
-              <li>Gobierno de la Ciudad de México. (2023). Áreas Naturales Protegidas reabiertas.</li>
-              <li>Máspormás. (2021). Humedales artificiales: innovación para tratar aguas residuales.</li>
-              <li>Domínguez Solís, D. (2024). Inventario de humedales artificiales en la CDMX, Fase 1. IPN.</li>
-              <li>SEDEMA. (2023a). Transforma Sedema parcelas inactivas en humedal.</li>
-              <li>SEDEMA. (2023b). Produce plantas acuáticas en vivero San Luis Tlaxialtemalco.</li>
-              <li>UNAM. (2020). Humedal artificial en Bosque de Aragón.</li>
-              <li>UNAM. (2023). Humedales artificiales para tratamiento de agua.</li>
-              <li>UAM. (2023). Boletines institucionales sobre humedales urbanos.</li>
             </ul>
           </div>
         </div>
@@ -315,25 +310,12 @@
           <div class="panel">
             <h3 class="mb-3 text-base font-semibold">Referencias académicas y oficiales</h3>
             <div class="space-y-2 text-xs text-slate-custom">
-              <p><strong class="text-ink">IPN</strong></p>
-              <p class="ml-3">Domínguez Solís, D. (2024). Inventario de humedales artificiales en la Ciudad de México, Fase 1. IPN.</p>
-              <p class="ml-3">IPN. Proyecto: Sistema de regeneración de cuerpos de agua artificiales — Lago del Bosque de San Juan de Aragón, CDMX.</p>
+              <p><strong class="text-ink">Fuente primaria</strong></p>
+              <p class="ml-3"><strong>Domínguez Solís, D. (2025). <em>Inventario de humedales artificiales en la Ciudad de México, Fase 1</em>. Tesis de maestría. CIIEMAD-IPN.</strong></p>
               <p class="mt-2"><strong class="text-ink">UNAM</strong></p>
-              <p class="ml-3">Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1). <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&amp;pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">SciELO</a></p>
-              <p class="ml-3">Luna Pabello, V.M. / GAIA, Facultad de Química, UNAM. (2020-2024). Desarrollo tecnológico SHATTO y sistemas de humedales artificiales en UNAM (30+ años de investigación, 2 patentes).</p>
-              <p class="ml-3">Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales: evaluación de la remoción de la carga orgánica. <em>Rev. Int. Contam. Ambie.</em>, 25(3), 157-167.</p>
-              <p class="mt-2"><strong class="text-ink">UAM</strong></p>
-              <p class="ml-3">Martínez-Cruz, P. et al. (2006). Empleo de humedales artificiales para el tratamiento de aguas de un canal experimental de Xochimilco, México. <em>Hidrobiológica</em>, 16(3), 211-219.</p>
-              <p class="ml-3">FQ-UNAM y UAM-Xochimilco. (2007). Planta piloto Humedal Artificial de Flujo Combinado (HAFC) en CIBAC, Cuemanco.</p>
-              <p class="mt-2"><strong class="text-ink">UACh / Otros</strong></p>
-              <p class="ml-3">UACh, Depto. de Agroecología. Evaluación de humedal del Barrio Santiaguito, Texcoco. Eficiencias: 100% coliformes, 57.7% DQO/DBO₅, 98.47% sólidos sedimentables.</p>
-              <p class="ml-3">Nava-Rojas, J. et al. (2023). Remoción de contaminantes en humedales artificiales de flujo subsuperficial: una revisión. <em>Ingeniería</em>, 28(1). TecNM Boca del Río.</p>
+              <p class="ml-3">Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1), 32-55. <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&amp;pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">SciELO</a></p>
               <p class="mt-2"><strong class="text-ink">Fuentes oficiales</strong></p>
-              <p class="ml-3">SEDEMA. (2024). Continúa Sedema con acciones para la recuperación y creación de humedales. 34 humedales, 26.2 ha. Gobierno de la CDMX.</p>
-              <p class="ml-3">SEDEMA. (2024). Muestra SEDEMA al Ministerio de Medio Ambiente alemán los beneficios de los humedales artificiales del Bosque de San Juan de Aragón.</p>
-              <p class="ml-3">CONAGUA. Inventario Nacional de Humedales — Visualizador geoespacial.</p>
-              <p class="ml-3">CONABIO. Sistema de Monitoreo de Humedales en México (SIMOH-Mx). Servicios ecosistémicos y carbono azul.</p>
-              <p class="ml-3">NOM-001-SEMARNAT-2021. Límites permisibles de contaminantes en descargas de aguas residuales.</p>
+              <p class="ml-3">Fundación UNAM. (2020). UNAM inaugura humedal artificial en el Bosque de San Juan de Aragón. <a href="https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Enlace</a></p>
             </div>
           </div>
         </div>

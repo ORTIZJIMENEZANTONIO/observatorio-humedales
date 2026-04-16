@@ -41,11 +41,10 @@ export function useFormatters() {
   function formatTipoHumedal(tipo: string): string {
     if (!tipo) return 'Sin tipo'
     const map: Record<string, string> = {
-      conservacion: 'Conservación',
-      tratamiento_aguas: 'Tratamiento de aguas',
-      recreativo: 'Recreativo',
-      captacion_pluvial: 'Captación pluvial',
-      restauracion_hidrologica: 'Restauración hidrológica',
+      ha_fws: 'HA flujo superficial (FWS)',
+      ha_sfs_horizontal: 'HA subsuperficial horizontal (HSSF)',
+      ha_sfs_vertical: 'HA subsuperficial vertical (VSSF)',
+      ha_hibrido: 'HA híbrido (FWS + SFS)',
     }
     return map[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).replace(/_/g, ' ')
   }
@@ -78,13 +77,24 @@ export function useFormatters() {
     return map[servicio] || servicio.charAt(0).toUpperCase() + servicio.slice(1).replace(/_/g, ' ')
   }
 
+  function formatTipoHumedalCorto(tipo: string): string {
+    if (!tipo) return 'Sin tipo'
+    const map: Record<string, string> = {
+      ha_fws: 'FWS',
+      ha_sfs_horizontal: 'HSSF',
+      ha_sfs_vertical: 'VSSF',
+      ha_hibrido: 'Híbrido',
+    }
+    return map[tipo] || tipo
+  }
+
   function formatTipoFlujo(tipo: string): string {
     if (!tipo) return 'Sin especificar'
     const map: Record<string, string> = {
-      superficial: 'Flujo superficial',
-      subsuperficial_horizontal: 'Flujo subsuperficial horizontal',
-      subsuperficial_vertical: 'Flujo subsuperficial vertical',
-      combinado: 'Combinado (HAFSS + HAFS)',
+      ha_fws: 'Flujo superficial (FWS)',
+      ha_sfs_horizontal: 'Flujo subsuperficial horizontal (HSSF)',
+      ha_sfs_vertical: 'Flujo subsuperficial vertical (VSSF)',
+      ha_hibrido: 'Híbrido (FWS + SFS)',
     }
     return map[tipo] || tipo.charAt(0).toUpperCase() + tipo.slice(1).replace(/_/g, ' ')
   }
@@ -100,24 +110,16 @@ export function useFormatters() {
   }
 
   function tipoFlujoBadgeClass(tipo: string): string {
-    if (!tipo) return 'bg-gray-100 text-ink-muted'
-    const map: Record<string, string> = {
-      superficial: 'bg-secondary/10 text-secondary-dark',
-      subsuperficial_horizontal: 'bg-primary-50 text-primary',
-      subsuperficial_vertical: 'bg-eco/10 text-eco-dark',
-      combinado: 'bg-accent/10 text-accent-dark',
-    }
-    return map[tipo] || 'bg-gray-100 text-ink-muted'
+    return tipoHumedalBadgeClass(tipo)
   }
 
   function tipoHumedalBadgeClass(tipo: string): string {
     if (!tipo) return 'bg-gray-100 text-ink-muted'
     const map: Record<string, string> = {
-      conservacion: 'bg-eco/10 text-eco-dark',
-      tratamiento_aguas: 'bg-secondary/10 text-secondary-dark',
-      recreativo: 'bg-accent/10 text-accent-dark',
-      captacion_pluvial: 'bg-primary-50 text-primary',
-      restauracion_hidrologica: 'bg-primary-50 text-primary',
+      ha_fws: 'bg-secondary/10 text-secondary-dark',
+      ha_sfs_horizontal: 'bg-primary-50 text-primary',
+      ha_sfs_vertical: 'bg-eco/10 text-eco-dark',
+      ha_hibrido: 'bg-accent/10 text-accent-dark',
     }
     return map[tipo] || 'bg-gray-100 text-ink-muted'
   }
@@ -170,6 +172,7 @@ export function useFormatters() {
     formatPercent,
     formatDate,
     formatTipoHumedal,
+    formatTipoHumedalCorto,
     formatTipoFlujo,
     formatTipoVegetacion,
     formatEstadoHumedal,

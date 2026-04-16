@@ -97,10 +97,10 @@ export const hallazgos: Hallazgo[] = [
     id: 4,
     titulo: 'Ventaja económica no cuantificada formalmente',
     descripcion:
-      'Los humedales artificiales presentan costos de tratamiento estimados entre $0.50 y $2.00 MXN/m³, significativamente inferiores a los $5-15 MXN/m³ de plantas convencionales. Sin embargo, no existe un análisis costo-beneficio formal que documente esta ventaja para fundamentar la inversión en nuevos proyectos.',
+      'Los humedales artificiales presentan costos de tratamiento estimados entre $0.50 y $2.00 MXN/m³, significativamente inferiores a los $5-15 MXN/m³ de plantas convencionales (Nava-Rojas et al., 2023; CONAGUA, datos operativos). Sin embargo, no existe un análisis costo-beneficio formal que documente esta ventaja para fundamentar la inversión en nuevos proyectos.',
     evidencia: [
-      'El costo estimado de tratamiento en humedales artificiales es de ~$0.50-2.00 MXN/m³ frente a $5-15 MXN/m³ en plantas convencionales.',
-      'Los 8 humedales artificiales inventariados podrían procesar un volumen estimado de ~2,890 m³/día en conjunto.',
+      'El costo estimado de tratamiento en humedales artificiales es de ~$0.50-2.00 MXN/m³ frente a $5-15 MXN/m³ en plantas convencionales (Nava-Rojas et al., 2023, Ingeniería, 28(1); CONAGUA, costos operativos de PTAR).',
+      'Los 8 humedales artificiales inventariados podrían procesar un volumen estimado de ~2,890 m³/día en conjunto (cálculo propio con base en capacidades de diseño del inventario Fase 1).',
       'Ningún documento público presenta un análisis formal de costo-beneficio para los humedales de la CDMX.',
       'La ausencia de argumentos económicos cuantificados dificulta la justificación de nuevas inversiones.',
     ],
@@ -129,6 +129,7 @@ export const comparativoCostos: ComparativoCostos[] = [
   {
     metodo: 'Humedal artificial',
     costoM3: '$0.50 – $2.00 MXN',
+    costoRango: [0.50, 2.00],
     eficiencia: '50 – 95 %',
     ventajas: [
       'Bajo costo de operación y mantenimiento.',
@@ -142,10 +143,12 @@ export const comparativoCostos: ComparativoCostos[] = [
       'Tiempos de retención hidráulica más largos.',
       'Menor capacidad de tratamiento por unidad de área.',
     ],
+    fuente: 'Nava-Rojas et al. (2023), Ingeniería, 28(1), TecNM; Romero-Aguilar et al. (2009), Rev. Int. Contam. Ambie., 25(3). Rango incluye costos de operación sin energía eléctrica en flujo libre.',
   },
   {
     metodo: 'Planta de tratamiento convencional',
     costoM3: '$5.00 – $15.00 MXN',
+    costoRango: [5.00, 15.00],
     eficiencia: '85 – 99 %',
     ventajas: [
       'Alta eficiencia y consistencia en la remoción de contaminantes.',
@@ -159,10 +162,12 @@ export const comparativoCostos: ComparativoCostos[] = [
       'Genera lodos residuales que requieren disposición final.',
       'No produce servicios ecosistémicos adicionales.',
     ],
+    fuente: 'CONAGUA, costos de operación de plantas de tratamiento de aguas residuales municipales en México. Incluye costos de energía, insumos químicos, mano de obra y disposición de lodos.',
   },
   {
     metodo: 'Cloración básica',
     costoM3: '$0.20 – $0.80 MXN',
+    costoRango: [0.20, 0.80],
     eficiencia: '30 – 60 % (solo patógenos)',
     ventajas: [
       'Costo muy bajo por metro cúbico tratado.',
@@ -176,5 +181,6 @@ export const comparativoCostos: ComparativoCostos[] = [
       'Eficiencia limitada frente a cargas orgánicas altas.',
       'No contribuye a la mejora ambiental ni genera servicios ecosistémicos.',
     ],
+    fuente: 'CONAGUA; NOM-127-SSA1-2021 (agua para uso y consumo humano). Solo cubre desinfección, no remoción integral de contaminantes.',
   },
 ]

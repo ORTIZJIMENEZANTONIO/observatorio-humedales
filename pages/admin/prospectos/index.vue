@@ -4,41 +4,69 @@ definePageMeta({ layout: 'admin', middleware: 'admin', pageTransition: false })
 const { apiFetch } = useApi()
 const config = useRuntimeConfig()
 const observatory = config.public.observatory as string
+const prospectosStore = useProspectosStore()
+const humedalesStore = useHumedalesStore()
+const formatters = useFormatters()
+const { available: backendUp, check: checkBackend } = useBackendStatus()
 
 // ══════════════════════════════════════════
 //  Tab state
 // ══════════════════════════════════════════
 const activeTab = ref<'cola' | 'detector'>('cola')
+const isOnline = ref(false)
 
 // ══════════════════════════════════════════
 //  Cola de aprobacion state
 // ══════════════════════════════════════════
-const prospects = ref<any[]>([])
 const loadingProspects = ref(true)
 const filter = ref('pendiente')
 
+const prospects = computed(() => prospectosStore.byStatus(filter.value))
+
 async function loadProspects() {
   loadingProspects.value = true
-  try {
-    const res = await apiFetch(
-      `/observatory/${observatory}/admin/prospectos?status=${filter.value}`
-    )
-    prospects.value = res.items || []
-  } catch {
-    prospects.value = []
+  isOnline.value = await checkBackend()
+  if (isOnline.value) {
+    try {
+      const res = await apiFetch(`/observatory/${observatory}/admin/prospectos?status=${filter.value}`)
+      const items = (res as any).items || (res as any).data || []
+      if (items.length) prospectosStore.setProspectos(items)
+    } catch { /* use store fallback */ }
   }
   loadingProspects.value = false
 }
 
 onMounted(loadProspects)
-watch(filter, loadProspects)
+watch(filter, () => { if (isOnline.value) loadProspects() })
 
 async function approve(id: number) {
   try {
-    await apiFetch(`/observatory/${observatory}/admin/prospectos/${id}/aprobar`, { method: 'POST' })
-    await loadProspects()
-  } catch (e: any) {
-    alert(e?.data?.error?.message || 'Error al aprobar')
+    if (isOnline.value) {
+      await apiFetch(`/observatory/${observatory}/admin/prospectos/${id}/aprobar`, { method: 'POST' })
+      await loadProspects()
+    } else {
+      const p = prospectosStore.prospectos.find(x => x.id === id)
+      if (p) {
+        // Move to humedales store
+        humedalesStore.addHumedal({
+          nombre: p.data.nombre,
+          alcaldia: p.data.alcaldia as any,
+          ubicacion: p.data.ubicacion,
+          tipoHumedal: (p.data.tipoHumedal || 'ha_fws') as any,
+          funcionPrincipal: p.data.funcionPrincipal,
+          superficie: p.data.superficie ?? undefined,
+          volumen: p.data.volumen ?? undefined,
+          anioImplementacion: p.data.anio || '',
+          sustrato: p.data.sustrato || '',
+          vegetacion: p.data.vegetacion ? p.data.vegetacion.split(',').map(v => v.trim()) : [],
+          estado: 'piloto',
+          fuente: p.data.documentoDescripcion || p.data.institucion || 'Propuesta ciudadana',
+        })
+        prospectosStore.aprobar(id)
+      }
+    }
+  } catch {
+    prospectosStore.aprobar(id)
   }
 }
 
@@ -53,15 +81,19 @@ function startReject(id: number) {
 async function confirmReject() {
   if (!rejectingId.value || !rejectNotes.value) return
   try {
-    await apiFetch(`/observatory/${observatory}/admin/prospectos/${rejectingId.value}/rechazar`, {
-      method: 'POST',
-      body: { notas: rejectNotes.value },
-    })
-    rejectingId.value = null
-    await loadProspects()
-  } catch (e: any) {
-    alert(e?.data?.error?.message || 'Error al rechazar')
+    if (isOnline.value) {
+      await apiFetch(`/observatory/${observatory}/admin/prospectos/${rejectingId.value}/rechazar`, {
+        method: 'POST',
+        body: { notas: rejectNotes.value },
+      })
+      await loadProspects()
+    } else {
+      prospectosStore.rechazar(rejectingId.value, rejectNotes.value)
+    }
+  } catch {
+    prospectosStore.rechazar(rejectingId.value!, rejectNotes.value)
   }
+  rejectingId.value = null
 }
 
 // ══════════════════════════════════════════
@@ -320,12 +352,27 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
                 </span>
                 <span v-if="p.source" class="text-xs text-slate-custom">via {{ p.source }}</span>
               </div>
-              <pre class="mt-2 max-h-40 overflow-auto rounded bg-gray-50 p-2 text-xs text-gray-700">{{ JSON.stringify(p.data, null, 2) }}</pre>
-              <p v-if="p.notasAdmin" class="mt-2 text-sm text-slate-custom">
-                <strong>Notas:</strong> {{ p.notasAdmin }}
+              <div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg bg-gray-50 p-3 text-xs sm:grid-cols-3">
+                <div v-if="p.data?.nombre"><span class="text-ink-muted">Nombre:</span> <strong>{{ p.data.nombre }}</strong></div>
+                <div v-if="p.data?.alcaldia"><span class="text-ink-muted">Alcaldía:</span> <strong>{{ p.data.alcaldia }}</strong></div>
+                <div v-if="p.data?.tipoHumedal"><span class="text-ink-muted">Tipo:</span> <strong>{{ formatters.formatTipoHumedalCorto(p.data.tipoHumedal) }}</strong></div>
+                <div v-if="p.data?.funcionPrincipal" class="col-span-2"><span class="text-ink-muted">Función:</span> {{ p.data.funcionPrincipal }}</div>
+                <div v-if="p.data?.superficie"><span class="text-ink-muted">Superficie:</span> {{ Number(p.data.superficie).toLocaleString('es-MX') }} m²</div>
+                <div v-if="p.data?.anio"><span class="text-ink-muted">Año:</span> {{ p.data.anio }}</div>
+                <div v-if="p.data?.sustrato"><span class="text-ink-muted">Sustrato:</span> {{ p.data.sustrato }}</div>
+                <div v-if="p.data?.vegetacion"><span class="text-ink-muted">Vegetación:</span> {{ p.data.vegetacion }}</div>
+                <div v-if="p.data?.ubicacion" class="col-span-2"><span class="text-ink-muted">Ubicación:</span> {{ p.data.ubicacion }}</div>
+                <div v-if="p.data?.institucion"><span class="text-ink-muted">Institución:</span> {{ p.data.institucion }}</div>
+                <div v-if="p.data?.documentoLink" class="col-span-2"><span class="text-ink-muted">Documento:</span> <a :href="p.data.documentoLink" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline truncate">{{ p.data.documentoLink }}</a></div>
+                <div v-if="p.data?.documentoDescripcion" class="col-span-full"><span class="text-ink-muted">Desc. documento:</span> {{ p.data.documentoDescripcion }}</div>
+                <div v-if="p.data?.email"><span class="text-ink-muted">Contacto:</span> {{ p.data.email }}</div>
+              </div>
+              <p v-if="p.notasAdmin" class="mt-2 text-sm text-alert">
+                <strong>Motivo rechazo:</strong> {{ p.notasAdmin }}
               </p>
               <p class="mt-1 text-xs text-gray-400">
                 {{ new Date(p.createdAt).toLocaleDateString('es-MX', { dateStyle: 'medium' }) }}
+                <span v-if="p.source" class="ml-2 badge bg-gray-100 text-ink-muted text-[10px]">{{ p.source === 'formulario' ? 'Formulario público' : 'Detector IA' }}</span>
               </p>
             </div>
 
@@ -339,9 +386,8 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
         </div>
       </TransitionGroup>
 
-      <!-- Reject modal -->
-      <Teleport to="body">
-        <Transition name="fade">
+      <!-- Reject modal (no Teleport) -->
+      <Transition name="fade">
         <div v-if="rejectingId" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" @click.self="rejectingId = null">
           <div class="card w-full max-w-md p-6 shadow-panel animate-scale-in">
             <h3 class="mb-3 text-lg font-semibold text-ink">Rechazar prospecto #{{ rejectingId }}</h3>
@@ -360,8 +406,7 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
             </div>
           </div>
         </div>
-        </Transition>
-      </Teleport>
+      </Transition>
     </div>
 
     <!-- ══════════════════════════════════════════ -->

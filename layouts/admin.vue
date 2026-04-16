@@ -81,7 +81,12 @@ if (import.meta.client) {
           <div class="min-w-0 flex-1">
             <ClientOnly>
               <p v-if="auth.admin?.name" class="truncate text-xs font-medium text-ink">{{ auth.admin.name }}</p>
-              <p class="truncate text-xs text-gray-500">{{ auth.admin?.email }}</p>
+              <div class="flex items-center gap-1.5">
+                <p class="truncate text-xs text-gray-500">{{ auth.admin?.email }}</p>
+                <span class="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold" :class="auth.isSuperadmin ? 'bg-primary-50 text-primary' : auth.admin?.role === 'admin' ? 'bg-eco/10 text-eco-dark' : 'bg-secondary/10 text-secondary-dark'">
+                  {{ auth.roleLabel }}
+                </span>
+              </div>
               <template #fallback><div class="h-4 w-24 rounded bg-gray-100" /></template>
             </ClientOnly>
           </div>

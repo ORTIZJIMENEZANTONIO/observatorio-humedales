@@ -61,25 +61,15 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Tipo de humedal <span class="text-alert">*</span></label>
+              <label class="form-label">Tipo de humedal artificial <span class="text-alert">*</span></label>
               <select v-model="form.tipoHumedal" class="select w-full">
                 <option value="">Seleccionar tipo...</option>
-                <option value="conservacion">Conservación</option>
-                <option value="tratamiento_aguas">Tratamiento de aguas</option>
-                <option value="recreativo">Recreativo</option>
-                <option value="captacion_pluvial">Captación pluvial</option>
-                <option value="restauracion_hidrologica">Restauración hidrológica</option>
+                <option value="ha_fws">HA flujo superficial (FWS) — agua visible</option>
+                <option value="ha_sfs_horizontal">HA subsuperficial horizontal (HSSF)</option>
+                <option value="ha_sfs_vertical">HA subsuperficial vertical (VSSF)</option>
+                <option value="ha_hibrido">HA híbrido (FWS + SFS)</option>
               </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tipo de flujo</label>
-              <select v-model="form.tipoFlujo" class="select w-full">
-                <option value="">Seleccionar flujo...</option>
-                <option value="superficial">Flujo superficial</option>
-                <option value="subsuperficial_horizontal">Flujo subsuperficial horizontal</option>
-                <option value="subsuperficial_vertical">Flujo subsuperficial vertical</option>
-                <option value="combinado">Combinado (HAFSS + HAFS)</option>
-              </select>
+              <p class="form-hint">FWS: agua fluye sobre el sustrato. SFS: agua fluye a través del sustrato (grava, arena).</p>
             </div>
           </div>
 
@@ -184,7 +174,6 @@
               <div v-if="form.nombre"><dt class="text-ink-muted">Nombre</dt><dd class="font-medium">{{ form.nombre }}</dd></div>
               <div v-if="form.alcaldia"><dt class="text-ink-muted">Alcaldía</dt><dd class="font-medium">{{ form.alcaldia }}</dd></div>
               <div v-if="form.tipoHumedal"><dt class="text-ink-muted">Tipo</dt><dd class="font-medium">{{ formatters.formatTipoHumedal(form.tipoHumedal) }}</dd></div>
-              <div v-if="form.tipoFlujo"><dt class="text-ink-muted">Flujo</dt><dd class="font-medium">{{ formatters.formatTipoFlujo(form.tipoFlujo) }}</dd></div>
               <div v-if="form.funcionPrincipal"><dt class="text-ink-muted">Función</dt><dd class="font-medium">{{ form.funcionPrincipal }}</dd></div>
               <div v-if="form.superficie"><dt class="text-ink-muted">Superficie</dt><dd class="font-medium">{{ formatters.formatArea(form.superficie) }}</dd></div>
               <div v-if="form.institucion"><dt class="text-ink-muted">Institución</dt><dd class="font-medium">{{ form.institucion }}</dd></div>
@@ -219,9 +208,10 @@
             Siguiente
             <Icon name="lucide:arrow-right" size="16" />
           </button>
-          <button v-else-if="!submitted" @click="submitForm" class="btn-primary" :disabled="!form.email">
-            <Icon name="lucide:send" size="16" />
-            Enviar propuesta
+          <button v-else-if="!submitted" @click="submitForm" class="btn-primary" :disabled="!form.email || submitting">
+            <Icon v-if="submitting" name="lucide:loader-2" size="16" class="animate-spin" />
+            <Icon v-else name="lucide:send" size="16" />
+            {{ submitting ? 'Enviando...' : 'Enviar propuesta' }}
           </button>
         </div>
       </div>
@@ -231,9 +221,14 @@
 
 <script setup lang="ts">
 const formatters = useFormatters()
+const { apiFetch } = useApi()
+const config = useRuntimeConfig()
+const obs = config.public.observatory as string
+const prospectosStore = useProspectosStore()
 
 const currentStep = ref(0)
 const submitted = ref(false)
+const submitting = ref(false)
 
 const steps = [
   { label: 'Datos técnicos' },
@@ -259,7 +254,6 @@ const form = reactive({
   alcaldia: '',
   ubicacion: '',
   tipoHumedal: '',
-  tipoFlujo: '',
   tipoVegetacion: [] as string[],
   funcionPrincipal: '',
   superficie: null as number | null,
@@ -278,7 +272,32 @@ const canAdvance = computed(() => {
   return true
 })
 
-function submitForm() {
+async function submitForm() {
+  submitting.value = true
+  const prospecto = {
+    nombre: form.nombre,
+    alcaldia: form.alcaldia,
+    ubicacion: form.ubicacion,
+    tipoHumedal: form.tipoHumedal,
+    tipoVegetacion: form.tipoVegetacion,
+    funcionPrincipal: form.funcionPrincipal,
+    superficie: form.superficie,
+    volumen: form.volumen,
+    anio: form.anio,
+    sustrato: form.sustrato,
+    vegetacion: form.vegetacionTexto,
+    documentoLink: form.documentoLink,
+    documentoDescripcion: form.documentoDescripcion,
+    institucion: form.institucion,
+    email: form.email,
+  }
+  try {
+    await apiFetch(`/observatory/${obs}/prospectos`, { method: 'POST', body: { source: 'formulario', data: prospecto } })
+  } catch {
+    // API unavailable — save locally
+    prospectosStore.addProspecto(prospecto, 'formulario')
+  }
   submitted.value = true
+  submitting.value = false
 }
 </script>

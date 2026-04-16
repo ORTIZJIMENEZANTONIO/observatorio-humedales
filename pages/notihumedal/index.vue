@@ -17,6 +17,10 @@
         <!-- Articles grid -->
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <NuxtLink v-for="a in filtered" :key="a.id" :to="`/notihumedal/${a.slug}`" class="card-interactive overflow-hidden group">
+            <div v-if="a.imagen" class="relative h-48 overflow-hidden">
+              <img :src="a.imagen" :alt="a.titulo" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            </div>
             <div class="p-6">
               <div class="mb-3 flex flex-wrap gap-2">
                 <span v-for="tag in a.tags.slice(0, 3)" :key="tag" class="badge-primary text-[10px]">{{ tag }}</span>
@@ -27,6 +31,7 @@
                 <span>{{ formatters.formatDate(a.fecha) }}</span>
                 <span>{{ a.autor }}</span>
               </div>
+              <p v-if="a.fuenteImagen" class="mt-2 text-[10px] text-ink-muted/60">Foto: {{ a.fuenteImagen }}</p>
             </div>
           </NuxtLink>
         </div>
@@ -40,32 +45,24 @@
 </template>
 
 <script setup lang="ts">
-import type { ArticuloNotihumedal } from '~/types'
-import { articulos as localArticulos } from '~/data/notihumedal'
-
 const formatters = useFormatters()
 const { apiFetch } = useApi()
 const config = useRuntimeConfig()
 const obs = config.public.observatory as string
+const store = useNotihumedalStore()
 
-const articulos = ref<ArticuloNotihumedal[]>([...localArticulos])
-const searchQuery = ref('')
+const searchQuery = computed({
+  get: () => store.searchQuery,
+  set: (v) => { store.searchQuery = v },
+})
+
+const filtered = computed(() => store.filtered)
 
 onMounted(async () => {
   try {
     const res = await apiFetch(`/observatory/${obs}/notihumedal`)
     const items = (res as any).items || (res as any).data
-    if (items?.length) articulos.value = items
-  } catch { /* use local fallback */ }
-})
-
-const filtered = computed(() => {
-  if (!searchQuery.value) return articulos.value
-  const q = searchQuery.value.toLowerCase()
-  return articulos.value.filter(a =>
-    a.titulo.toLowerCase().includes(q) ||
-    a.resumen.toLowerCase().includes(q) ||
-    a.tags.some(t => t.toLowerCase().includes(q))
-  )
+    if (items?.length) store.setArticulos(items)
+  } catch { /* use store fallback */ }
 })
 </script>
