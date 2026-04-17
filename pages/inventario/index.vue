@@ -106,7 +106,7 @@
                 <p v-if="h.tipoVegetacion?.length"><strong>Vegetación:</strong> {{ h.tipoVegetacion.map(v => formatters.formatTipoVegetacion(v)).join(', ') }}</p>
               </div>
               <div class="mt-3 flex flex-wrap gap-1">
-                <span v-for="s in h.serviciosEcosistemicos.slice(0, 3)" :key="s" class="rounded-badge bg-primary-50/60 px-2 py-0.5 text-[10px] text-primary">
+                <span v-for="s in (h.serviciosEcosistemicos || []).slice(0, 3)" :key="s" class="rounded-badge bg-primary-50/60 px-2 py-0.5 text-[10px] text-primary">
                   {{ formatters.formatServicioEcosistemico(s) }}
                 </span>
               </div>
@@ -180,14 +180,14 @@
           <div class="space-y-2">
             <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Vegetación</h4>
             <div class="flex flex-wrap gap-1.5">
-              <span v-for="v in selected.vegetacion" :key="v" class="badge badge-eco">{{ v }}</span>
+              <span v-for="v in (selected.vegetacion || [])" :key="v" class="badge badge-eco">{{ v }}</span>
             </div>
           </div>
 
           <div class="space-y-2">
             <h4 class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Servicios ecosistémicos</h4>
             <ul class="space-y-1 text-sm">
-              <li v-for="s in selected.serviciosDescripcion" :key="s" class="flex items-start gap-2">
+              <li v-for="s in (selected.serviciosDescripcion || [])" :key="s" class="flex items-start gap-2">
                 <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                 {{ s }}
               </li>

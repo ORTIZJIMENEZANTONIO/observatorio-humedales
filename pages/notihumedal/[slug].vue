@@ -23,7 +23,7 @@
         <div v-if="articulo" class="prose prose-sm max-w-none text-slate-custom" v-html="articulo.contenido" />
 
         <div v-if="articulo" class="mt-8 flex flex-wrap gap-2">
-          <span v-for="tag in articulo.tags" :key="tag" class="badge-primary">{{ tag }}</span>
+          <span v-for="tag in (articulo.tags || [])" :key="tag" class="badge-primary">{{ tag }}</span>
         </div>
 
         <div v-if="!articulo" class="py-16 text-center">

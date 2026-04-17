@@ -12,23 +12,23 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
 
   const allTags = computed(() => {
     const tags = new Set<string>()
-    articulos.value.forEach(a => a.tags.forEach(t => tags.add(t)))
+    articulos.value.forEach(a => (a.tags || []).forEach(t => tags.add(t)))
     return Array.from(tags).sort()
   })
 
   const filtered = computed(() => {
-    // Always return a new array for reactivity
     const result = articulos.value.filter(a => {
+      const tags = a.tags || []
       if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase()
         if (
           !a.titulo.toLowerCase().includes(q) &&
           !a.resumen.toLowerCase().includes(q) &&
-          !a.autor.toLowerCase().includes(q) &&
-          !a.tags.some(t => t.toLowerCase().includes(q))
+          !(a.autor || '').toLowerCase().includes(q) &&
+          !tags.some(t => t.toLowerCase().includes(q))
         ) return false
       }
-      if (filterTag.value && !a.tags.includes(filterTag.value)) return false
+      if (filterTag.value && !tags.includes(filterTag.value)) return false
       return true
     })
     // Sort

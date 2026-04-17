@@ -36,7 +36,7 @@
             </div>
             <div class="p-6">
               <div class="mb-3 flex flex-wrap gap-2">
-                <span v-for="tag in a.tags.slice(0, 3)" :key="tag" class="badge-primary text-[10px]">{{ tag }}</span>
+                <span v-for="tag in (a.tags || []).slice(0, 3)" :key="tag" class="badge-primary text-[10px]">{{ tag }}</span>
               </div>
               <h2 class="text-base font-semibold text-ink group-hover:text-primary transition-colors">{{ a.titulo }}</h2>
               <p class="mt-2 text-sm text-slate-custom line-clamp-3">{{ a.resumen }}</p>
