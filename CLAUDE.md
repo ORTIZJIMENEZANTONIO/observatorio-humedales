@@ -86,9 +86,10 @@ observatorio-humedales/
     sobre/                  # About + ODS + metodologia (#metodologia) + fuentes (#fuentes) + normativa
   public/
     images/                 # Institutional logos (IPN)
-    images/humedales/       # 7 fotos reales de humedales (fuentes institucionales: UNAM, SEDEMA, Gobierno CDMX)
+    images/humedales/       # 8 fotos reales de humedales (aragon.jpg + aragon-segundo.jpg separados)
   stores/
     humedales.ts            # Pinia store (composable style, reactive filters, CRUD: add/update/delete)
+    hallazgos.ts            # Pinia store for findings (shared /analisis/hallazgos↔/admin/hallazgos, CRUD)
     notihumedal.ts          # Pinia store for articles (shared admin↔public, CRUD: add/update/delete)
     prospectos.ts           # Pinia store for wetland prospects (formulario→admin pipeline, approve/reject)
     auth.ts                 # Auth store (login, logout, roles, permissions — granular per role)
@@ -279,8 +280,8 @@ interface Hallazgo {
 |---|--------|----------|---------|-----------|-----|------------------|
 | 1 | Anfibium | Miguel Hidalgo | FWS | 1,200 m² | 2023 | Dominguez Solis (2024) |
 | 2 | Parque Ecologico Cuitlahuac | Iztapalapa | HSSF | 8,795 m² | 2021-2023 | Dominguez Solis (2024) |
-| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Hibrido | 8,085 m² | 2012 | Luna-Pabello & Aburto-Castañeda (2014) |
-| 8 | Segundo Aragon (HAFSS) | Gustavo A. Madero | HSSF | 3,108 m² | 2020 | DGCS-UNAM (2020) |
+| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Hibrido | 8,085 m² | 2012 | Luna-Pabello & Aburto-Castañeda (2014) | 19.4602813, -99.0739094 |
+| 8 | Segundo Aragon (HAFSS, doble espiral) | Gustavo A. Madero | HSSF | 3,108 m² | 2020 | DGCS-UNAM (2020) | 19.4618072, -99.0734189 |
 | 4 | Playa de Aves | Gustavo A. Madero | FWS | 1,100 m² | 2021 | Gobierno CDMX (2021) |
 | 5 | Cerro de la Estrella | Iztapalapa | FWS | — | 2022 | Gobierno CDMX (2022) |
 | 6 | Vivero San Luis Tlaxialtemalco | Xochimilco | FWS | 48,900 m² | 2023 | Dominguez Solis (2024) |
@@ -503,6 +504,7 @@ export const useHumedalesStore = defineStore('humedales', () => {
   return { humedales, filtered, addHumedal, updateHumedal, deleteHumedal, ... }
 })
 
+// hallazgos.ts — shared between /analisis/hallazgos (public) and /admin/hallazgos
 // notihumedal.ts — shared between /notihumedal (public) and /admin/notihumedal
 // prospectos.ts — shared between /registra (public form) and /admin/prospectos
 }
@@ -681,6 +683,37 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **PM2 start con ecosystem:** `pm2 start deploy/ecosystem.config.cjs` (asegura PORT=3005)
 - **Nginx config en servidor:** `/etc/nginx/http.d/cercu.conf` (Alpine usa `http.d/`, no `sites-available/`)
 
+## Backend (cercu-backend)
+
+### Ubicacion y estructura
+- **Path:** `/Users/antonioortiz/Desktop/Antonio/cercu-backend`
+- **ORM:** TypeORM 0.3 + MySQL 8
+- **Synchronize:** `true` en development (auto-sync schema)
+- **Entities:** `src/entities/observatory/` (Humedal, Hallazgo, Notihumedal, ObservatoryAdmin, CmsSection, ProspectSubmission, ProspectoNoticia, etc.)
+
+### Migraciones
+- **Directorio:** `src/migrations/`
+- **Migración actual:** `1713297600000-HumedalesSchemaUpdate.ts`
+  - Agrega `role` + `permissions` a `observatory_admins`
+  - Agrega `fuente`, `fuenteImagen`, `tipoVegetacion` a `obs_humedales` + cambia `funcionPrincipal` a TEXT
+  - Agrega `fuenteImagen` a `obs_notihumedal`
+  - Migra valores `tipoHumedal` al formato `ha_*` (FWS/SFS)
+  - Idempotente (verifica columnas antes de ALTER)
+- **Ejecutar:** `npm run migration:run`
+
+### Seeds
+- **Admin seed** (`observatory-admin.seed.ts`): Crea/actualiza superadmin desde `.env`. Preserva role/permissions si ya existen. NO sobreescribe usuarios creados manualmente.
+- **Content seed** (`observatory-content.seed.ts`): 8 humedales del inventario, 4 hallazgos, 3 articulos notihumedal, CMS sections, prospectos. Solo inserta si `count() === 0` por tabla.
+- **Ejecutar:** `npm run seed`
+
+### Entidades observatory (tablas obs_*)
+| Entidad | Tabla | Campos nuevos |
+|---------|-------|---------------|
+| ObservatoryAdmin | observatory_admins | `role` (superadmin/admin/editor), `permissions` (JSON) |
+| ObsHumedal | obs_humedales | `fuente`, `fuenteImagen`, `tipoVegetacion` (JSON), `tipoHumedal` ahora `ha_fws/ha_sfs_*/ha_hibrido` |
+| ObsNotihumedal | obs_notihumedal | `fuenteImagen` |
+| ObsHallazgo | obs_hallazgos | sin cambios |
+
 ## Remote Sensing / Percepción remota
 
 ### Índices espectrales
@@ -775,10 +808,11 @@ components/admin/
   ColorClassPicker.vue       # Visual color picker for CMS content (bg, icon, badge, accent)
 pages/admin/
   login.vue                  # Email + password login form
-  index.vue                  # Dashboard con pipeline visual, stats, quick links
+  index.vue                  # Dashboard: stats from stores (humedales, hallazgos, articulos, prospectos) + pipeline visual
   prospectos/index.vue       # Tabs: Cola de aprobación (prospectos store) + Detector geoespacial
   humedales/index.vue        # CRUD inventario (humedales store, mismos datos que /inventario)
-  hallazgos/index.vue        # Hallazgos y recomendaciones (contenido editorial)
+  hallazgos/index.vue        # Lista hallazgos (hallazgos store, mismos datos que /analisis/hallazgos)
+  hallazgos/[id].vue         # Página de edición/creación de hallazgo (full page, no modal)
   notihumedal/index.vue      # CRUD artículos (notihumedal store, mismos datos que /notihumedal)
   usuarios/index.vue         # Gestión de usuarios y permisos (solo superadmin)
   contenido/index.vue        # CMS page list (home, sobre, analisis)
@@ -786,12 +820,21 @@ pages/admin/
   detector/index.vue         # Redirect → /admin/prospectos
 ```
 
+### Admin Dashboard (`/admin`)
+Stats computed from Pinia stores (not API-dependent):
+- **Humedales:** `humedalesStore.humedales.length`
+- **Hallazgos:** `hallazgosStore.hallazgos.length`
+- **Artículos:** `notihumedalStore.articulos.length`
+- **Prospectos pendientes:** `prospectosStore.pendientes.length`
+
+Pipeline visual + quick links a Prospectos, Inventario, Hallazgos, Notihumedal.
+
 ### Admin Routes (orden de pipeline, filtradas por permisos)
 - `/admin/login` — login (layout default)
-- `/admin` — dashboard con pipeline visual (acceso: todos los autenticados)
+- `/admin` — dashboard con stats de stores + pipeline visual (acceso: todos los autenticados)
 - `/admin/prospectos` — cola de aprobación + detector (perm: `manage_prospectos`)
 - `/admin/humedales` — CRUD inventario, mismos datos que /inventario (perm: `manage_humedales`)
-- `/admin/hallazgos` — hallazgos y recomendaciones (perm: `manage_hallazgos`)
+- `/admin/hallazgos` — lista + `/admin/hallazgos/nuevo` o `/admin/hallazgos/:id` para editar (perm: `manage_hallazgos`)
 - `/admin/notihumedal` — CRUD artículos, mismos datos que /notihumedal (perm: `manage_notihumedal`)
 - `/admin/contenido` — CMS páginas públicas (perm: `manage_cms`)
 - `/admin/usuarios` — gestión de usuarios y roles (perm: `manage_users`, solo superadmin)

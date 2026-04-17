@@ -5,15 +5,31 @@ const { apiFetch } = useApi()
 const config = useRuntimeConfig()
 const observatory = config.public.observatory as string
 const auth = useAuthStore()
+const humedalesStore = useHumedalesStore()
+const hallazgosStore = useHallazgosStore()
+const notihumedalStore = useNotihumedalStore()
+const prospectosStore = useProspectosStore()
 
-const summary = ref<any>(null)
 const loading = ref(true)
+
+const summary = computed(() => ({
+  contenido: {
+    humedales: humedalesStore.humedales.length,
+    hallazgos: hallazgosStore.hallazgos.length,
+    articulos: notihumedalStore.articulos.length,
+  },
+  prospectos: {
+    pendientes: prospectosStore.pendientes.length,
+    aprobados: prospectosStore.aprobados.length,
+  },
+}))
 
 onMounted(async () => {
   try {
     const res = await apiFetch(`/observatory/${observatory}/admin/summary`)
-    summary.value = res.data
-  } catch { /* fallback */ }
+    // If API returns data, could sync stores here
+    if (res.data) { /* API available */ }
+  } catch { /* use store counts */ }
   loading.value = false
 })
 
@@ -28,6 +44,7 @@ const quickLinks = [
   { label: 'Prospectos', to: '/admin/prospectos', description: 'Detector OSM + cola de aprobacion de prospectos', color: 'bg-secondary', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7' },
   { label: 'Inventario', to: '/admin/humedales', description: 'Humedales artificiales registrados en la CDMX', color: 'bg-primary', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
   { label: 'Hallazgos', to: '/admin/hallazgos', description: 'Hallazgos y recomendaciones editoriales', color: 'bg-eco', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+  { label: 'Notihumedal', to: '/admin/notihumedal', description: 'Articulos publicados y prospectos de noticias', color: 'bg-secondary', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
 ]
 </script>
 
@@ -42,7 +59,7 @@ const quickLinks = [
     </div>
 
     <!-- Stats -->
-    <div v-if="summary" class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div v-if="!loading" class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div class="card p-5 transition-all duration-200 hover:shadow-panel">
         <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
@@ -67,23 +84,23 @@ const quickLinks = [
       </div>
       <div class="card p-5 transition-all duration-200 hover:shadow-panel">
         <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
+            <svg class="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+          </div>
+          <div>
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-custom">Artículos</p>
+            <p class="text-2xl font-bold tabular-nums text-secondary">{{ summary.contenido?.articulos ?? 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-5 transition-all duration-200 hover:shadow-panel">
+        <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
             <svg class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <div>
             <p class="text-xs font-medium uppercase tracking-wider text-slate-custom">Prospectos pendientes</p>
             <p class="text-2xl font-bold tabular-nums text-accent">{{ summary.prospectos?.pendientes ?? 0 }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="card p-5 transition-all duration-200 hover:shadow-panel">
-        <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-            <svg class="h-5 w-5 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          </div>
-          <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-slate-custom">Prospectos aprobados</p>
-            <p class="text-2xl font-bold tabular-nums text-ink">{{ summary.prospectos?.aprobados ?? 0 }}</p>
           </div>
         </div>
       </div>
