@@ -4,7 +4,7 @@
     <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
       <div class="container-wide">
         <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de humedales artificiales</h1>
-        <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ store.alcaldias.length }} alcaldías de la Ciudad de México</p>
+        <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ alcaldias.length }} alcaldías de la Ciudad de México</p>
       </div>
     </section>
 
@@ -14,18 +14,25 @@
         <div class="flex flex-wrap items-center gap-3">
           <div class="input-icon-wrapper max-w-xs">
             <Icon name="lucide:search" size="18" class="input-icon" />
-            <input v-model="store.searchQuery" type="text" placeholder="Buscar por nombre, alcaldía..." class="input" />
+            <input v-model="searchQuery" type="text" placeholder="Buscar por nombre, alcaldía..." class="input" />
           </div>
-          <select v-model="store.filterAlcaldia" class="select max-w-[200px]">
+          <select v-model="filterAlcaldia" class="select max-w-[200px]">
             <option value="">Todas las alcaldías</option>
-            <option v-for="a in store.alcaldias" :key="a" :value="a">{{ a }}</option>
+            <option v-for="a in alcaldias" :key="a" :value="a">{{ a }}</option>
           </select>
-          <select v-model="store.filterTipo" class="select max-w-[240px]">
+          <select v-model="filterTipo" class="select max-w-[240px]">
             <option value="">Todos los tipos</option>
             <option value="ha_fws">HA flujo superficial (FWS)</option>
             <option value="ha_sfs_horizontal">HA subsuperficial horizontal (HSSF)</option>
             <option value="ha_sfs_vertical">HA subsuperficial vertical (VSSF)</option>
             <option value="ha_hibrido">HA híbrido (FWS + SFS)</option>
+          </select>
+          <select v-model="filterEstado" class="select max-w-[180px]">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="en_construccion">En construcción</option>
+            <option value="en_expansion">En expansión</option>
+            <option value="piloto">Piloto</option>
           </select>
           <select v-model="sortBy" class="select max-w-[200px]">
             <option value="nombre_asc">Nombre (A-Z)</option>
@@ -35,7 +42,11 @@
             <option value="anio_asc">Año (antiguo)</option>
             <option value="superficie_desc">Superficie (mayor)</option>
           </select>
-          <span class="text-sm text-slate-custom">{{ store.filtered.length }} resultados</span>
+          <span class="text-sm text-slate-custom">{{ filtered.length }} resultados</span>
+          <button v-if="hasActiveFilters" @click="store.clearFilters(); sortBy = 'nombre_asc'" class="btn-ghost text-xs text-alert">
+            <Icon name="lucide:x" size="14" />
+            Limpiar filtros
+          </button>
           <!-- View toggle -->
           <div class="ml-auto flex items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
             <button @click="viewMode = 'list'" :class="[viewMode === 'list' ? 'bg-primary text-white shadow-sm' : 'text-ink-muted hover:bg-gray-50']" class="rounded-md px-2.5 py-1.5 transition-all" aria-label="Vista lista">
@@ -66,8 +77,12 @@
     <!-- Cards -->
     <section v-show="viewMode === 'list'" class="bg-surface py-10">
       <div class="container-wide">
-        <div ref="gridRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive overflow-hidden reveal" @click="selected = h">
+        <TransitionGroup
+          name="card-list"
+          tag="div"
+          class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
+          <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive overflow-hidden" @click="selected = h">
             <!-- Image header -->
             <div class="relative h-40 overflow-hidden">
               <img v-if="h.imagen" :src="h.imagen" :alt="h.nombre" class="h-full w-full object-cover" loading="lazy" />
@@ -97,13 +112,25 @@
               </div>
             </div>
           </div>
+        </TransitionGroup>
+
+        <!-- Empty state -->
+        <div v-if="paginatedHumedales.length === 0 && !store.loading" class="py-16 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+              <Icon name="lucide:search-x" size="28" class="text-gray-400" />
+            </div>
+            <p class="text-lg font-medium text-gray-500">Sin resultados</p>
+            <p class="text-sm text-gray-400">No se encontraron humedales con los filtros aplicados</p>
+            <button @click="store.clearFilters(); sortBy = 'nombre_asc'" class="btn-primary mt-2">Limpiar filtros</button>
+          </div>
         </div>
 
         <div class="mt-8">
           <CommonPaginationControls
             v-model:current-page="currentPage"
             :total-pages="totalPages"
-            :total-items="store.filtered.length"
+            :total-items="filtered.length"
             :per-page="perPage"
           />
         </div>
@@ -199,22 +226,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import type { Humedal } from '~/types'
-import { useHumedalesStore } from '~/stores/humedales'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const store = useHumedalesStore()
+const { filtered, searchQuery, filterAlcaldia, filterTipo, filterEstado, alcaldias, hasActiveFilters } = storeToRefs(store)
 const formatters = useFormatters()
 const selected = ref<Humedal | null>(null)
 const sortBy = ref('nombre_asc')
 const viewMode = ref<'list' | 'mapa'>(route.query.vista === 'mapa' ? 'mapa' : 'list')
 const currentPage = ref(1)
 const perPage = 15
-const { revealRef: gridRef } = useScrollReveal({ stagger: true })
 
 const sortedHumedales = computed(() => {
-  const arr = [...store.filtered]
+  const arr = [...filtered.value]
   switch (sortBy.value) {
     case 'nombre_asc': return arr.sort((a, b) => a.nombre.localeCompare(b.nombre))
     case 'nombre_desc': return arr.sort((a, b) => b.nombre.localeCompare(a.nombre))
@@ -229,11 +255,18 @@ const sortedHumedales = computed(() => {
 const totalPages = computed(() => Math.ceil(sortedHumedales.value.length / perPage) || 1)
 const paginatedHumedales = computed(() => sortedHumedales.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage))
 
-watch(() => [store.searchQuery, store.filterAlcaldia, store.filterTipo, sortBy.value], () => { currentPage.value = 1 })
+watch([searchQuery, filterAlcaldia, filterTipo, filterEstado, sortBy], () => { currentPage.value = 1 })
 </script>
 
 <style scoped>
 .slide-right-enter-active { transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
 .slide-right-leave-active { transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1); }
 .slide-right-enter-from, .slide-right-leave-to { transform: translateX(100%); }
+
+/* Card list transitions for filter changes */
+.card-list-enter-active { transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+.card-list-leave-active { transition: all 0.2s cubic-bezier(0.4, 0, 1, 1); position: absolute; }
+.card-list-enter-from { opacity: 0; transform: scale(0.95); }
+.card-list-leave-to { opacity: 0; transform: scale(0.95); }
+.card-list-move { transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
 </style>

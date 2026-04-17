@@ -9,26 +9,34 @@ export const useHumedalesStore = defineStore('humedales', () => {
   const searchQuery = ref('')
   const filterAlcaldia = ref('')
   const filterTipo = ref('')
+  const filterEstado = ref('')
 
   const filtered = computed(() => {
-    let result = humedales.value
-    if (searchQuery.value) {
-      const q = searchQuery.value.toLowerCase()
-      result = result.filter(
-        (h) =>
-          h.nombre.toLowerCase().includes(q) ||
-          h.alcaldia.toLowerCase().includes(q) ||
-          h.funcionPrincipal.toLowerCase().includes(q)
-      )
-    }
-    if (filterAlcaldia.value) {
-      result = result.filter((h) => h.alcaldia === filterAlcaldia.value)
-    }
-    if (filterTipo.value) {
-      result = result.filter((h) => h.tipoHumedal === filterTipo.value)
-    }
-    return result
+    // Always return a new array to guarantee reactivity on filter changes
+    return humedales.value.filter((h) => {
+      if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase()
+        if (
+          !h.nombre.toLowerCase().includes(q) &&
+          !h.alcaldia.toLowerCase().includes(q) &&
+          !h.funcionPrincipal.toLowerCase().includes(q)
+        ) return false
+      }
+      if (filterAlcaldia.value && h.alcaldia !== filterAlcaldia.value) return false
+      if (filterTipo.value && h.tipoHumedal !== filterTipo.value) return false
+      if (filterEstado.value && h.estado !== filterEstado.value) return false
+      return true
+    })
   })
+
+  const hasActiveFilters = computed(() => !!searchQuery.value || !!filterAlcaldia.value || !!filterTipo.value || !!filterEstado.value)
+
+  function clearFilters() {
+    searchQuery.value = ''
+    filterAlcaldia.value = ''
+    filterTipo.value = ''
+    filterEstado.value = ''
+  }
 
   const alcaldias = computed(() => {
     const set = new Set(humedales.value.map((h) => h.alcaldia))
@@ -85,5 +93,5 @@ export const useHumedalesStore = defineStore('humedales', () => {
     humedales.value = humedales.value.filter(h => h.id !== id)
   }
 
-  return { humedales, loading, searchQuery, filterAlcaldia, filterTipo, filtered, alcaldias, totalSuperficie, totalCount, addHumedal, updateHumedal, deleteHumedal }
+  return { humedales, loading, searchQuery, filterAlcaldia, filterTipo, filterEstado, filtered, hasActiveFilters, clearFilters, alcaldias, totalSuperficie, totalCount, addHumedal, updateHumedal, deleteHumedal }
 })

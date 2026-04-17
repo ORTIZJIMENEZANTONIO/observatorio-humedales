@@ -7,15 +7,37 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
   const articulos = ref<ArticuloNotihumedal[]>(mockData.map(a => ({ ...a })))
   const loading = ref(false)
   const searchQuery = ref('')
+  const filterTag = ref('')
+  const sortBy = ref<'reciente' | 'antiguo' | 'titulo'>('reciente')
+
+  const allTags = computed(() => {
+    const tags = new Set<string>()
+    articulos.value.forEach(a => a.tags.forEach(t => tags.add(t)))
+    return Array.from(tags).sort()
+  })
 
   const filtered = computed(() => {
-    if (!searchQuery.value) return articulos.value
-    const q = searchQuery.value.toLowerCase()
-    return articulos.value.filter(a =>
-      a.titulo.toLowerCase().includes(q) ||
-      a.resumen.toLowerCase().includes(q) ||
-      a.tags.some(t => t.toLowerCase().includes(q))
-    )
+    // Always return a new array for reactivity
+    const result = articulos.value.filter(a => {
+      if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase()
+        if (
+          !a.titulo.toLowerCase().includes(q) &&
+          !a.resumen.toLowerCase().includes(q) &&
+          !a.autor.toLowerCase().includes(q) &&
+          !a.tags.some(t => t.toLowerCase().includes(q))
+        ) return false
+      }
+      if (filterTag.value && !a.tags.includes(filterTag.value)) return false
+      return true
+    })
+    // Sort
+    switch (sortBy.value) {
+      case 'reciente': return result.sort((a, b) => b.fecha.localeCompare(a.fecha))
+      case 'antiguo': return result.sort((a, b) => a.fecha.localeCompare(b.fecha))
+      case 'titulo': return result.sort((a, b) => a.titulo.localeCompare(b.titulo))
+      default: return result
+    }
   })
 
   // ── CRUD operations ──
@@ -61,5 +83,5 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
     articulos.value = items
   }
 
-  return { articulos, loading, searchQuery, filtered, addArticulo, updateArticulo, deleteArticulo, setArticulos }
+  return { articulos, loading, searchQuery, filterTag, sortBy, allTags, filtered, addArticulo, updateArticulo, deleteArticulo, setArticulos }
 })

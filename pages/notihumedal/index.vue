@@ -9,9 +9,22 @@
 
     <section class="bg-surface py-16">
       <div class="container-wide">
-        <!-- Search -->
-        <div class="mb-8">
-          <input v-model="searchQuery" type="text" placeholder="Buscar artículos..." class="input w-full max-w-md" />
+        <!-- Filters -->
+        <div class="mb-8 flex flex-wrap items-center gap-3">
+          <div class="input-icon-wrapper max-w-xs flex-1 basis-full sm:basis-auto">
+            <Icon name="lucide:search" size="18" class="input-icon" />
+            <input v-model="searchQuery" type="text" placeholder="Buscar por título, autor, tag..." class="input" />
+          </div>
+          <select v-model="store.filterTag" class="select max-w-[200px]">
+            <option value="">Todos los tags</option>
+            <option v-for="tag in store.allTags" :key="tag" :value="tag">{{ tag }}</option>
+          </select>
+          <select v-model="store.sortBy" class="select max-w-[180px]">
+            <option value="reciente">Más recientes</option>
+            <option value="antiguo">Más antiguos</option>
+            <option value="titulo">Título (A-Z)</option>
+          </select>
+          <span class="text-sm text-slate-custom">{{ filtered.length }} artículos</span>
         </div>
 
         <!-- Articles grid -->
