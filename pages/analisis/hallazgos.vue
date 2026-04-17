@@ -217,7 +217,7 @@ function costSortIcon(col: string) {
 }
 
 const sortedCostos = computed(() => {
-  const data = [...comparativoCostos]
+  const data = [...comparativoCostos.value]
   if (!costSortCol.value) return data
   const dir = costSortDir.value === 'asc' ? 1 : -1
   return data.sort((a, b) => {
@@ -228,7 +228,7 @@ const sortedCostos = computed(() => {
   })
 })
 
-function costBarWidth(c: typeof comparativoCostos[number]): string {
+function costBarWidth(c: any): string {
   const max = 15
   const avg = c.costoRango ? (c.costoRango[0] + c.costoRango[1]) / 2 : 0
   return `${Math.min((avg / max) * 100, 100)}%`
