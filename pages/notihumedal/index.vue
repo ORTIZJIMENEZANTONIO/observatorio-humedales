@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Notihumedal</h1>
-        <p class="mt-2 text-base text-white/80">Noticias, investigaciones y novedades sobre humedales artificiales</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Notihumedal</h1>
+      <p class="mt-2 text-base text-white/80">Noticias, investigaciones y novedades sobre humedales artificiales</p>
+    </CommonHeroSection>
 
     <section class="bg-surface py-16">
       <div class="container-wide">
@@ -29,7 +27,7 @@
 
         <!-- Articles grid -->
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <NuxtLink v-for="a in filtered" :key="a.id" :to="`/notihumedal/${a.slug}`" class="card-interactive overflow-hidden group">
+          <NuxtLink v-for="a in filtered" :key="a.id" :to="`/notihumedal/${a.slug}`" class="card-interactive overflow-hidden group cursor-pointer">
             <div v-if="a.imagen" class="relative h-48 overflow-hidden">
               <img :src="a.imagen" :alt="a.titulo" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
@@ -44,7 +42,7 @@
                 <span>{{ formatters.formatDate(a.fecha) }}</span>
                 <span>{{ a.autor }}</span>
               </div>
-              <p v-if="a.fuenteImagen" class="mt-2 text-[10px] text-ink-muted/60">Foto: {{ a.fuenteImagen }}</p>
+              <p v-if="a.fuente" class="mt-2 text-[10px] text-ink-muted/60">Fuente: {{ a.fuente }}</p>
             </div>
           </NuxtLink>
         </div>

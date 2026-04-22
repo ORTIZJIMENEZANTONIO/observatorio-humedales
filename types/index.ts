@@ -72,6 +72,8 @@ export interface Humedal {
   imagen?: string
   fuente?: string
   fuenteImagen?: string
+  visible?: boolean
+  archivado?: boolean
 }
 
 // ── Notihumedal (Blog) ──
@@ -86,6 +88,10 @@ export interface ArticuloNotihumedal {
   fuenteImagen?: string
   autor: string
   tags: string[]
+  url?: string
+  fuente?: string
+  visible?: boolean
+  archivado?: boolean
 }
 
 // ── Prospectos de noticias (scraping pipeline) ──
@@ -183,6 +189,8 @@ export interface Hallazgo {
   evidencia: string[]
   impacto: 'alto' | 'medio' | 'critico'
   recomendacion: Recomendacion
+  visible?: boolean
+  archivado?: boolean
 }
 
 export interface ComparativoCostos {

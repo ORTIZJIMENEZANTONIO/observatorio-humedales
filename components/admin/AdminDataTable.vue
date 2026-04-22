@@ -5,12 +5,15 @@ interface Column {
   class?: string
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   columns: Column[]
   rows: any[]
   loading?: boolean
   searchPlaceholder?: string
-}>()
+  defaultPerPage?: number
+}>(), {
+  defaultPerPage: 15,
+})
 
 const emit = defineEmits<{
   edit: [row: any]
@@ -19,18 +22,13 @@ const emit = defineEmits<{
 
 const search = ref('')
 const currentPage = ref(1)
-const perPage = 15
+const perPage = ref(props.defaultPerPage)
 const sortCol = ref('')
 const sortDir = ref<'asc' | 'desc'>('desc')
 
 function toggleSort(col: string) {
   if (sortCol.value === col) { sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc' }
   else { sortCol.value = col; sortDir.value = 'desc' }
-}
-
-function sortIcon(col: string) {
-  if (sortCol.value !== col) return '↕'
-  return sortDir.value === 'asc' ? '↑' : '↓'
 }
 
 const filtered = computed(() => {
@@ -59,10 +57,10 @@ const sorted = computed(() => {
   })
 })
 
-const totalPages = computed(() => Math.ceil(sorted.value.length / perPage) || 1)
-const paginated = computed(() => sorted.value.slice((currentPage.value - 1) * perPage, currentPage.value * perPage))
+const totalPages = computed(() => Math.ceil(sorted.value.length / perPage.value) || 1)
+const paginated = computed(() => sorted.value.slice((currentPage.value - 1) * perPage.value, currentPage.value * perPage.value))
 
-watch([search, () => props.rows], () => { currentPage.value = 1 })
+watch([search, () => props.rows, perPage], () => { currentPage.value = 1 })
 </script>
 
 <template>
@@ -83,7 +81,19 @@ watch([search, () => props.rows], () => { currentPage.value = 1 })
         <span class="tabular-nums font-semibold text-ink">{{ filtered.length }}</span>
         <span>{{ filtered.length === 1 ? 'registro' : 'registros' }}</span>
       </span>
+      <div class="ml-auto flex items-center gap-1.5">
+        <label class="text-xs text-slate-custom whitespace-nowrap">Por página:</label>
+        <select v-model.number="perPage" class="select !py-1 !pl-2 !pr-7 text-xs w-[70px]">
+          <option :value="10">10</option>
+          <option :value="15">15</option>
+          <option :value="25">25</option>
+          <option :value="50">50</option>
+        </select>
+      </div>
     </div>
+
+    <!-- Advanced filters slot -->
+    <slot name="filters" />
 
     <div class="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
       <div class="rounded-lg border border-gray-200">

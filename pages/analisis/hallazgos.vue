@@ -1,12 +1,10 @@
 <template>
   <div>
     <!-- Header banner -->
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Hallazgos y recomendaciones</h1>
-        <p class="mt-2 text-base text-white/80">Sintesis del inventario Fase 1 y propuestas para la politica publica</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Hallazgos y recomendaciones</h1>
+      <p class="mt-2 text-base text-white/80">Sintesis del inventario Fase 1 y propuestas para la politica publica</p>
+    </CommonHeroSection>
 
     <CommonAnalisisSubNav />
 
@@ -30,7 +28,7 @@
         <div class="stagger-children space-y-10">
           <div v-for="h in hallazgos" :key="h.id" class="reveal grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- LEFT: Finding card -->
-            <div class="card p-6">
+            <div class="card p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
               <div class="mb-4 flex items-start gap-4">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
                   {{ h.id }}
@@ -55,7 +53,7 @@
             </div>
 
             <!-- RIGHT: Recommendation card -->
-            <div class="card border-t-4 border-eco p-6">
+            <div class="card border-t-4 border-eco p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
               <h3 class="mb-2 text-base font-semibold text-ink">{{ h.recomendacion.titulo }}</h3>
               <p class="mb-4 text-sm leading-relaxed text-slate-custom">{{ h.recomendacion.descripcion }}</p>
 
@@ -196,9 +194,18 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
 const store = useHallazgosStore()
-const hallazgos = computed(() => store.hallazgos)
+const hallazgos = computed(() => store.publicHallazgos)
 const comparativoCostos = computed(() => store.comparativoCostos)
+
+onMounted(async () => {
+  try {
+    const res = await $fetch<any>(`${config.public.apiBaseUrl}/observatory/${config.public.observatory}/hallazgos`, { timeout: 3000 })
+    const items = res?.items || res?.data
+    if (items?.length) store.setHallazgos(items)
+  } catch { /* use store fallback */ }
+})
 
 const { revealRef: hallazgosRef } = useScrollReveal({ stagger: true })
 const { revealRef: tablaRevealRef } = useScrollReveal()

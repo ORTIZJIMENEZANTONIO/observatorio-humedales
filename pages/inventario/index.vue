@@ -1,12 +1,10 @@
 <template>
   <div>
     <!-- Header -->
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de humedales artificiales</h1>
-        <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ alcaldias.length }} alcaldías de la Ciudad de México</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Inventario de humedales artificiales</h1>
+      <p class="mt-2 text-base text-white/80">{{ store.totalCount }} humedales identificados en {{ alcaldias.length }} alcaldías de la Ciudad de México</p>
+    </CommonHeroSection>
 
     <!-- Filters -->
     <div class="sticky top-16 z-30 border-b bg-white/95 backdrop-blur-sm">
@@ -82,7 +80,7 @@
           tag="div"
           class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         >
-          <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive overflow-hidden" @click="selected = h">
+          <div v-for="h in paginatedHumedales" :key="h.id" class="card-interactive cursor-pointer overflow-hidden hover:-translate-y-0.5 transition-all duration-300" @click="selected = h">
             <!-- Image header -->
             <div class="relative h-40 overflow-hidden">
               <img v-if="h.imagen" :src="h.imagen" :alt="h.nombre" class="h-full w-full object-cover" loading="lazy" />
@@ -230,10 +228,20 @@ import type { Humedal } from '~/types'
 import { storeToRefs } from 'pinia'
 
 const route = useRoute()
+const config = useRuntimeConfig()
 const store = useHumedalesStore()
 const { filtered, searchQuery, filterAlcaldia, filterTipo, filterEstado, alcaldias, hasActiveFilters } = storeToRefs(store)
 const formatters = useFormatters()
 const selected = ref<Humedal | null>(null)
+
+// Load from backend (public endpoint — already filters visible/archivado)
+onMounted(async () => {
+  try {
+    const res = await $fetch<any>(`${config.public.apiBaseUrl}/observatory/${config.public.observatory}/humedales`, { timeout: 3000 })
+    const items = res?.items || res?.data
+    if (items?.length) store.setHumedales(items)
+  } catch { /* use store fallback */ }
+})
 const sortBy = ref('nombre_asc')
 const viewMode = ref<'list' | 'mapa'>(route.query.vista === 'mapa' ? 'mapa' : 'list')
 const currentPage = ref(1)

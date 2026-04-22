@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Indicadores y análisis</h1>
-        <p class="mt-2 text-base text-white/80">Distribución, servicios ecosistémicos y análisis comparativo de humedales artificiales</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Indicadores y análisis</h1>
+      <p class="mt-2 text-base text-white/80">Distribución, servicios ecosistémicos y análisis comparativo de humedales artificiales</p>
+    </CommonHeroSection>
 
     <CommonAnalisisSubNav />
 

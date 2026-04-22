@@ -19,6 +19,8 @@ const form = reactive({
   descripcion: '',
   impacto: 'medio' as string,
   evidencia: '' as string,
+  visible: true,
+  archivado: false,
   recomendacion: {
     titulo: '',
     descripcion: '',
@@ -39,6 +41,8 @@ onMounted(async () => {
         descripcion: h.descripcion,
         impacto: h.impacto,
         evidencia: (h.evidencia || []).join('\n'),
+        visible: h.visible ?? true,
+        archivado: h.archivado ?? false,
         recomendacion: {
           titulo: h.recomendacion?.titulo || '',
           descripcion: h.recomendacion?.descripcion || '',
@@ -58,6 +62,8 @@ function formToBody() {
     descripcion: form.descripcion,
     impacto: form.impacto as any,
     evidencia: form.evidencia ? form.evidencia.split('\n').map(s => s.trim()).filter(Boolean) : [],
+    visible: form.visible,
+    archivado: form.archivado,
     recomendacion: {
       titulo: form.recomendacion.titulo,
       descripcion: form.recomendacion.descripcion,
@@ -151,6 +157,26 @@ async function save() {
             <label class="form-label">Evidencia</label>
             <textarea v-model="form.evidencia" class="input w-full" rows="5" placeholder="Una evidencia por línea:&#10;Solo 2 de 8 humedales cuentan con datos cuantitativos.&#10;No existe un protocolo común de medición.&#10;..." />
             <p class="form-hint">Una evidencia por línea. Cada línea se muestra como un punto en la página pública.</p>
+          </div>
+
+          <!-- Visibilidad y archivo -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Visibilidad</label>
+              <label class="checkbox-label mt-1 inline-flex items-center gap-2 text-sm">
+                <input type="checkbox" v-model="form.visible" class="checkbox" />
+                Visible en la página pública
+              </label>
+              <p class="form-hint">Si se desactiva, el hallazgo no aparecerá en /analisis/hallazgos</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Archivo</label>
+              <label class="checkbox-label mt-1 inline-flex items-center gap-2 text-sm">
+                <input type="checkbox" v-model="form.archivado" class="checkbox" />
+                Archivado
+              </label>
+              <p class="form-hint">Los registros archivados se conservan pero no se muestran públicamente</p>
+            </div>
           </div>
         </div>
       </div>

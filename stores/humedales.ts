@@ -1,10 +1,33 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Humedal } from '~/types'
 import { humedales as mockData } from '~/data/mock-humedales'
 
+// ── LocalStorage persistence for admin overrides ──
+const STORAGE_KEY = 'obs-humedales-overrides'
+
+function loadOverrides(): Record<number, { visible?: boolean; archivado?: boolean }> {
+  if (typeof localStorage === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
+  } catch { return {} }
+}
+
+function saveOverrides(overrides: Record<number, { visible?: boolean; archivado?: boolean }>) {
+  if (typeof localStorage === 'undefined') return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides))
+}
+
+function applyOverrides(items: Humedal[]): Humedal[] {
+  const overrides = loadOverrides()
+  return items.map(h => {
+    const ov = overrides[h.id]
+    return ov ? { ...h, ...ov } : h
+  })
+}
+
 export const useHumedalesStore = defineStore('humedales', () => {
-  const humedales = ref<Humedal[]>(mockData.map(h => ({ ...h })))
+  const humedales = ref<Humedal[]>(applyOverrides(mockData.map(h => ({ ...h }))))
   const loading = ref(false)
   const searchQuery = ref('')
   const filterAlcaldia = ref('')
@@ -12,8 +35,9 @@ export const useHumedalesStore = defineStore('humedales', () => {
   const filterEstado = ref('')
 
   const filtered = computed(() => {
-    // Always return a new array to guarantee reactivity on filter changes
     return humedales.value.filter((h) => {
+      if (h.archivado) return false
+      if (h.visible === false) return false
       if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase()
         if (
@@ -38,16 +62,20 @@ export const useHumedalesStore = defineStore('humedales', () => {
     filterEstado.value = ''
   }
 
+  const publicHumedales = computed(() =>
+    humedales.value.filter(h => !h.archivado && h.visible !== false)
+  )
+
   const alcaldias = computed(() => {
-    const set = new Set(humedales.value.map((h) => h.alcaldia))
+    const set = new Set(publicHumedales.value.map((h) => h.alcaldia))
     return Array.from(set).sort()
   })
 
   const totalSuperficie = computed(() =>
-    humedales.value.reduce((sum, h) => sum + (h.superficie || 0), 0)
+    publicHumedales.value.reduce((sum, h) => sum + (h.superficie || 0), 0)
   )
 
-  const totalCount = computed(() => humedales.value.length)
+  const totalCount = computed(() => publicHumedales.value.length)
 
   // ── CRUD operations ──
   function addHumedal(data: Partial<Humedal>) {
@@ -76,6 +104,8 @@ export const useHumedalesStore = defineStore('humedales', () => {
       imagen: data.imagen,
       fuente: data.fuente,
       fuenteImagen: data.fuenteImagen,
+      visible: data.visible ?? true,
+      archivado: data.archivado ?? false,
     }
     humedales.value = [...humedales.value, nuevo]
     return nuevo
@@ -86,12 +116,23 @@ export const useHumedalesStore = defineStore('humedales', () => {
     if (idx === -1) return null
     const updated = { ...humedales.value[idx], ...data, id }
     humedales.value = humedales.value.map(h => h.id === id ? updated : h)
+
+    // Persist visible/archivado overrides to localStorage
+    if ('visible' in data || 'archivado' in data) {
+      const overrides = loadOverrides()
+      overrides[id] = { ...overrides[id], ...(data.visible !== undefined ? { visible: data.visible } : {}), ...(data.archivado !== undefined ? { archivado: data.archivado } : {}) }
+      saveOverrides(overrides)
+    }
     return updated
+  }
+
+  function setHumedales(items: Humedal[]) {
+    humedales.value = applyOverrides(items)
   }
 
   function deleteHumedal(id: number) {
     humedales.value = humedales.value.filter(h => h.id !== id)
   }
 
-  return { humedales, loading, searchQuery, filterAlcaldia, filterTipo, filterEstado, filtered, hasActiveFilters, clearFilters, alcaldias, totalSuperficie, totalCount, addHumedal, updateHumedal, deleteHumedal }
+  return { humedales, publicHumedales, loading, setHumedales, searchQuery, filterAlcaldia, filterTipo, filterEstado, filtered, hasActiveFilters, clearFilters, alcaldias, totalSuperficie, totalCount, addHumedal, updateHumedal, deleteHumedal }
 })

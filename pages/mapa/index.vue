@@ -28,5 +28,14 @@
 <script setup lang="ts">
 import { useHumedalesStore } from '~/stores/humedales'
 definePageMeta({ layout: 'default' })
+const config = useRuntimeConfig()
 const store = useHumedalesStore()
+
+onMounted(async () => {
+  try {
+    const res = await $fetch<any>(`${config.public.apiBaseUrl}/observatory/${config.public.observatory}/humedales`, { timeout: 3000 })
+    const items = res?.items || res?.data
+    if (items?.length) store.setHumedales(items)
+  } catch { /* use store fallback */ }
+})
 </script>

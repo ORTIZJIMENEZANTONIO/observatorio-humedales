@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapContainer" class="h-full w-full" />
+  <div ref="mapContainer" class="h-full w-full cursor-pointer" />
 </template>
 
 <script setup lang="ts">
@@ -38,7 +38,7 @@ onMounted(() => {
   if (!mapContainer.value) return
   map = L.map(mapContainer.value, { center: defaultCenter, zoom: defaultZoom, zoomControl: true })
   L.tileLayer(tileUrl, { attribution: tileAttribution }).addTo(map)
-  for (const h of store.humedales) {
+  for (const h of store.filtered) {
     L.circleMarker([h.lat, h.lng], humedalMarkerStyle)
       .bindPopup(buildPopup(h), { maxWidth: 320 })
       .addTo(map)

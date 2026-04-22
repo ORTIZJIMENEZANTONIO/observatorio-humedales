@@ -3,8 +3,28 @@ import { ref, computed } from 'vue'
 import type { ArticuloNotihumedal } from '~/types'
 import { articulos as mockData } from '~/data/notihumedal'
 
+const STORAGE_KEY = 'obs-notihumedal-overrides'
+
+function loadOverrides(): Record<number, { visible?: boolean; archivado?: boolean }> {
+  if (typeof localStorage === 'undefined') return {}
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') } catch { return {} }
+}
+
+function saveOverrides(overrides: Record<number, { visible?: boolean; archivado?: boolean }>) {
+  if (typeof localStorage === 'undefined') return
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides))
+}
+
+function applyOverrides(items: ArticuloNotihumedal[]): ArticuloNotihumedal[] {
+  const overrides = loadOverrides()
+  return items.map(a => {
+    const ov = overrides[a.id]
+    return ov ? { ...a, ...ov } : a
+  })
+}
+
 export const useNotihumedalStore = defineStore('notihumedal', () => {
-  const articulos = ref<ArticuloNotihumedal[]>(mockData.map(a => ({ ...a })))
+  const articulos = ref<ArticuloNotihumedal[]>(applyOverrides(mockData.map(a => ({ ...a }))))
   const loading = ref(false)
   const searchQuery = ref('')
   const filterTag = ref('')
@@ -18,6 +38,8 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
 
   const filtered = computed(() => {
     const result = articulos.value.filter(a => {
+      if (a.archivado) return false
+      if (a.visible === false) return false
       const tags = a.tags || []
       if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase()
@@ -31,7 +53,6 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
       if (filterTag.value && !tags.includes(filterTag.value)) return false
       return true
     })
-    // Sort
     switch (sortBy.value) {
       case 'reciente': return result.sort((a, b) => b.fecha.localeCompare(a.fecha))
       case 'antiguo': return result.sort((a, b) => a.fecha.localeCompare(b.fecha))
@@ -57,6 +78,10 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
       fuenteImagen: data.fuenteImagen,
       autor: data.autor || 'Observatorio de Humedales Artificiales CDMX',
       tags: data.tags || [],
+      url: data.url,
+      fuente: data.fuente,
+      visible: data.visible ?? true,
+      archivado: data.archivado ?? false,
     }
     articulos.value = [...articulos.value, nuevo]
     return nuevo
@@ -72,6 +97,12 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
         .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     }
     articulos.value = articulos.value.map(a => a.id === id ? updated : a)
+
+    if ('visible' in data || 'archivado' in data) {
+      const overrides = loadOverrides()
+      overrides[id] = { ...overrides[id], ...(data.visible !== undefined ? { visible: data.visible } : {}), ...(data.archivado !== undefined ? { archivado: data.archivado } : {}) }
+      saveOverrides(overrides)
+    }
     return updated
   }
 
@@ -80,7 +111,7 @@ export const useNotihumedalStore = defineStore('notihumedal', () => {
   }
 
   function setArticulos(items: ArticuloNotihumedal[]) {
-    articulos.value = items
+    articulos.value = applyOverrides(items)
   }
 
   return { articulos, loading, searchQuery, filterTag, sortBy, allTags, filtered, addArticulo, updateArticulo, deleteArticulo, setArticulos }

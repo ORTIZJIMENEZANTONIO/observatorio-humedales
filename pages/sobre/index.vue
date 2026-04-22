@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Sobre el observatorio</h1>
-        <p class="mt-2 text-base text-white/80">Plataforma de monitoreo y análisis de humedales artificiales en la Ciudad de México</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Sobre el observatorio</h1>
+      <p class="mt-2 text-base text-white/80">Plataforma de monitoreo y análisis de humedales artificiales en la Ciudad de México</p>
+    </CommonHeroSection>
 
     <section class="bg-white py-16">
       <div class="container-narrow">
@@ -27,7 +25,7 @@
       <div class="container-wide">
         <CommonSectionTitle title="Objetivos" :centered="true" tag="Misión" />
         <div class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div v-for="obj in objetivos" :key="obj.title" class="card p-6 reveal">
+          <div v-for="obj in objetivos" :key="obj.title" class="card p-6 reveal hover:-translate-y-0.5 transition-all duration-300">
             <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
               <span class="text-lg">{{ obj.icon }}</span>
             </div>
@@ -59,7 +57,7 @@
       <div class="container-wide">
         <CommonSectionTitle title="Alineación con los ODS" subtitle="Los humedales artificiales contribuyen directamente a cuatro Objetivos de Desarrollo Sostenible de la Agenda 2030 de las Naciones Unidas." :centered="true" tag="Agenda 2030" />
         <div ref="odsRef" class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div v-for="ods in odsGoals" :key="ods.id" class="reveal">
+          <div v-for="ods in odsGoals" :key="ods.id" class="reveal hover:-translate-y-0.5 transition-all duration-300">
             <CommonODSCard :goal="ods" />
           </div>
         </div>
@@ -110,7 +108,7 @@
       <div class="container-wide">
         <CommonSectionTitle title="Metodología" subtitle="Criterios de sistematización del inventario de humedales artificiales." tag="Metodología" />
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div v-for="c in criterios" :key="c.title" class="card p-5">
+          <div v-for="c in criterios" :key="c.title" class="card p-5 hover:-translate-y-0.5 transition-all duration-300">
             <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
               <span class="text-lg">{{ c.icon }}</span>
             </div>
@@ -147,7 +145,7 @@
       <div class="container-narrow">
         <CommonSectionTitle title="Marco normativo y referencial" tag="Normativa" />
         <div class="grid gap-4 md:grid-cols-2">
-          <div v-for="norma in normativas" :key="norma.title" class="card-flat p-4">
+          <div v-for="norma in normativas" :key="norma.title" class="card-flat p-4 hover:-translate-y-0.5 transition-all duration-300">
             <h4 class="text-sm font-semibold text-ink">{{ norma.title }}</h4>
             <p class="mt-1 text-xs text-slate-custom">{{ norma.description }}</p>
           </div>

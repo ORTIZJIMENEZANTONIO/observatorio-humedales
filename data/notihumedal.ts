@@ -16,10 +16,14 @@ export const articulos: ArticuloNotihumedal[] = [
   <li>Fundación UNAM (2020). <a href="https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/" target="_blank" rel="noopener noreferrer">UNAM inaugura humedal artificial en el Bosque de San Juan de Aragón</a>.</li>
   <li>Facultad de Química, UNAM (2020). <a href="https://quimica.unam.mx/inauguran-humedal-artificial-bosque-de-aragon/" target="_blank" rel="noopener noreferrer">Inauguran nuevo Humedal Artificial en el Bosque de Aragón</a>.</li>
 </ul>`,
-    imagen: '/images/humedales/aragon.jpg',
-    fuenteImagen: 'Gaceta UNAM / Facultad de Química, UNAM',
+    imagen: '/images/humedales/aragon-stha.jpg',
+    fuenteImagen: 'SEDEMA, Gobierno de la Ciudad de México — Festival de los Humedales (2023)',
     autor: 'Observatorio de Humedales Artificiales CDMX',
     tags: ['Aragón', 'GAIA', 'UNAM', 'flujo subsuperficial'],
+    url: 'https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/',
+    fuente: 'Fundación UNAM / DGCS-UNAM, Boletín 150/2020',
+    visible: true,
+    archivado: false,
   },
   {
     id: 2,
@@ -40,6 +44,10 @@ export const articulos: ArticuloNotihumedal[] = [
     fuenteImagen: 'Gobierno de la CDMX',
     autor: 'Observatorio de Humedales Artificiales CDMX',
     tags: ['CONABIO', 'política pública', 'biodiversidad'],
+    url: 'https://www.biodiversidad.gob.mx/monitoreo/simoh-mx',
+    fuente: 'CONABIO — SIMOH-Mx; Gobierno de la CDMX (2021)',
+    visible: true,
+    archivado: false,
   },
   {
     id: 3,
@@ -50,9 +58,13 @@ export const articulos: ArticuloNotihumedal[] = [
     contenido: `<p>En la revista <em>TIP Revista Especializada en Ciencias Químico-Biológicas</em>, volumen 17, número 1, los investigadores de la Facultad de Química de la UNAM documentan el diseño, construcción y evaluación del STHA (Luna-Pabello & Aburto-Castañeda, 2014).</p>
 <p>El sistema, inaugurado en noviembre de 2012, combina un humedal de flujo subsuperficial (HAFSS, 2,351 m²) con un humedal de flujo superficial (HAFS, 5,734 m²) para controlar la eutroficación del lago. Los autores reportan una remoción del 80% de contaminantes generales y más del 90% de coliformes fecales, cumpliendo los límites de la NOM-001-SEMARNAT-2021 y la NOM-003-SEMARNAT-1997.</p>
 <p><strong>Referencia:</strong> Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1). <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer">Artículo completo en SciELO</a>.</p>`,
-    imagen: '/images/humedales/aragon.jpg',
-    fuenteImagen: 'Gaceta UNAM / GAIA — Facultad de Química, UNAM',
+    imagen: '/images/humedales/aragon-stha.jpg',
+    fuenteImagen: 'SEDEMA, Gobierno de la Ciudad de México — Festival de los Humedales (2023)',
     autor: 'Luna-Pabello, V.M. / GAIA-UNAM',
     tags: ['investigación', 'UNAM', 'Aragón', 'HAFSS', 'HAFS'],
+    url: 'https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003',
+    fuente: 'TIP Rev. Esp. Ciencias Químico-Biológicas, 17(1) — SciELO',
+    visible: true,
+    archivado: false,
   },
 ]

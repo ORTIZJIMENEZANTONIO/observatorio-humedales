@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Registra tu humedal artificial</h1>
-        <p class="mt-2 text-base text-white/80">Propón un humedal artificial para el inventario. Completa los datos técnicos y adjunta documentación de respaldo.</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Registra tu humedal artificial</h1>
+      <p class="mt-2 text-base text-white/80">Propón un humedal artificial para el inventario. Completa los datos técnicos y adjunta documentación de respaldo.</p>
+    </CommonHeroSection>
 
     <section class="bg-surface py-16">
       <div class="container-narrow">

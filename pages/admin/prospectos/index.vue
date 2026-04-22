@@ -21,7 +21,15 @@ const isOnline = ref(false)
 const loadingProspects = ref(true)
 const filter = ref('pendiente')
 
-const prospects = computed(() => prospectosStore.byStatus(filter.value))
+const allProspects = computed(() => prospectosStore.byStatus(filter.value))
+
+// ── Cola pagination ──
+const colaPage = ref(1)
+const colaPerPage = ref(15)
+const colaTotalPages = computed(() => Math.ceil(allProspects.value.length / colaPerPage.value) || 1)
+const prospects = computed(() => allProspects.value.slice((colaPage.value - 1) * colaPerPage.value, colaPage.value * colaPerPage.value))
+
+watch([filter], () => { colaPage.value = 1 })
 
 async function loadProspects() {
   loadingProspects.value = true
@@ -285,7 +293,7 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
         <p class="mt-1 text-sm text-slate-custom">Prospectos detectados por el sistema esperando revision</p>
       </div>
 
-      <div class="mb-4 flex flex-wrap gap-2">
+      <div class="mb-4 flex flex-wrap items-center gap-2">
         <button
           v-for="f in ['pendiente', 'aprobado', 'rechazado']"
           :key="f"
@@ -297,6 +305,16 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
         >
           {{ f.charAt(0).toUpperCase() + f.slice(1) }}s
         </button>
+        <span class="ml-2 text-sm text-slate-custom">{{ allProspects.length }} {{ allProspects.length === 1 ? 'prospecto' : 'prospectos' }}</span>
+        <div class="ml-auto flex items-center gap-1.5">
+          <label class="text-xs text-slate-custom whitespace-nowrap">Por página:</label>
+          <select v-model.number="colaPerPage" class="select !py-1 !pl-2 !pr-7 text-xs w-[70px]" @change="colaPage = 1">
+            <option :value="10">10</option>
+            <option :value="15">15</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+          </select>
+        </div>
       </div>
 
       <div v-if="loadingProspects" class="space-y-3">
@@ -385,6 +403,16 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
           </div>
         </div>
       </TransitionGroup>
+
+      <!-- Cola pagination -->
+      <div class="mt-4">
+        <CommonPaginationControls
+          v-model:current-page="colaPage"
+          :total-pages="colaTotalPages"
+          :total-items="allProspects.length"
+          :per-page="colaPerPage"
+        />
+      </div>
 
       <!-- Reject modal (no Teleport) -->
       <Transition name="fade">

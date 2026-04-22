@@ -33,6 +33,8 @@ export const hallazgos: Hallazgo[] = [
       plazo: 'corto',
       costoEstimado: '$500,000 – $1,500,000 MXN por humedal',
     },
+    visible: true,
+    archivado: false,
   },
 
   // ── Hallazgo 2: Concentración territorial ──
@@ -61,6 +63,8 @@ export const hallazgos: Hallazgo[] = [
       responsables: ['Gobierno de la CDMX', 'SEDEMA', 'Alcaldías prioritarias'],
       plazo: 'mediano',
     },
+    visible: true,
+    archivado: false,
   },
 
   // ── Hallazgo 3: Eficiencia limitada a pilotos ──
@@ -90,6 +94,8 @@ export const hallazgos: Hallazgo[] = [
       plazo: 'mediano',
       costoEstimado: '$2,000,000 – $5,000,000 MXN (programa integral)',
     },
+    visible: true,
+    archivado: false,
   },
 
   // ── Hallazgo 4: Ventaja económica ──
@@ -118,6 +124,8 @@ export const hallazgos: Hallazgo[] = [
       responsables: ['CONAGUA', 'SEDEMA', 'Academia (IPN, UNAM)'],
       plazo: 'corto',
     },
+    visible: true,
+    archivado: false,
   },
 ]
 

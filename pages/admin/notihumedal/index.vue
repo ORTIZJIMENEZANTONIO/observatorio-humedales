@@ -32,6 +32,11 @@ const form = reactive({
   fecha: new Date().toISOString().slice(0, 10),
   tags: '',
   imagen: '',
+  fuenteImagen: '',
+  url: '',
+  fuente: '',
+  visible: true,
+  archivado: false,
 })
 
 // ── Preview state ──
@@ -71,6 +76,11 @@ function resetForm() {
   form.fecha = new Date().toISOString().slice(0, 10)
   form.tags = ''
   form.imagen = ''
+  form.fuenteImagen = ''
+  form.url = ''
+  form.fuente = ''
+  form.visible = true
+  form.archivado = false
   editingId.value = null
   editorKey.value++ // force re-mount editor
 }
@@ -122,6 +132,11 @@ async function saveArticulo() {
     fecha: form.fecha,
     tags: form.tags.split(',').map((t: string) => t.trim()).filter(Boolean),
     imagen: form.imagen || undefined,
+    fuenteImagen: form.fuenteImagen || undefined,
+    url: form.url || undefined,
+    fuente: form.fuente || undefined,
+    visible: form.visible,
+    archivado: form.archivado,
   }
   try {
     if (backendAvailable.value) {
@@ -177,6 +192,11 @@ function editArticulo(row: any) {
   form.fecha = row.fecha
   form.tags = Array.isArray(row.tags) ? row.tags.join(', ') : (row.tags || '')
   form.imagen = row.imagen || ''
+  form.fuenteImagen = row.fuenteImagen || ''
+  form.url = row.url || ''
+  form.fuente = row.fuente || ''
+  form.visible = row.visible ?? true
+  form.archivado = row.archivado ?? false
   editorKey.value++ // force re-mount with new content
   showForm.value = true
 }
@@ -235,19 +255,51 @@ async function runScraper() {
 }
 
 // ── Table columns ──
+// ── Advanced article filters ──
+const advFilter = reactive({ tag: '', visibilidad: '', archivo: '' })
+const hasAdvFilters = computed(() => Object.values(advFilter).some(v => !!v))
+function clearAdvFilters() { Object.assign(advFilter, { tag: '', visibilidad: '', archivo: '' }) }
+
 const articuloColumns = [
   { key: 'id', label: 'ID', class: 'w-16' },
   { key: 'titulo', label: 'Titulo' },
   { key: 'autor', label: 'Autor' },
   { key: 'fecha', label: 'Fecha', class: 'w-28' },
   { key: 'tags', label: 'Tags' },
+  { key: 'visible', label: 'Visible', class: 'w-20 text-center' },
+  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center' },
 ]
 
+async function toggleVisible(row: any) {
+  const newVal = !(row.visible ?? true)
+  store.updateArticulo(row.id, { visible: newVal })
+  if (backendAvailable.value) {
+    try { await apiFetch(`/observatory/${obs}/admin/notihumedal/${row.id}`, { method: 'PATCH', body: { visible: newVal } }) } catch {}
+  }
+}
+
+async function toggleArchivado(row: any) {
+  const newVal = !row.archivado
+  store.updateArticulo(row.id, { archivado: newVal })
+  if (backendAvailable.value) {
+    try { await apiFetch(`/observatory/${obs}/admin/notihumedal/${row.id}`, { method: 'PATCH', body: { archivado: newVal } }) } catch {}
+  }
+}
+
 // ── Computed rows ──
-const articuloRows = computed(() => store.articulos.map(a => ({
-  ...a,
-  tags: Array.isArray(a.tags) ? a.tags.join(', ') : a.tags,
-})))
+const articuloRows = computed(() => {
+  return store.articulos.filter(a => {
+    if (advFilter.tag && !(a.tags || []).includes(advFilter.tag)) return false
+    if (advFilter.visibilidad === 'visible' && (a.visible === false)) return false
+    if (advFilter.visibilidad === 'oculto' && (a.visible !== false)) return false
+    if (advFilter.archivo === 'activo' && a.archivado) return false
+    if (advFilter.archivo === 'archivado' && !a.archivado) return false
+    return true
+  }).map(a => ({
+    ...a,
+    tags: Array.isArray(a.tags) ? a.tags.join(', ') : a.tags,
+  }))
+})
 
 // ── Init ──
 onMounted(() => {
@@ -350,14 +402,41 @@ watch(activeTab, (tab) => {
                 <input v-model="form.tags" type="text" class="input !py-1.5 text-sm" placeholder="UNAM, SEDEMA..." />
               </div>
             </div>
-            <div class="mt-2 grid grid-cols-[1fr_280px] gap-x-3 gap-y-1 items-end">
+            <div class="mt-2 grid grid-cols-[1fr_1fr_280px] gap-x-3 gap-y-1 items-end">
               <div>
                 <label class="text-[11px] font-medium text-ink-muted">Resumen *</label>
                 <input v-model="form.resumen" type="text" class="input !py-1.5 text-sm" placeholder="Resumen breve del articulo" />
               </div>
               <div>
-                <label class="text-[11px] font-medium text-ink-muted">Imagen (URL)</label>
-                <input v-model="form.imagen" type="url" class="input !py-1.5 text-sm" placeholder="https://..." />
+                <label class="text-[11px] font-medium text-ink-muted">URL fuente original</label>
+                <input v-model="form.url" type="url" class="input !py-1.5 text-sm" placeholder="https://scielo.org.mx/..." />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Fuente</label>
+                <input v-model="form.fuente" type="text" class="input !py-1.5 text-sm" placeholder="UNAM, SciELO, CONABIO..." />
+              </div>
+            </div>
+            <div class="mt-2 grid grid-cols-[1fr_200px_200px_auto_auto] gap-x-3 gap-y-1 items-end">
+              <div class="flex items-end gap-3">
+                <div class="flex-1">
+                  <label class="text-[11px] font-medium text-ink-muted">Imagen (ruta o URL)</label>
+                  <input v-model="form.imagen" type="text" class="input !py-1.5 text-sm" placeholder="/images/humedales/... o https://..." />
+                </div>
+                <img v-if="form.imagen" :src="form.imagen" alt="" class="h-8 w-12 shrink-0 rounded object-cover border border-gray-200" @error="($event.target as HTMLImageElement).style.display='none'" />
+              </div>
+              <div>
+                <label class="text-[11px] font-medium text-ink-muted">Crédito imagen</label>
+                <input v-model="form.fuenteImagen" type="text" class="input !py-1.5 text-sm" placeholder="Gobierno CDMX, UNAM..." />
+              </div>
+              <div class="flex items-center gap-4 pb-0.5">
+                <label class="inline-flex items-center gap-1.5 text-[11px]">
+                  <input type="checkbox" v-model="form.visible" class="checkbox !h-3.5 !w-3.5" />
+                  <span class="font-medium" :class="form.visible ? 'text-eco' : 'text-gray-400'">Visible</span>
+                </label>
+                <label class="inline-flex items-center gap-1.5 text-[11px]">
+                  <input type="checkbox" v-model="form.archivado" class="checkbox !h-3.5 !w-3.5" />
+                  <span class="font-medium" :class="form.archivado ? 'text-accent' : 'text-gray-400'">Archivado</span>
+                </label>
               </div>
             </div>
           </div>
@@ -393,10 +472,50 @@ watch(activeTab, (tab) => {
         @edit="editArticulo"
         @delete="deleteArticulo"
       >
+        <template #filters>
+          <div class="mb-4 flex flex-wrap items-center gap-2">
+            <select v-model="advFilter.tag" class="select !py-1.5 text-xs max-w-[180px]">
+              <option value="">Todos los tags</option>
+              <option v-for="tag in store.allTags" :key="tag" :value="tag">{{ tag }}</option>
+            </select>
+            <select v-model="advFilter.visibilidad" class="select !py-1.5 text-xs max-w-[140px]">
+              <option value="">Visibilidad: todos</option>
+              <option value="visible">Solo visibles</option>
+              <option value="oculto">Solo ocultos</option>
+            </select>
+            <select v-model="advFilter.archivo" class="select !py-1.5 text-xs max-w-[140px]">
+              <option value="">Archivo: todos</option>
+              <option value="activo">Solo activos</option>
+              <option value="archivado">Solo archivados</option>
+            </select>
+            <button v-if="hasAdvFilters" @click="clearAdvFilters" class="btn-ghost !py-1 text-xs">Limpiar filtros</button>
+          </div>
+        </template>
         <template #cell-tags="{ value }">
           <div class="flex flex-wrap gap-1">
             <span v-for="tag in (value || '').split(',')" :key="tag" class="badge-primary text-[10px]">{{ tag.trim() }}</span>
           </div>
+        </template>
+        <template #cell-visible="{ row }">
+          <button
+            @click.stop="toggleVisible(row)"
+            class="mx-auto flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+            :class="(row.visible ?? true) ? 'text-eco hover:bg-eco/10' : 'text-gray-300 hover:bg-gray-100'"
+            :title="(row.visible ?? true) ? 'Visible — clic para ocultar' : 'Oculto — clic para mostrar'"
+          >
+            <svg v-if="row.visible ?? true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" /></svg>
+          </button>
+        </template>
+        <template #cell-archivado="{ row }">
+          <button
+            @click.stop="toggleArchivado(row)"
+            class="mx-auto flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+            :class="row.archivado ? 'text-accent hover:bg-accent/10' : 'text-gray-300 hover:bg-gray-100'"
+            :title="row.archivado ? 'Archivado — clic para restaurar' : 'Activo — clic para archivar'"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+          </button>
         </template>
       </AdminDataTable>
     </div>

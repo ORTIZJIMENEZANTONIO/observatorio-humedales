@@ -48,9 +48,9 @@ npm run test:coverage # With coverage report
 observatorio-humedales/
   assets/
     css/main.css            # Global styles, form system, animations, Leaflet overrides
-    humedalito.png          # Mascota del observatorio (hero banner)
+    humedalito.svg          # Mascota del observatorio (hero banner)
   components/
-    common/                 # AppHeader, AppFooter, SectionTitle, ODSCard, PaginationControls, AnalisisSubNav
+    common/                 # AppHeader, AppFooter, SectionTitle, ODSCard, PaginationControls, AnalisisSubNav, HumedalitoBlink, HeroSection
     charts/                 # DoughnutChart.client.vue, BarChart.client.vue
     map/                    # MapPanel.client.vue, CoverageMap.client.vue
   composables/
@@ -71,7 +71,7 @@ observatorio-humedales/
   middleware/
     redirects.global.ts     # Redirects: /indicadores→/analisis/indicadores, /brecha, /hallazgos, /metodologia
   pages/
-    index.vue               # Home (hero+Humedalito, KPIs, features, tipologias, servicios, ODS teaser, map teaser)
+    index.vue               # Home (lava lamp hero+Humedalito SVG con blink/speech, KPIs interactivos, features, tipologias, servicios, ODS teaser, map teaser)
     mapa/                   # Full-screen Leaflet map (own nav item, accessible)
     inventario/             # Inventory: search/filters + list/map toggle + detail drawer
     analisis/
@@ -86,7 +86,7 @@ observatorio-humedales/
     sobre/                  # About + ODS + metodologia (#metodologia) + fuentes (#fuentes) + normativa
   public/
     images/                 # Institutional logos (IPN)
-    images/humedales/       # 8 fotos reales de humedales (aragon.jpg + aragon-segundo.jpg separados)
+    images/humedales/       # 8 fotos reales de humedales (aragon-stha.jpg + aragon-espiral.jpg separados)
   stores/
     humedales.ts            # Pinia store (composable style, reactive filters, CRUD: add/update/delete)
     hallazgos.ts            # Pinia store for findings (shared /analisis/hallazgos↔/admin/hallazgos, CRUD)
@@ -109,16 +109,31 @@ observatorio-humedales/
 ```
 Inventario PDF/Excel (Dominguez Solis, IPN) + Articulo SciELO (Luna-Pabello, UNAM)
          ↓
-   [mock-humedales.ts]     /data/
+   [mock-humedales.ts]     /data/             (initial/fallback data)
          ↓
-   [Pinia Store]           /stores/humedales.ts
+   [Pinia Store]           /stores/           (init from mock, then fetch from API)
          ↓
+   [onMounted fetch]       public pages       (GET /observatory/{obs}/humedales etc.)
+         ↓                                    (backend filters visible/archivado)
    [Components/Pages]      (search, filter, visualize)
 ```
 
+### Public pages → backend data loading
+All public pages that display inventory data fetch from cercu-backend on mount. If backend is unavailable, mock data is used as fallback.
+
+| Page | Endpoint | Store method |
+|------|----------|-------------|
+| `/inventario` | `GET /observatory/{obs}/humedales` | `store.setHumedales(items)` |
+| `/mapa` | `GET /observatory/{obs}/humedales` | `store.setHumedales(items)` |
+| `/analisis/hallazgos` | `GET /observatory/{obs}/hallazgos` | `store.setHallazgos(items)` |
+| `/notihumedal` | `GET /observatory/{obs}/notihumedal` | `store.setArticulos(items)` |
+| `/notihumedal/[slug]` | `GET /observatory/{obs}/notihumedal` | `store.setArticulos(items)` |
+
+Public endpoints already filter `visible=true, archivado=false` server-side. The `set*` methods also apply localStorage overrides for offline admin changes.
+
 ### Environment Variables
-- `NUXT_PUBLIC_DATA_MODE`: `mock` (default) — controls data source; currently only mock data
-- `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3000/api/v1`) — for admin system
+- `NUXT_PUBLIC_DATA_MODE`: `mock` (default) — controls data source; mock data used as fallback when backend unavailable
+- `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3003/api/v1`)
 
 ### Data Source
 The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Total: 8 wetland records.
@@ -218,6 +233,8 @@ interface Humedal {
   imagen?: string
   fuente?: string           // data source reference
   fuenteImagen?: string     // image credit
+  visible?: boolean         // default true — if false, hidden from public pages
+  archivado?: boolean       // default false — if true, archived (not shown publicly)
 }
 ```
 
@@ -227,6 +244,8 @@ interface ArticuloNotihumedal {
   id: number; slug: string; titulo: string; fecha: string
   resumen: string; contenido: string; imagen?: string
   fuenteImagen?: string; autor: string; tags: string[]
+  url?: string; fuente?: string       // source URL and credit
+  visible?: boolean; archivado?: boolean
 }
 
 type EstadoProspectoNoticia = 'pendiente' | 'aprobado' | 'rechazado'
@@ -271,6 +290,7 @@ interface Hallazgo {
   evidencia: string[]
   impacto: 'alto' | 'medio' | 'critico'
   recomendacion: Recomendacion   // paired recommendation
+  visible?: boolean; archivado?: boolean
 }
 ```
 
@@ -334,8 +354,11 @@ interface Hallazgo {
 - **Color on interaction** — borders tint to `primary/15` on card hover; icons scale up
 - **Focus-visible** — buttons use `focus-visible:ring-2` (only shows on keyboard nav, not clicks)
 - **Pill badges** — `rounded-full` for all badges
-- **Mesh gradient hero** — animated floating orbs with blur, not flat gradient
+- **Lava lamp hero** — Reusable `CommonHeroSection` component (4 orbs: 3 teal + 1 eco accent) with `mix-blend-mode: screen`, blur(26px), GPU-accelerated `translate3d`, staggered keyframes (10-16s). All 9 public pages use `<CommonHeroSection compact>`. Home page uses 6 orbs (extra orbs inline). Adapted from cercu-frontend pattern
 - **Progressive disclosure** — CTAs reveal on hover (`opacity-0 → group-hover:opacity-100`)
+- **Interactive feedback** — All clickable cards use `cursor-pointer`, `hover:-translate-y-0.5` or `hover:-translate-y-1.5`, `transition-all duration-300`, `hover:shadow-lg`
+- **Lazy loading** — All `<img>` tags use `loading="lazy"` for performance
+- **Map cursors** — Map containers use `cursor-pointer` to indicate interactivity
 
 ## Animation System
 Smooth, physics-based motion language (same as sibling observatorio-techos-verdes project).
@@ -378,7 +401,35 @@ const { revealRef } = useScrollReveal({ stagger: true })
 | `.animate-scale-in` | Scale 0.9→1 + fade |
 | `.animate-pulse-glow` | Box-shadow pulse (infinite) |
 | `.animate-spin-smooth` | Smooth rotation (infinite) |
+| `.animate-float` | Translate Y 0→-12px→0 (3s infinite) |
 | `.delay-100` ... `.delay-700` | Animation delay utilities |
+
+### Lava Lamp Hero (`CommonHeroSection.vue`)
+Reusable component used by ALL public pages via `<CommonHeroSection compact>`.
+- 4 orbs: 3 teal primary (`#0D6B7E`, `#1088A0`, `#094E5C`) + 1 eco accent (`#43A047`)
+- GPU-accelerated via `translate3d` + `will-change: transform`
+- `filter: blur(26px)`, `mix-blend-mode: screen`
+- Keyframes `lavaA`-`lavaD` (10-16s staggered)
+- Home page (`pages/index.vue`) adds 2 extra orbs inline (6 total)
+- `compact` prop controls padding (`py-10` vs `py-12`)
+- `<slot>` receives inner content; wrapper provides `container-wide` + `z-10`
+
+**Pages using `<CommonHeroSection compact>`:**
+inventario, analisis (index, brecha, hallazgos, indicadores), notihumedal (index, [slug]), sobre, registra
+
+### Humedalito Mascot (pages/index.vue + CommonHumedalitoBlink.vue)
+Adapted from Bolillo mascot pattern (guardianes-del-barrio-verde). Single SVG with CSS-driven states:
+- **Idle:** Float (3s translateY ±10px) + breathing (3s scaleY 1→1.015)
+- **Blink:** Every 2.6s, 150ms duration. Uses `CommonHumedalitoBlink` component: SVG overlay with two skin-colored ellipses (`#874120`) positioned over each eye (left cx=240 cy=405, right cx=375 cy=405). `ry` transitions from 0 (open) to 42 (closed) via CSS transition 70ms — covers pupil, iris, highlights and eyebrows
+- **Speaking:** Gentle bounce (0.4s translateY -3px + scale 1.02) when speech bubble visible
+- **Speech bubble:** "Hola, soy Humedalito" — diagonal top-right, appears on hover (desktop `mouseenter`/`mouseleave`) or tap (mobile `touchstart` toggle, auto-hide 2.5s)
+- **Pet easter egg:** Tap 5x in 3s → wiggle (rotate ±3°) + floating hearts (💚💙) for 3s, debounced 100ms
+- `cursor: pointer`, `touch-action: manipulation`, `user-select: none`
+- `@pointerdown.prevent` for pet interaction
+
+### KPI Cards Interactivity
+- KPI cards are `<NuxtLink>` routing to relevant pages (inventario, indicadores, brecha)
+- `cursor-pointer`, hover: `-translate-y-1.5`, `shadow-xl`, icon `scale-125 rotate-6`, value color → primary
 
 ### Reduced Motion
 All animations and transitions are disabled with `@media (prefers-reduced-motion: reduce)`.
@@ -491,24 +542,28 @@ Properties use **camelCase** in TypeScript (not snake_case):
 Always add null guards: `if (!value) return 'Sin tipo'`
 Use fallback: `map[value] || value.charAt(0).toUpperCase() + value.slice(1)`
 
-### Stores (Pinia composable style, with CRUD)
+### Stores (Pinia composable style, with CRUD + localStorage persistence)
 All data stores expose CRUD operations for admin pages. API-first with local fallback.
-```typescript
-// humedales.ts — shared between /inventario (public) and /admin/humedales
-export const useHumedalesStore = defineStore('humedales', () => {
-  const humedales = ref<Humedal[]>(mockData.map(h => ({ ...h })))
-  const filtered = computed(() => { /* search + filter */ })
-  function addHumedal(data) { /* ... */ }
-  function updateHumedal(id, data) { /* ... */ }
-  function deleteHumedal(id) { /* ... */ }
-  return { humedales, filtered, addHumedal, updateHumedal, deleteHumedal, ... }
-})
+Stores init from mock data with localStorage overrides applied, then public pages fetch from backend on mount.
 
-// hallazgos.ts — shared between /analisis/hallazgos (public) and /admin/hallazgos
-// notihumedal.ts — shared between /notihumedal (public) and /admin/notihumedal
+```typescript
+// humedales.ts — shared between /inventario, /mapa (public) and /admin/humedales
+//   humedales: all items (admin). filtered/publicHumedales: excludes archivado/hidden (public)
+//   setHumedales(items): replaces store data with localStorage overrides applied
+//   updateHumedal(id, { visible, archivado }): persists overrides to localStorage
+//   totalCount, alcaldias, totalSuperficie: computed from publicHumedales (not raw)
+
+// hallazgos.ts — publicHallazgos excludes archivado/hidden; admin uses hallazgos directly
+//   setHallazgos(items): applies localStorage overrides
+
+// notihumedal.ts — filtered excludes archivado/hidden; admin uses articulos directly
+//   setArticulos(items): applies localStorage overrides
+
 // prospectos.ts — shared between /registra (public form) and /admin/prospectos
-}
 ```
+
+**localStorage keys:** `obs-humedales-overrides`, `obs-hallazgos-overrides`, `obs-notihumedal-overrides`
+Each stores `{ [id]: { visible?, archivado? } }`. Applied on store init and on `set*()` calls (when backend data arrives). Ensures admin visibility changes persist across page reloads even when backend PATCH fails (auth issues).
 
 ### Pagination (15 items per page)
 All data tables and card grids use client-side pagination with 15 results per page via `CommonPaginationControls.vue`. The component receives `v-model:current-page`, `totalPages`, `totalItems`, and `perPage` props. Controls auto-hide when `totalPages <= 1`.
@@ -647,7 +702,7 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **Data domain:** 8 artificial wetlands instead of 57 green roofs + 60 candidates
 - **Analysis:** Ecosystem services focus instead of AHP multi-criteria + structural pre-feasibility
 - **No AI integration:** Data comes from PDF inventory, not vision analysis
-- **Simpler architecture:** No services/normalizers/repositories layer — direct mock data to store
+- **Simpler architecture:** No services/normalizers/repositories layer — mock data fallback + backend API fetch on mount + localStorage overrides for admin changes
 
 ## Testing
 
@@ -693,11 +748,15 @@ This project shares the same design system and stack as `observatorio-techos-ver
 
 ### Migraciones
 - **Directorio:** `src/migrations/`
-- **Migración actual:** `1713297600000-HumedalesSchemaUpdate.ts`
+- **Migración 1:** `1713297600000-HumedalesSchemaUpdate.ts`
   - Agrega `role` + `permissions` a `observatory_admins`
   - Agrega `fuente`, `fuenteImagen`, `tipoVegetacion` a `obs_humedales` + cambia `funcionPrincipal` a TEXT
   - Agrega `fuenteImagen` a `obs_notihumedal`
   - Migra valores `tipoHumedal` al formato `ha_*` (FWS/SFS)
+  - Idempotente (verifica columnas antes de ALTER)
+- **Migración 2:** `1714000000000-AddVisibleArchivadoFields.ts`
+  - Agrega `visible` (BOOLEAN DEFAULT true) y `archivado` (BOOLEAN DEFAULT false) a `obs_humedales`, `obs_hallazgos`, `obs_notihumedal`
+  - Agrega `url` (VARCHAR 500) y `fuente` (VARCHAR 500) a `obs_notihumedal`
   - Idempotente (verifica columnas antes de ALTER)
 - **Ejecutar:** `npm run migration:run`
 
@@ -710,9 +769,9 @@ This project shares the same design system and stack as `observatorio-techos-ver
 | Entidad | Tabla | Campos nuevos |
 |---------|-------|---------------|
 | ObservatoryAdmin | observatory_admins | `role` (superadmin/admin/editor), `permissions` (JSON) |
-| ObsHumedal | obs_humedales | `fuente`, `fuenteImagen`, `tipoVegetacion` (JSON), `tipoHumedal` ahora `ha_fws/ha_sfs_*/ha_hibrido` |
-| ObsNotihumedal | obs_notihumedal | `fuenteImagen` |
-| ObsHallazgo | obs_hallazgos | sin cambios |
+| ObsHumedal | obs_humedales | `fuente`, `fuenteImagen`, `tipoVegetacion` (JSON), `tipoHumedal` ahora `ha_fws/ha_sfs_*/ha_hibrido`, `visible`, `archivado` |
+| ObsNotihumedal | obs_notihumedal | `fuenteImagen`, `url`, `fuente`, `visible`, `archivado` |
+| ObsHallazgo | obs_hallazgos | `visible`, `archivado` |
 
 ## Remote Sensing / Percepción remota
 
@@ -922,11 +981,20 @@ PUT  /observatory/{obs}/admin/cms/{pageSlug}/{sectionKey}     # admin, body: { i
 
 **BD:** Tabla `obs_cms_sections` con columnas: `id`, `pageSlug`, `sectionKey`, `items` (JSON), `updatedBy`, `updatedAt`.
 
+### Visibility & Archive System
+All three main content types (Humedal, Hallazgo, ArticuloNotihumedal) support `visible` (default true) and `archivado` (default false) fields:
+- **Public pages** fetch from backend public endpoints (which filter server-side) + store computeds (`filtered`, `publicHallazgos`) also exclude hidden/archived client-side
+- **Admin pages** show all items with toggle buttons in table columns (eye icon for visible, archive box for archivado)
+- **Admin forms** include checkbox controls for both fields
+- **Backend** public endpoints pass `publicOnly: true` to filter; admin endpoints accept `visible` and `archivado` query params
+- **Persistence** admin toggle changes are saved to `localStorage` as overrides, applied on store init and on `set*()` calls. This ensures changes survive page reloads even when backend PATCH fails. When backend is properly synced, server data takes precedence
+
 ### Admin UI/UX Patterns
 - **Pipeline banner:** Indicador horizontal de pasos en cada página del pipeline, resalta el paso actual
 - **Mobile-first responsive:** Sidebar oculto en mobile (toggle hamburger, cierre automático al navegar), tablas con scroll horizontal edge-to-edge (`-mx-4 px-4 sm:mx-0`), grids desde `grid-cols-1`, touch targets 44px, acciones siempre visibles en mobile
 - **Collapsible methodology:** Panel cerrado por defecto explicando scoring/detección
-- **Paginated tables:** Filtros avanzados + columnas ordenables + selector de filas por página
+- **Paginated tables:** Filtros avanzados + columnas ordenables + selector de filas por página (10/15/25/50, default 15)
+- **Advanced filters:** Each admin page has contextual filter dropdowns (alcaldía, tipo, estado, impacto, plazo, tag, role, visibilidad, archivo) with "Limpiar filtros" button via `#filters` slot in AdminDataTable
 - **Score breakdown:** Barras de progreso expandibles por fila mostrando componentes del score
 - **Column tooltips:** `title` nativo con subrayado punteado en headers
 - **TransitionGroup:** Animaciones fade + slide en listas

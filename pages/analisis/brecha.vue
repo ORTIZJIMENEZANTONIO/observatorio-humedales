@@ -1,12 +1,10 @@
 <template>
   <div>
     <!-- 1. Header Banner -->
-    <section class="bg-gradient-to-r from-primary-800 to-primary py-12">
-      <div class="container-wide">
-        <h1 class="text-3xl font-extrabold text-white md:text-4xl">Brecha de cobertura</h1>
-        <p class="mt-2 text-base text-white/80">5 de 16 alcaldias cuentan con humedales artificiales en la Ciudad de Mexico</p>
-      </div>
-    </section>
+    <CommonHeroSection compact>
+      <h1 class="text-3xl font-extrabold text-white md:text-4xl">Brecha de cobertura</h1>
+      <p class="mt-2 text-base text-white/80">5 de 16 alcaldias cuentan con humedales artificiales en la Ciudad de Mexico</p>
+    </CommonHeroSection>
 
     <CommonAnalisisSubNav />
 
@@ -15,22 +13,22 @@
 
         <!-- 2. KPI Cards -->
         <div ref="kpiRef" class="stagger-children mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="kpi-card reveal">
+          <div class="kpi-card reveal hover:-translate-y-0.5 transition-all duration-300">
             <p class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Alcaldias totales</p>
             <p class="text-3xl font-extrabold text-primary">16</p>
             <p class="text-xs text-slate-custom">Ciudad de Mexico</p>
           </div>
-          <div class="kpi-card reveal">
+          <div class="kpi-card reveal hover:-translate-y-0.5 transition-all duration-300">
             <p class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Con humedales</p>
             <p class="text-3xl font-extrabold text-eco">5</p>
             <p class="text-xs text-slate-custom">31% de cobertura</p>
           </div>
-          <div class="kpi-card reveal">
+          <div class="kpi-card reveal hover:-translate-y-0.5 transition-all duration-300">
             <p class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Sin humedales</p>
             <p class="text-3xl font-extrabold text-alert">11</p>
             <p class="text-xs text-slate-custom">69% sin cobertura</p>
           </div>
-          <div class="kpi-card reveal">
+          <div class="kpi-card reveal hover:-translate-y-0.5 transition-all duration-300">
             <p class="text-xs font-semibold uppercase tracking-wider text-ink-muted">Indice promedio (sin humedal)</p>
             <p class="text-3xl font-extrabold text-accent">{{ avgIndiceNecesidad }}</p>
             <p class="text-xs text-slate-custom">Necesidad de las 11 alcaldias</p>
@@ -140,7 +138,7 @@
         <div ref="priorityRef" class="mb-12">
           <CommonSectionTitle title="Top 5 alcaldías prioritarias" subtitle="Alcaldias sin humedales con mayor indice de necesidad. El indicador mas critico se resalta en cada caso." tag="Prioridad" />
           <div class="stagger-children grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div v-for="(a, i) in topFive" :key="a.nombre" class="card-interactive reveal p-6">
+            <div v-for="(a, i) in topFive" :key="a.nombre" class="card-interactive reveal p-6 hover:-translate-y-0.5 transition-all duration-300">
               <div class="mb-3 flex items-center justify-between">
                 <span class="flex h-8 w-8 items-center justify-center rounded-full bg-alert/10 text-sm font-bold text-alert">
                   {{ i + 1 }}

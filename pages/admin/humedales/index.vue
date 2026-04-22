@@ -21,13 +21,37 @@ async function load() {
       const res = await apiFetch(`/observatory/${obs}/admin/humedales`)
       const items = (res as any).items || (res as any).data
       if (items?.length) {
-        store.humedales = items
+        store.setHumedales(items)
       }
     } catch { /* use store fallback */ }
   }
   loading.value = false
 }
 onMounted(load)
+
+// ── Advanced filters ──
+const advFilter = reactive({
+  alcaldia: '',
+  tipo: '',
+  estado: '',
+  visibilidad: '',
+  archivo: '',
+})
+const hasAdvFilters = computed(() => Object.values(advFilter).some(v => !!v))
+function clearAdvFilters() { Object.assign(advFilter, { alcaldia: '', tipo: '', estado: '', visibilidad: '', archivo: '' }) }
+
+const filteredRows = computed(() => {
+  return store.humedales.filter(h => {
+    if (advFilter.alcaldia && h.alcaldia !== advFilter.alcaldia) return false
+    if (advFilter.tipo && h.tipoHumedal !== advFilter.tipo) return false
+    if (advFilter.estado && h.estado !== advFilter.estado) return false
+    if (advFilter.visibilidad === 'visible' && (h.visible === false)) return false
+    if (advFilter.visibilidad === 'oculto' && (h.visible !== false)) return false
+    if (advFilter.archivo === 'activo' && h.archivado) return false
+    if (advFilter.archivo === 'archivado' && !h.archivado) return false
+    return true
+  })
+})
 
 const columns = [
   { key: 'id', label: 'ID', class: 'w-12' },
@@ -37,6 +61,8 @@ const columns = [
   { key: 'superficie', label: 'm²', class: 'text-right tabular-nums' },
   { key: 'estado', label: 'Estado' },
   { key: 'anioImplementacion', label: 'Año' },
+  { key: 'visible', label: 'Visible', class: 'w-20 text-center' },
+  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center' },
 ]
 
 // ── Form state ──
@@ -66,9 +92,12 @@ const emptyForm = {
   imagen: '',
   fuente: '',
   fuenteImagen: '',
+  visible: true,
+  archivado: false,
 }
 
 const form = reactive({ ...emptyForm })
+const imagePreview = computed(() => form.imagen || '')
 
 function resetForm() {
   Object.assign(form, { ...emptyForm, tipoVegetacion: [], serviciosEcosistemicos: [] })
@@ -104,6 +133,8 @@ function handleEdit(row: any) {
     imagen: row.imagen || '',
     fuente: row.fuente || '',
     fuenteImagen: row.fuenteImagen || '',
+    visible: row.visible ?? true,
+    archivado: row.archivado ?? false,
   })
   showForm.value = true
 }
@@ -132,6 +163,8 @@ function formToHumedal(): Partial<Humedal> {
     imagen: form.imagen || undefined,
     fuente: form.fuente || undefined,
     fuenteImagen: form.fuenteImagen || undefined,
+    visible: form.visible,
+    archivado: form.archivado,
   }
 }
 
@@ -164,6 +197,22 @@ async function saveForm() {
     showForm.value = false
   }
   saving.value = false
+}
+
+async function toggleVisible(row: any) {
+  const newVal = !(row.visible ?? true)
+  store.updateHumedal(row.id, { visible: newVal })
+  if (isOnline.value) {
+    try { await apiFetch(`/observatory/${obs}/admin/humedales/${row.id}`, { method: 'PATCH', body: { visible: newVal } }) } catch {}
+  }
+}
+
+async function toggleArchivado(row: any) {
+  const newVal = !row.archivado
+  store.updateHumedal(row.id, { archivado: newVal })
+  if (isOnline.value) {
+    try { await apiFetch(`/observatory/${obs}/admin/humedales/${row.id}`, { method: 'PATCH', body: { archivado: newVal } }) } catch {}
+  }
 }
 
 async function handleDelete(row: any) {
@@ -227,12 +276,45 @@ function toggleServicio(val: string) {
 
     <AdminDataTable
       :columns="columns"
-      :rows="store.humedales"
+      :rows="filteredRows"
       :loading="loading"
       search-placeholder="Buscar humedal..."
       @edit="handleEdit"
       @delete="handleDelete"
     >
+      <template #filters>
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+          <select v-model="advFilter.alcaldia" class="select !py-1.5 text-xs max-w-[180px]">
+            <option value="">Todas las alcaldías</option>
+            <option v-for="a in store.alcaldias" :key="a" :value="a">{{ a }}</option>
+          </select>
+          <select v-model="advFilter.tipo" class="select !py-1.5 text-xs max-w-[200px]">
+            <option value="">Todos los tipos</option>
+            <option value="ha_fws">FWS — Flujo superficial</option>
+            <option value="ha_sfs_horizontal">HSSF — Subsuperficial horizontal</option>
+            <option value="ha_sfs_vertical">VSSF — Subsuperficial vertical</option>
+            <option value="ha_hibrido">Híbrido (FWS + SFS)</option>
+          </select>
+          <select v-model="advFilter.estado" class="select !py-1.5 text-xs max-w-[160px]">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activo</option>
+            <option value="en_construccion">En construcción</option>
+            <option value="en_expansion">En expansión</option>
+            <option value="piloto">Piloto</option>
+          </select>
+          <select v-model="advFilter.visibilidad" class="select !py-1.5 text-xs max-w-[140px]">
+            <option value="">Visibilidad: todos</option>
+            <option value="visible">Solo visibles</option>
+            <option value="oculto">Solo ocultos</option>
+          </select>
+          <select v-model="advFilter.archivo" class="select !py-1.5 text-xs max-w-[140px]">
+            <option value="">Archivo: todos</option>
+            <option value="activo">Solo activos</option>
+            <option value="archivado">Solo archivados</option>
+          </select>
+          <button v-if="hasAdvFilters" @click="clearAdvFilters" class="btn-ghost !py-1 text-xs">Limpiar filtros</button>
+        </div>
+      </template>
       <template #cell-tipoHumedal="{ value }">
         <span :class="['badge text-[10px]', formatters.tipoHumedalBadgeClass(value)]">
           {{ formatters.formatTipoHumedalCorto(value) }}
@@ -245,6 +327,27 @@ function toggleServicio(val: string) {
       </template>
       <template #cell-superficie="{ value }">
         {{ value ? Number(value).toLocaleString('es-MX') : '—' }}
+      </template>
+      <template #cell-visible="{ row }">
+        <button
+          @click.stop="toggleVisible(row)"
+          class="mx-auto flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+          :class="(row.visible ?? true) ? 'text-eco hover:bg-eco/10' : 'text-gray-300 hover:bg-gray-100'"
+          :title="(row.visible ?? true) ? 'Visible en público — clic para ocultar' : 'Oculto — clic para hacer visible'"
+        >
+          <svg v-if="row.visible ?? true" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+          <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" /></svg>
+        </button>
+      </template>
+      <template #cell-archivado="{ row }">
+        <button
+          @click.stop="toggleArchivado(row)"
+          class="mx-auto flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+          :class="row.archivado ? 'text-accent hover:bg-accent/10' : 'text-gray-300 hover:bg-gray-100'"
+          :title="row.archivado ? 'Archivado — clic para restaurar' : 'Activo — clic para archivar'"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+        </button>
       </template>
     </AdminDataTable>
 
@@ -385,20 +488,42 @@ function toggleServicio(val: string) {
             </div>
 
             <!-- Imagen + Fuentes -->
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Imagen (ruta)</label>
-                <input v-model="form.imagen" class="input w-full" placeholder="/images/humedales/..." />
+            <div class="form-group">
+              <label class="form-label">Imagen (ruta o URL)</label>
+              <input v-model="form.imagen" class="input w-full" placeholder="/images/humedales/... o https://..." />
+              <div v-if="imagePreview" class="mt-2 overflow-hidden rounded-xl border border-gray-200">
+                <img :src="imagePreview" alt="Vista previa" class="h-40 w-full object-cover" @error="($event.target as HTMLImageElement).style.display='none'" />
               </div>
+            </div>
+            <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Crédito imagen</label>
                 <input v-model="form.fuenteImagen" class="input w-full" placeholder="Gobierno CDMX, UNAM..." />
               </div>
+              <div class="form-group">
+                <label class="form-label">Fuente de datos</label>
+                <input v-model="form.fuente" class="input w-full" placeholder="Artículo, inventario, institución..." />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Fuente de datos</label>
-              <input v-model="form.fuente" class="input w-full" placeholder="Artículo, inventario, institución..." />
+            <!-- Visibilidad y archivo -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Visibilidad</label>
+                <label class="checkbox-label mt-1 inline-flex items-center gap-2 text-sm">
+                  <input type="checkbox" v-model="form.visible" class="checkbox" />
+                  Visible en la página pública
+                </label>
+                <p class="form-hint">Si se desactiva, el humedal no aparecerá en inventario, mapa ni análisis públicos</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Archivo</label>
+                <label class="checkbox-label mt-1 inline-flex items-center gap-2 text-sm">
+                  <input type="checkbox" v-model="form.archivado" class="checkbox" />
+                  Archivado
+                </label>
+                <p class="form-hint">Los registros archivados se conservan pero no se muestran públicamente</p>
+              </div>
             </div>
 
             <!-- Actions -->

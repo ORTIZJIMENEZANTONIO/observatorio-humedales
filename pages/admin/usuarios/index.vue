@@ -116,6 +116,11 @@ function editUser(row: AdminUser) {
   showForm.value = true
 }
 
+// ── Advanced filters ──
+const advFilter = reactive({ role: '' })
+const hasAdvFilters = computed(() => !!advFilter.role)
+function clearAdvFilters() { advFilter.role = '' }
+
 const columns = [
   { key: 'name', label: 'Nombre' },
   { key: 'email', label: 'Email' },
@@ -124,10 +129,15 @@ const columns = [
   { key: 'lastLogin', label: 'Ultimo acceso', class: 'w-36' },
 ]
 
-const tableRows = computed(() => users.value.map(u => ({
-  ...u,
-  permissions: (u.permissions || []).join(', '),
-})))
+const tableRows = computed(() => {
+  return users.value.filter(u => {
+    if (advFilter.role && u.role !== advFilter.role) return false
+    return true
+  }).map(u => ({
+    ...u,
+    permissions: (u.permissions || []).join(', '),
+  }))
+})
 
 // Admin can't have manage_users; editor can't have manage_users
 const availablePermissions = computed(() => {
@@ -228,6 +238,17 @@ onMounted(() => loadUsers())
         @edit="editUser"
         @delete="deleteUser"
       >
+        <template #filters>
+          <div class="mb-4 flex flex-wrap items-center gap-2">
+            <select v-model="advFilter.role" class="select !py-1.5 text-xs max-w-[180px]">
+              <option value="">Todos los roles</option>
+              <option value="superadmin">Superadministrador</option>
+              <option value="admin">Administrador</option>
+              <option value="editor">Editor</option>
+            </select>
+            <button v-if="hasAdvFilters" @click="clearAdvFilters" class="btn-ghost !py-1 text-xs">Limpiar filtros</button>
+          </div>
+        </template>
         <template #cell-role="{ value }">
           <span :class="['badge', roleBadgeClass(value)]">{{ value }}</span>
         </template>
