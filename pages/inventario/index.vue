@@ -7,7 +7,7 @@
     </CommonHeroSection>
 
     <!-- Filters -->
-    <div class="sticky top-16 z-30 border-b bg-white/95 backdrop-blur-sm">
+    <div class="border-b bg-white/95 backdrop-blur-sm lg:sticky lg:top-16 lg:z-30">
       <div class="container-wide py-3">
         <div class="flex flex-wrap items-center gap-3">
           <div class="input-icon-wrapper max-w-xs">

@@ -1,7 +1,7 @@
 # Observatorio de Humedales Artificiales CDMX
 
 ## Product
-Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 8 humedales artificiales identificados en 5 alcaldias.
+Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 12 humedales artificiales identificados en 7 alcaldias.
 
 Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis — Instituto Politecnico Nacional, y en evidencia academica publicada (Luna-Pabello & Aburto-Castañeda, 2014; Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa, 2009; GAIA — Facultad de Quimica, UNAM).
 
@@ -60,7 +60,7 @@ observatorio-humedales/
     useCmsContent.ts        # CMS content composable (reads from Pinia cms store)
     useBackendStatus.ts     # Global backend availability check (cached, one request)
   data/
-    mock-humedales.ts       # 8 Humedal records (exported as `humedales`)
+    mock-humedales.ts       # 12 Humedal records (exported as `humedales`)
     kpis.ts                 # KPI data for dashboard
     alcaldias-cdmx.ts       # 16 alcaldias with population (INEGI 2020), vulnerability indices, need index
     ods-alignment.ts        # 4 ODS goals (6, 11, 13, 15) with targets, indicators, related wetlands
@@ -86,7 +86,7 @@ observatorio-humedales/
     sobre/                  # About + ODS + metodologia (#metodologia) + fuentes (#fuentes) + normativa
   public/
     images/                 # Institutional logos (IPN)
-    images/humedales/       # 8 fotos reales de humedales (aragon-stha.jpg + aragon-espiral.jpg separados)
+    images/humedales/       # 12 fotos reales de humedales (aragon-stha.jpg + aragon-espiral.jpg separados)
   stores/
     humedales.ts            # Pinia store (composable style, reactive filters, CRUD: add/update/delete)
     hallazgos.ts            # Pinia store for findings (shared /analisis/hallazgos↔/admin/hallazgos, CRUD)
@@ -136,12 +136,15 @@ Public endpoints already filter `visible=true, archivado=false` server-side. The
 - `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3003/api/v1`)
 
 ### Data Source
-The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Total: 8 wetland records.
+The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Additional entries: SHATTO and ENCiT (UNAM CU, 2024/2022), CIIEMAD-IPN experimental (Dominguez Solis, 2025), San Mateo Tlaltenango (UAM Cuajimalpa, 2019). Total: 12 wetland records.
 
 ### References
 
 #### Academic Research
 - Dominguez Solis, D. (2024). Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1. **CIIEMAD-IPN.**
+- Dominguez Solis, D. (2025). Humedal artificial: una solucion basada en la naturaleza para el tratamiento de aguas residuales a nivel hogar en la Colonia La Laguna Ticoman, CDMX. Tesis de maestria. **CIIEMAD-IPN.**
+- Dominguez-Solis, D. et al. (2025). Constructed Wetlands as a Decentralized Treatment Option for Domestic Wastewater: A Systematic Review (2015-2024). *Water*, 17(10), 1451. [DOI](https://doi.org/10.3390/w17101451)
+- Dominguez-Solis, D. et al. (2026). Sustainable Management of Organic Waste as Substrates in Constructed Wetlands: A Systematic Review. *Sustainability*, 18(1), 318. [DOI](https://doi.org/10.3390/su18010318)
 - Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficacion del lago del Bosque de San Juan de Aragon. *TIP Rev. Esp. Ciencias Quimico-Biologicas*, 17(1). **UNAM-GAIA, Fac. Quimica.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003)
 - Ramirez-Carrillo, H.F., Luna-Pabello, V.M. y Arredondo-Figueroa, J.L. (2009). Evaluacion de un humedal artificial de flujo vertical intermitente, para obtener agua de buena calidad para la acuicultura. *Rev. Mex. Ing. Quim.*, 8(1), 93-99. **UNAM / UAM.** [PDF SciELO](https://www.scielo.org.mx/pdf/rmiq/v8n1/v8n1a9.pdf)
 - Luna Pabello, V.M. / GAIA (2020-2024). Desarrollo tecnologico SHATTO y sistemas de humedales artificiales en UNAM. 30+ años investigacion, 2 patentes, ~10 instalaciones.
@@ -165,6 +168,10 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 | Coliformes fecales | >90% | Luna-Pabello & Aburto-Castañeda (2014), Aragon |
 | Coliformes | 100% | UACh, Texcoco |
 | Solidos sedimentables | 98.5% | UACh, Texcoco |
+| DBO₅ | 92.07% | Dominguez Solis (2025), CIIEMAD-IPN experimental |
+| SST | 81.31% | Dominguez Solis (2025), CIIEMAD-IPN experimental |
+| Amonio | 96.67% | Dominguez Solis (2025), CIIEMAD-IPN experimental |
+| Fosforo | 88.81% | Dominguez Solis (2025), CIIEMAD-IPN experimental |
 
 #### Official & Institutional Sources
 - CONAGUA — [Inventario Nacional de Humedales](https://sigagis.conagua.gob.mx/humedales/), [Programa INH](https://www.gob.mx/conagua/acciones-y-programas/inventario-nacional-de-humedales-inh)
@@ -179,6 +186,10 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 - Gobierno CDMX (2021-2023) — Comunicados: Playa de Aves, Cerro de la Estrella, ANP reabiertas
 - Fundacion UNAM (2020) — Inauguracion humedal artificial Bosque de Aragon
 - Maspormas (2021) — Humedales artificiales: innovacion para tratar aguas residuales
+- Facultad de Quimica, UNAM (2024) — [Inauguracion SHATTO](https://quimica.unam.mx/inauguracion-shatto-humedal-fq-2024/)
+- DGCS-UNAM (2024) — [Con humedal artificial tratan orina](https://www.dgcs.unam.mx/boletin/bdboletin/2024_489.html), Boletin 489
+- Gaceta UNAM (2025) — [En la ENCiT consolidan humedal con ecotecnologia](https://www.gaceta.unam.mx/en-la-encit-consolidan-humedal-con-ecotecnologia/)
+- Semanario de la UAM (2019) — La UAM instala primeros humedales artificiales en San Mateo Tlaltenango. Ano 1, Num. 12
 
 ## Key Types
 
@@ -294,23 +305,27 @@ interface Hallazgo {
 }
 ```
 
-## Inventario de Humedales Artificiales (8 registros)
+## Inventario de Humedales Artificiales (12 registros)
 
 | # | Nombre | Alcaldia | Tipo HA | Superficie | Ano | Fuente academica |
 |---|--------|----------|---------|-----------|-----|------------------|
 | 1 | Anfibium | Miguel Hidalgo | FWS | 1,200 m² | 2023 | Dominguez Solis (2024) |
 | 2 | Parque Ecologico Cuitlahuac | Iztapalapa | HSSF | 8,795 m² | 2021-2023 | Dominguez Solis (2024) |
-| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Hibrido | 8,085 m² | 2012 | Luna-Pabello & Aburto-Castañeda (2014) | 19.4602813, -99.0739094 |
-| 8 | Segundo Aragon (HAFSS, doble espiral) | Gustavo A. Madero | HSSF | 3,108 m² | 2020 | DGCS-UNAM (2020) | 19.4618072, -99.0734189 |
+| 3 | Aragon — STHA (HAFSS+HAFS) | Gustavo A. Madero | Hibrido | 8,085 m² | 2012 | Luna-Pabello & Aburto-Castañeda (2014) |
+| 8 | Segundo Aragon (HAFSS, doble espiral) | Gustavo A. Madero | HSSF | 3,108 m² | 2020 | DGCS-UNAM (2020) |
 | 4 | Playa de Aves | Gustavo A. Madero | FWS | 1,100 m² | 2021 | Gobierno CDMX (2021) |
 | 5 | Cerro de la Estrella | Iztapalapa | FWS | — | 2022 | Gobierno CDMX (2022) |
 | 6 | Vivero San Luis Tlaxialtemalco | Xochimilco | FWS | 48,900 m² | 2023 | Dominguez Solis (2024) |
 | 7 | CIBAC Cuemanco | Xochimilco | VSSF | 55 m² | 2007 | Ramirez-Carrillo et al. (2009) |
+| 9 | SHATTO — Fac. Quimica UNAM | Coyoacan | HSSF | — | 2024 | Fac. Quimica UNAM (2024); GAIA |
+| 10 | ENCiT — Ciencias de la Tierra UNAM | Coyoacan | Hibrido | 20 m² | 2022 | Gaceta UNAM (2025) |
+| 11 | Experimental CIIEMAD-IPN | Gustavo A. Madero | HSSF | — | 2024 | Dominguez Solis (2025), tesis |
+| 12 | San Mateo Tlaltenango — UAM Cuajimalpa | Cuajimalpa | Hibrido | — | 2019 | Semanario UAM (2019) |
 
 ### Tipologias por sistema de flujo
 1. **HA flujo superficial (FWS):** Anfibium, Playa de Aves, Cerro de la Estrella, Vivero Tlaxialtemalco — agua visible
-2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF) — agua a traves del sustrato
-3. **HA hibrido (FWS + SFS):** Aragon STHA — HAFSS (2,351 m²) + HAFS (5,734 m²) en serie
+2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF), SHATTO (HSSF), CIIEMAD-IPN (HSSF) — agua a traves del sustrato
+3. **HA hibrido (FWS + SFS):** Aragon STHA, ENCiT UNAM, San Mateo Tlaltenango (UAM Cuajimalpa) — sistemas combinados en serie
 
 ### Limitaciones del inventario
 - Falta de datos de monitoreo cuantitativo
@@ -640,7 +655,7 @@ Cards show the image with `object-cover`; fallback to gradient + SVG icon if no 
 - Horizontal bar chart: superficie por humedal (only those with data)
 
 ### Tab 2: Servicios Ecosistemicos
-- Bar chart: frecuencia de cada servicio entre los 8 humedales
+- Bar chart: frecuencia de cada servicio entre los 12 humedales
 - Matriz checkmark table: humedal × servicio
 
 ### Tab 3: Analisis Comparativo
@@ -659,7 +674,7 @@ Cards show the image with `object-cover`; fallback to gradient + SVG icon if no 
 - **E.7** Referencias academicas y oficiales completas
 
 ## Brecha de Cobertura Page (`/analisis/brecha`)
-- 4 KPIs: 16 alcaldias, 5 con humedales, 11 sin, indice promedio
+- 4 KPIs: 16 alcaldias, 7 con humedales, 9 sin, indice promedio
 - CoverageMap: Leaflet map with 16 alcaldias color-coded (teal=con, red=sin, radius=need index)
 - Ranking table: sortable by indice de necesidad, population, vulnerability metrics
 - Top 5 priority alcaldias without wetlands (cards with metrics)
@@ -699,7 +714,7 @@ Content merged into Sobre page as anchor sections. Old `/metodologia` route redi
 ## Sibling Project
 This project shares the same design system and stack as `observatorio-techos-verdes` (green roofs observatory). Key differences:
 - **Color palette:** Teal (#0D6B7E) instead of green (#0E5E3A)
-- **Data domain:** 8 artificial wetlands instead of 57 green roofs + 60 candidates
+- **Data domain:** 12 artificial wetlands instead of 57 green roofs + 60 candidates
 - **Analysis:** Ecosystem services focus instead of AHP multi-criteria + structural pre-feasibility
 - **No AI integration:** Data comes from PDF inventory, not vision analysis
 - **Simpler architecture:** No services/normalizers/repositories layer — mock data fallback + backend API fetch on mount + localStorage overrides for admin changes
@@ -716,7 +731,7 @@ This project shares the same design system and stack as `observatorio-techos-ver
 |------|------|-------|----------|
 | `tests/unit/useFormatters.test.ts` | Unit | 26 | All formatters (TipoHumedal ha_fws/sfs/hibrido, badges, KPI) |
 | `tests/unit/auth.store.test.ts` | Unit | 15 | Auth state, roles (granular admin perms), backward compat |
-| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 8 humedales (ha_ prefix validation), KPIs, ODS, hallazgos, notihumedal, CMS defaults |
+| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 12 humedales (ha_ prefix validation), KPIs, ODS, hallazgos, notihumedal, CMS defaults |
 | `tests/stress/data-volume.test.ts` | Stress | 16 | 1000-5000 items: filter/sort/paginate (<50ms) |
 
 ### Backend Tests (cercu-backend, 25 tests)
@@ -758,11 +773,20 @@ This project shares the same design system and stack as `observatorio-techos-ver
   - Agrega `visible` (BOOLEAN DEFAULT true) y `archivado` (BOOLEAN DEFAULT false) a `obs_humedales`, `obs_hallazgos`, `obs_notihumedal`
   - Agrega `url` (VARCHAR 500) y `fuente` (VARCHAR 500) a `obs_notihumedal`
   - Idempotente (verifica columnas antes de ALTER)
+- **Migración 3:** `1717000000000-AddShattoEncitHumedales.ts`
+  - Inserta SHATTO (Fac. Quimica UNAM, 2024) y ENCiT (Ciencias de la Tierra UNAM, 2022)
+  - Idempotente (verifica por nombre con LIKE antes de INSERT)
+- **Migración 4:** `1718000000000-AddCiiemadCuajimalpaHumedales.ts`
+  - Inserta CIIEMAD-IPN experimental (2024) y San Mateo Tlaltenango / UAM Cuajimalpa (2019)
+  - Idempotente (verifica por nombre con LIKE antes de INSERT)
+- **Migración 5:** `1719000000000-FixAragonImagePaths.ts`
+  - Corrige paths de imagenes: `aragon.jpg` → `aragon-stha.jpg`, `aragon-segundo.jpg` → `aragon-espiral.jpg`
+  - Los paths en el seed original no coincidian con los nombres reales de archivo en `public/images/humedales/`
 - **Ejecutar:** `npm run migration:run`
 
 ### Seeds
 - **Admin seed** (`observatory-admin.seed.ts`): Crea/actualiza superadmin desde `.env`. Preserva role/permissions si ya existen. NO sobreescribe usuarios creados manualmente.
-- **Content seed** (`observatory-content.seed.ts`): 8 humedales del inventario, 4 hallazgos, 3 articulos notihumedal, CMS sections, prospectos. Solo inserta si `count() === 0` por tabla.
+- **Content seed** (`observatory-content.seed.ts`): 12 humedales del inventario, 4 hallazgos, 3 articulos notihumedal, CMS sections, prospectos. Solo inserta si `count() === 0` por tabla.
 - **Ejecutar:** `npm run seed`
 
 ### Entidades observatory (tablas obs_*)

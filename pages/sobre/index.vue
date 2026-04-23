@@ -128,6 +128,9 @@
             <h4 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-muted">Investigación académica</h4>
             <div class="space-y-3">
               <p>Domínguez Solís, D. (2025). <em>Inventario de humedales artificiales en la Ciudad de México, Fase 1</em>. Tesis de maestría. <strong>CIIEMAD-IPN.</strong></p>
+              <p>Domínguez Solís, D. (2025). <em>Humedal artificial: una solución basada en la naturaleza para el tratamiento de aguas residuales a nivel hogar en la Colonia La Laguna Ticomán, Ciudad de México, México</em>. Tesis de maestría. <strong>CIIEMAD-IPN.</strong></p>
+              <p>Domínguez-Solís, D., Martínez-Rodríguez, M. C., Ramírez-Escamilla, H. G., Campos-Villegas, L. E., &amp; Domínguez-Solís, R. (2025). Constructed Wetlands as a Decentralized Treatment Option for Domestic Wastewater: A Systematic Review (2015–2024). <em>Water</em>, 17(10), 1451. <a href="https://doi.org/10.3390/w17101451" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">DOI</a></p>
+              <p>Domínguez-Solís, D., Martínez-Rodríguez, M. C., Campos-Villegas, L. E., Ramírez-Escamilla, H. G., &amp; Bello-Yañez, X. V. (2026). Sustainable Management of Organic Waste as Substrates in Constructed Wetlands: A Systematic Review. <em>Sustainability</em>, 18(1), 318. <a href="https://doi.org/10.3390/su18010318" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">DOI</a></p>
               <p>Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficación del lago del Bosque de San Juan de Aragón. <em>TIP Rev. Esp. Ciencias Químico-Biológicas</em>, 17(1), 32-55. Facultad de Química, UNAM. <a href="https://www.scielo.org.mx/scielo.php?script=sci_arttext&amp;pid=S1405-888X2014000100003" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Artículo completo en SciELO</a></p>
             </div>
           </div>
@@ -135,6 +138,9 @@
             <h4 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-muted">Fuentes oficiales</h4>
             <div class="space-y-3">
               <p>Fundación UNAM (2020). UNAM inaugura humedal artificial en el Bosque de San Juan de Aragón. <a href="https://www.fundacionunam.org.mx/donde-paso/unam-inaugura-humedal-artificial-en-el-bosque-de-san-juan-de-aragon/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Enlace</a></p>
+              <p>Facultad de Química, UNAM (2024). Inauguran en la Facultad de Química un sistema de humedal artificial para tratamiento de aguas residuales de mingitorios. <a href="https://quimica.unam.mx/inauguracion-shatto-humedal-fq-2024/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Enlace</a></p>
+              <p>Gaceta UNAM (2025). En la ENCiT consolidan humedal con ecotecnología. <a href="https://www.gaceta.unam.mx/en-la-encit-consolidan-humedal-con-ecotecnologia/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Enlace</a></p>
+              <p>Semanario de la UAM (2019). La UAM instala primeros humedales artificiales en San Mateo Tlaltenango. Año 1, Núm. 12, 11 de noviembre de 2019. <a href="https://www.uam.mx/semanario/repositorio/2019/pdf/noviembre/Semanario-UAM-Anio-1-No-12-11Nov2019.pdf" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">PDF</a></p>
             </div>
           </div>
         </div>

@@ -20,7 +20,7 @@ export const odsGoals: ODSGoal[] = [
       'Meta 6.3 — Mejorar la calidad del agua reduciendo la contaminación, eliminando vertimientos y minimizando la emisión de productos químicos y materiales peligrosos, reduciendo a la mitad el porcentaje de aguas residuales sin tratar.',
       'Meta 6.6 — Proteger y restablecer los ecosistemas relacionados con el agua, incluidos los humedales, ríos, acuíferos y lagos.',
     ],
-    humedalesRelacionados: [2, 3, 7, 8],
+    humedalesRelacionados: [2, 3, 7, 8, 9, 10, 11, 12],
     indicadores: [
       'Capacidad de tratamiento (m³/día)',
       'Eficiencia de remoción de contaminantes (%)',
@@ -67,7 +67,7 @@ export const odsGoals: ODSGoal[] = [
       'Meta 13.1 — Fortalecer la resiliencia y la capacidad de adaptación a los riesgos relacionados con el clima y los desastres naturales en todos los países.',
       'Meta 13.2 — Incorporar medidas relativas al cambio climático en las políticas, estrategias y planes nacionales.',
     ],
-    humedalesRelacionados: [1, 2, 6],
+    humedalesRelacionados: [1, 2, 6, 9, 10, 12],
     indicadores: [
       'Estimación de CO₂ capturado (tCO₂/año)',
       'Superficie con efecto de regulación térmica (m²)',
