@@ -150,6 +150,7 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 - Luna Pabello, V.M. / GAIA (2020-2024). Desarrollo tecnologico SHATTO y sistemas de humedales artificiales en UNAM. 30+ años investigacion, 2 patentes, ~10 instalaciones.
 - Barcelo, I.D., Solis, H.E., Garcia, J., Salazar, M., Rivas, A., Giacoman, G. y Zetina, C. (2014). Comportamiento de un sistema humedal-laguna de maduracion-humedal de pulimento a nivel piloto para el tratamiento de aguas municipales en la UAM Unidad Azcapotzalco. En A. Rivas Hernandez y D. Paredes Cuervo (Eds.), *Sistemas de humedales para el manejo, tratamiento y mejoramiento de la calidad del agua* (pp. 62-67). Jiutepec, Morelos: **IMTA / UTP.** ISBN 978-958-722-319-09. [PDF IMTA](https://www.imta.gob.mx/biblioteca/libros_html/sistemas-de-humedales/files/assets/common/downloads/publication.pdf)
 - Barcelo-Quintal, I.D. et al. (2019). Remocion de fosforo mediante un humedal subsuperficial de flujo horizontal. **UAM Azcapotzalco — Repositorio Zaloamati.** [Zaloamati](https://zaloamati.azc.uam.mx/items/08b3a79f-49bc-4216-8902-a43e28466ab6)
+- Chavez Mejia, A.C. / Almeida Lenero, L. / Martin del Pozzo, A.L. (2022). Proyecto SECTEI "Recuperacion hidrica de los pedregales del Xitle y cuenca del Rio Magdalena en sitios de interes geo-patrimonial". **UNAM (IIngen, Fac. Ciencias, Inst. Geofisica) — SECTEI CDMX.** Construccion: GMI Grupo Multidisciplinario Integral, S.C. [SECTEI](https://sectei.cdmx.gob.mx/comunicacion/nota/proyectos-para-el-rescate-del-rio-magdalena) | [Gaceta UNAM 2023](https://www.gaceta.unam.mx/instala-la-unam-humedales-para-tratamiento-y-reutilizacion-del-agua/) | [DGCS-UNAM Boletin 1060/2022](https://www.dgcs.unam.mx/boletin/bdboletin/2022_1060.html)
 - Martinez-Cruz, P. et al. (2006). Empleo de humedales artificiales para el tratamiento de aguas de un canal experimental de Xochimilco. *Hidrobiologica*, 16(3), 211-219. **UAM-Iztapalapa.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-88972006000300001&script=sci_abstract)
 - Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. *Rev. Int. Contam. Ambie.*, 25(3). **UAEMor / UAEMex.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-49992009000300004&script=sci_abstract)
 - Nava-Rojas, J. et al. (2023). Remocion de contaminantes en humedales artificiales de flujo subsuperficial: una revision. *Terra Latinoamericana*, 41, e1715. **TecNM Boca del Rio.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0187-57792023000100402)
@@ -307,7 +308,7 @@ interface Hallazgo {
 }
 ```
 
-## Inventario de Humedales Artificiales (13 registros)
+## Inventario de Humedales Artificiales (14 registros — 13 publicos + 1 pendiente de verificacion)
 
 | # | Nombre | Alcaldia | Tipo HA | Superficie | Ano | Fuente academica |
 |---|--------|----------|---------|-----------|-----|------------------|
@@ -324,6 +325,9 @@ interface Hallazgo {
 | 11 | Experimental CIIEMAD-IPN | Gustavo A. Madero | HSSF | — | 2024 | Dominguez Solis (2025), tesis |
 | 12 | San Mateo Tlaltenango — UAM Cuajimalpa | Cuajimalpa | Hibrido | — | 2019 | Semanario UAM (2019) |
 | 13 | Piloto UAM-Azcapotzalco (humedal-laguna-pulimento) | Azcapotzalco | Hibrido | ~143 m² | 2010 | Barcelo et al. (2014), IMTA |
+| 14* | Foro Cultural Magdalena Contreras (PROVISIONAL, `visible: false`) | Magdalena Contreras | HSSF (inferido) | s/d | 2022 | SECTEI 2022; Gaceta UNAM 2023; DGCS-UNAM Boletin 1060/2022 |
+
+\* **Registro #14 esta marcado `visible: false` en mock y migracion** porque la atribucion exacta del sitio no se ha confirmado en comunicado oficial UNAM o SECTEI. Solo aparece en `/admin/humedales`, no en `/inventario` publico ni se cuenta en KPIs publicos. Para promoverlo a publico hay que verificar con Dra. Alma Chavez Mejia (IIngen UNAM) tipo, superficie, capacidad y vegetacion, luego cambiar `visible` a `true`.
 
 ### Tipologias por sistema de flujo
 1. **HA flujo superficial (FWS):** Anfibium, Playa de Aves, Cerro de la Estrella, Vivero Tlaxialtemalco — agua visible
@@ -787,7 +791,13 @@ This project shares the same design system and stack as `observatorio-techos-ver
   - Los paths en el seed original no coincidian con los nombres reales de archivo en `public/images/humedales/`
 - **Migración 6:** `1720000000000-AddUAMAzcapotzalcoHumedal.ts`
   - Inserta humedal piloto UAM-Azcapotzalco (sistema híbrido humedal–laguna–pulimento, 2010)
+  - Amplía columna `fuente` a `TEXT` (cita bibliográfica supera 500 caracteres)
   - Fuente: Barceló et al. (2014), capítulo en libro IMTA *Sistemas de humedales para el manejo, tratamiento y mejoramiento de la calidad del agua*
+  - Idempotente (verifica por nombre con LIKE antes de INSERT)
+- **Migración 7:** `1721000000000-AddForoMagdalenaContrerasHumedal.ts`
+  - Inserta humedal demostrativo Foro Cultural Magdalena Contreras (proyecto SECTEI–UNAM–GMI, 2022)
+  - Marcado `visible=false` (PENDIENTE DE VERIFICACIÓN con IIngen UNAM)
+  - Fuente: SECTEI CDMX (2022); Gaceta UNAM (2023); DGCS-UNAM Boletín 1060/2022
   - Idempotente (verifica por nombre con LIKE antes de INSERT)
 - **Ejecutar:** `npm run migration:run`
 

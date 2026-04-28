@@ -7,8 +7,8 @@ import { articulos } from '~/data/notihumedal'
 import { cmsDefaults } from '~/data/cms-defaults'
 
 describe('Data Integrity — Humedales', () => {
-  it('has exactly 13 records', () => {
-    expect(humedales).toHaveLength(13)
+  it('has exactly 14 records', () => {
+    expect(humedales).toHaveLength(14)
   })
   it('all have unique IDs', () => {
     const ids = humedales.map(h => h.id)
