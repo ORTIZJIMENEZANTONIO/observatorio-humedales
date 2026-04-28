@@ -1,7 +1,7 @@
 # Observatorio de Humedales Artificiales CDMX
 
 ## Product
-Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 12 humedales artificiales identificados en 7 alcaldias.
+Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 13 humedales artificiales identificados en 7 alcaldias.
 
 Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis — Instituto Politecnico Nacional, y en evidencia academica publicada (Luna-Pabello & Aburto-Castañeda, 2014; Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa, 2009; GAIA — Facultad de Quimica, UNAM).
 
@@ -136,7 +136,7 @@ Public endpoints already filter `visible=true, archivado=false` server-side. The
 - `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3003/api/v1`)
 
 ### Data Source
-The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Additional entries: SHATTO and ENCiT (UNAM CU, 2024/2022), CIIEMAD-IPN experimental (Dominguez Solis, 2025), San Mateo Tlaltenango (UAM Cuajimalpa, 2019). Total: 12 wetland records.
+The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Additional entries: SHATTO and ENCiT (UNAM CU, 2024/2022), CIIEMAD-IPN experimental (Dominguez Solis, 2025), San Mateo Tlaltenango (UAM Cuajimalpa, 2019), and the UAM-Azcapotzalco pilot (Barcelo et al., IMTA 2014). Total: 13 wetland records.
 
 ### References
 
@@ -148,6 +148,8 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 - Luna-Pabello, V.M. y Aburto-Castañeda, S. (2014). Sistema de humedales artificiales para el control de la eutroficacion del lago del Bosque de San Juan de Aragon. *TIP Rev. Esp. Ciencias Quimico-Biologicas*, 17(1). **UNAM-GAIA, Fac. Quimica.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S1405-888X2014000100003)
 - Ramirez-Carrillo, H.F., Luna-Pabello, V.M. y Arredondo-Figueroa, J.L. (2009). Evaluacion de un humedal artificial de flujo vertical intermitente, para obtener agua de buena calidad para la acuicultura. *Rev. Mex. Ing. Quim.*, 8(1), 93-99. **UNAM / UAM.** [PDF SciELO](https://www.scielo.org.mx/pdf/rmiq/v8n1/v8n1a9.pdf)
 - Luna Pabello, V.M. / GAIA (2020-2024). Desarrollo tecnologico SHATTO y sistemas de humedales artificiales en UNAM. 30+ años investigacion, 2 patentes, ~10 instalaciones.
+- Barcelo, I.D., Solis, H.E., Garcia, J., Salazar, M., Rivas, A., Giacoman, G. y Zetina, C. (2014). Comportamiento de un sistema humedal-laguna de maduracion-humedal de pulimento a nivel piloto para el tratamiento de aguas municipales en la UAM Unidad Azcapotzalco. En A. Rivas Hernandez y D. Paredes Cuervo (Eds.), *Sistemas de humedales para el manejo, tratamiento y mejoramiento de la calidad del agua* (pp. 62-67). Jiutepec, Morelos: **IMTA / UTP.** ISBN 978-958-722-319-09. [PDF IMTA](https://www.imta.gob.mx/biblioteca/libros_html/sistemas-de-humedales/files/assets/common/downloads/publication.pdf)
+- Barcelo-Quintal, I.D. et al. (2019). Remocion de fosforo mediante un humedal subsuperficial de flujo horizontal. **UAM Azcapotzalco — Repositorio Zaloamati.** [Zaloamati](https://zaloamati.azc.uam.mx/items/08b3a79f-49bc-4216-8902-a43e28466ab6)
 - Martinez-Cruz, P. et al. (2006). Empleo de humedales artificiales para el tratamiento de aguas de un canal experimental de Xochimilco. *Hidrobiologica*, 16(3), 211-219. **UAM-Iztapalapa.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-88972006000300001&script=sci_abstract)
 - Romero-Aguilar, M. et al. (2009). Tratamiento de aguas residuales por un sistema piloto de humedales artificiales. *Rev. Int. Contam. Ambie.*, 25(3). **UAEMor / UAEMex.** [SciELO](https://www.scielo.org.mx/scielo.php?pid=S0188-49992009000300004&script=sci_abstract)
 - Nava-Rojas, J. et al. (2023). Remocion de contaminantes en humedales artificiales de flujo subsuperficial: una revision. *Terra Latinoamericana*, 41, e1715. **TecNM Boca del Rio.** [SciELO](https://www.scielo.org.mx/scielo.php?script=sci_arttext&pid=S0187-57792023000100402)
@@ -305,7 +307,7 @@ interface Hallazgo {
 }
 ```
 
-## Inventario de Humedales Artificiales (12 registros)
+## Inventario de Humedales Artificiales (13 registros)
 
 | # | Nombre | Alcaldia | Tipo HA | Superficie | Ano | Fuente academica |
 |---|--------|----------|---------|-----------|-----|------------------|
@@ -321,11 +323,12 @@ interface Hallazgo {
 | 10 | ENCiT — Ciencias de la Tierra UNAM | Coyoacan | Hibrido | 20 m² | 2022 | Gaceta UNAM (2025) |
 | 11 | Experimental CIIEMAD-IPN | Gustavo A. Madero | HSSF | — | 2024 | Dominguez Solis (2025), tesis |
 | 12 | San Mateo Tlaltenango — UAM Cuajimalpa | Cuajimalpa | Hibrido | — | 2019 | Semanario UAM (2019) |
+| 13 | Piloto UAM-Azcapotzalco (humedal-laguna-pulimento) | Azcapotzalco | Hibrido | ~143 m² | 2010 | Barcelo et al. (2014), IMTA |
 
 ### Tipologias por sistema de flujo
 1. **HA flujo superficial (FWS):** Anfibium, Playa de Aves, Cerro de la Estrella, Vivero Tlaxialtemalco — agua visible
 2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF), SHATTO (HSSF), CIIEMAD-IPN (HSSF) — agua a traves del sustrato
-3. **HA hibrido (FWS + SFS):** Aragon STHA, ENCiT UNAM, San Mateo Tlaltenango (UAM Cuajimalpa) — sistemas combinados en serie
+3. **HA hibrido (FWS + SFS):** Aragon STHA, ENCiT UNAM, San Mateo Tlaltenango (UAM Cuajimalpa), Piloto UAM-Azcapotzalco (humedal-laguna-pulimento) — sistemas combinados en serie
 
 ### Limitaciones del inventario
 - Falta de datos de monitoreo cuantitativo
@@ -782,6 +785,10 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **Migración 5:** `1719000000000-FixAragonImagePaths.ts`
   - Corrige paths de imagenes: `aragon.jpg` → `aragon-stha.jpg`, `aragon-segundo.jpg` → `aragon-espiral.jpg`
   - Los paths en el seed original no coincidian con los nombres reales de archivo en `public/images/humedales/`
+- **Migración 6:** `1720000000000-AddUAMAzcapotzalcoHumedal.ts`
+  - Inserta humedal piloto UAM-Azcapotzalco (sistema híbrido humedal–laguna–pulimento, 2010)
+  - Fuente: Barceló et al. (2014), capítulo en libro IMTA *Sistemas de humedales para el manejo, tratamiento y mejoramiento de la calidad del agua*
+  - Idempotente (verifica por nombre con LIKE antes de INSERT)
 - **Ejecutar:** `npm run migration:run`
 
 ### Seeds

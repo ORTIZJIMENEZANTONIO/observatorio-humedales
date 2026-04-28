@@ -7,8 +7,8 @@ import { articulos } from '~/data/notihumedal'
 import { cmsDefaults } from '~/data/cms-defaults'
 
 describe('Data Integrity — Humedales', () => {
-  it('has exactly 8 records', () => {
-    expect(humedales).toHaveLength(8)
+  it('has exactly 13 records', () => {
+    expect(humedales).toHaveLength(13)
   })
   it('all have unique IDs', () => {
     const ids = humedales.map(h => h.id)
@@ -86,9 +86,9 @@ describe('Data Integrity — KPIs', () => {
       expect(k.color).toBeTruthy()
     })
   })
-  it('humedales count is 8', () => {
+  it('humedales count is 13', () => {
     const count = kpis.find(k => k.label.includes('inventariados'))
-    expect(count?.valor).toBe('8')
+    expect(count?.valor).toBe('13')
   })
 })
 
