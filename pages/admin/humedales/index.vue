@@ -53,16 +53,18 @@ const filteredRows = computed(() => {
   })
 })
 
+import { GLOSSARY } from '~/data/admin-glossary'
+
 const columns = [
   { key: 'id', label: 'ID', class: 'w-12' },
   { key: 'nombre', label: 'Nombre' },
-  { key: 'alcaldia', label: 'Alcaldía' },
-  { key: 'tipoHumedal', label: 'Tipo HA' },
-  { key: 'superficie', label: 'm²', class: 'text-right tabular-nums' },
-  { key: 'estado', label: 'Estado' },
+  { key: 'alcaldia', label: 'Alcaldía', tooltip: GLOSSARY.alcaldia },
+  { key: 'tipoHumedal', label: 'Tipo HA', tooltip: GLOSSARY.ha },
+  { key: 'superficie', label: 'm²', class: 'text-right tabular-nums', align: 'right' as const },
+  { key: 'estado', label: 'Estado', tooltip: GLOSSARY.estadoHumedal },
   { key: 'anioImplementacion', label: 'Año' },
-  { key: 'visible', label: 'Visible', class: 'w-20 text-center' },
-  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center' },
+  { key: 'visible', label: 'Visible', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.visible },
+  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.archived },
 ]
 
 // ── Form state ──

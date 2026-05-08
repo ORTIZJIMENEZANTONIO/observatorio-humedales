@@ -1034,15 +1034,32 @@ All three main content types (Humedal, Hallazgo, ArticuloNotihumedal) support `v
 - **Pipeline banner:** Indicador horizontal de pasos en cada página del pipeline, resalta el paso actual
 - **Mobile-first responsive:** Sidebar oculto en mobile (toggle hamburger, cierre automático al navegar), tablas con scroll horizontal edge-to-edge (`-mx-4 px-4 sm:mx-0`), grids desde `grid-cols-1`, touch targets 44px, acciones siempre visibles en mobile
 - **Collapsible methodology:** Panel cerrado por defecto explicando scoring/detección
-- **Paginated tables:** Filtros avanzados + columnas ordenables + selector de filas por página (10/15/25/50, default 15)
-- **Advanced filters:** Each admin page has contextual filter dropdowns (alcaldía, tipo, estado, impacto, plazo, tag, role, visibilidad, archivo) with "Limpiar filtros" button via `#filters` slot in AdminDataTable
+- **Paginated tables:** Filtros avanzados + columnas ordenables + selector de filas por página (10/15/25/50, default 15) vía `<AdminDataTable>` que internamente usa `useSortableList` + `usePaginatedList`
+- **Advanced filters:** Cada página admin tiene filter dropdowns contextuales (alcaldía, tipo, estado, impacto, plazo, tag, role, visibilidad, archivo) con "Limpiar filtros" via `#filters` slot en AdminDataTable
+- **Sortable th con flecha indicadora:** `<AdminSortableTh>` se usa internamente en `AdminDataTable` — cycle none → asc → desc, accesible (aria-sort)
+- **Tooltips de glosario:** `<AdminInfoTooltip text="...">` en headers de columna y labels de form. Las definiciones viven en `data/admin-glossary.ts` (HA-FWS, HA-SFS, ZOFEMAT, AHP, NDVI, etc.)
 - **Score breakdown:** Barras de progreso expandibles por fila mostrando componentes del score
-- **Column tooltips:** `title` nativo con subrayado punteado en headers
 - **TransitionGroup:** Animaciones fade + slide en listas
 - **Modal transitions:** `fade` + `scale-in` + `backdrop-blur`
 - **Active route indicator:** Sidebar con matching exacto de ruta
 - **Welcome greeting:** Saludo personalizado con nombre del admin
 - **Empty states:** Iconos contextuales + texto descriptivo + CTAs
+
+### Componentes admin reusables
+- `components/admin/AdminDataTable.vue` — tabla genérica: search + advanced filters slot + sort por click + paginación con perPage select. Acepta `columns: { key, label, class?, align?, tooltip?, sortable? }[]`.
+- `components/admin/InfoTooltip.vue` — `<AdminInfoTooltip text="..." [variant=inline|icon] [placement=top|bottom|right]>`. Hover en desktop, tap en mobile, accesible (aria).
+- `components/admin/SortableTh.vue` — `<th>` clickeable con flecha asc/desc/none (usado internamente por AdminDataTable).
+- `components/common/FilterPanel.vue` — drawer de filtros mobile-first reusable (alternativa a la card inline cuando se necesita más espacio).
+- `composables/useSortableList.ts` — sort genérico con coerción inteligente (números, ISO dates, locale es-MX).
+- `composables/usePaginatedList.ts` — paginación in-memory con reset auto al cambiar el dataset filtrado.
+- `composables/useCmsContent.ts` — helper para que páginas públicas consuman el CMS (`fetchPage(slug)` + `list(key)` + `one(key)`).
+- `data/admin-glossary.ts` — glosario centralizado con 35+ términos técnicos del dominio humedales (HA, depuración, alcaldía, scraperMongabay, urlHash, etc.).
+
+### Dashboard `/admin` (enriquecido)
+- 8 KPI cards con tooltips (humedales, hallazgos, artículos, prospectos pendientes, prospectos noticias, secciones CMS, total prospectos, aprobados).
+- Banda de **Acciones rápidas**: detector OSM, cola Mongabay (con badge de pendientes), inventario, editar contenido, analytics.
+- 6 cards de monitoreo: cola de prospectos por status, humedales por tipología, humedales por estado operativo, hallazgos por impacto, NotiHumedal (publicados + prospectos), CMS.
+- Backend `getSummary` enriquecido con `humedalesByTipo`, `humedalesByEstado`, `hallazgosByImpacto`, `notiProspects`, `cmsSections`, `prospectos.{total,pendientes,aprobados,rechazados}` — todo paralelizado con `Promise.all`.
 
 ### Prospect Approval Flow
 ```

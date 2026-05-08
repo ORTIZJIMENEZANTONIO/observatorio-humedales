@@ -260,14 +260,16 @@ const advFilter = reactive({ tag: '', visibilidad: '', archivo: '' })
 const hasAdvFilters = computed(() => Object.values(advFilter).some(v => !!v))
 function clearAdvFilters() { Object.assign(advFilter, { tag: '', visibilidad: '', archivo: '' }) }
 
+import { GLOSSARY } from '~/data/admin-glossary'
+
 const articuloColumns = [
   { key: 'id', label: 'ID', class: 'w-16' },
-  { key: 'titulo', label: 'Titulo' },
+  { key: 'titulo', label: 'Titulo', tooltip: GLOSSARY.notihumedal },
   { key: 'autor', label: 'Autor' },
   { key: 'fecha', label: 'Fecha', class: 'w-28' },
   { key: 'tags', label: 'Tags' },
-  { key: 'visible', label: 'Visible', class: 'w-20 text-center' },
-  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center' },
+  { key: 'visible', label: 'Visible', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.visible },
+  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.archived },
 ]
 
 async function toggleVisible(row: any) {

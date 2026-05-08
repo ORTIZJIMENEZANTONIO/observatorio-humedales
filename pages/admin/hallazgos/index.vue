@@ -29,13 +29,15 @@ const advFilter = reactive({ impacto: '', plazo: '', visibilidad: '', archivo: '
 const hasAdvFilters = computed(() => Object.values(advFilter).some(v => !!v))
 function clearAdvFilters() { Object.assign(advFilter, { impacto: '', plazo: '', visibilidad: '', archivo: '' }) }
 
+import { GLOSSARY } from '~/data/admin-glossary'
+
 const columns = [
   { key: 'id', label: 'ID', class: 'w-12' },
-  { key: 'titulo', label: 'Título' },
-  { key: 'impacto', label: 'Impacto', class: 'w-24' },
-  { key: 'plazo', label: 'Plazo', class: 'w-24' },
-  { key: 'visible', label: 'Visible', class: 'w-20 text-center' },
-  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center' },
+  { key: 'titulo', label: 'Título', tooltip: GLOSSARY.hallazgo },
+  { key: 'impacto', label: 'Impacto', class: 'w-24', tooltip: 'Severidad del hallazgo: alto / medio / crítico. Determina la prioridad de atención.' },
+  { key: 'plazo', label: 'Plazo', class: 'w-24', tooltip: 'Tiempo estimado para implementar la recomendación (corto / medio / largo plazo).' },
+  { key: 'visible', label: 'Visible', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.visible },
+  { key: 'archivado', label: 'Archivado', class: 'w-20 text-center', align: 'center' as const, tooltip: GLOSSARY.archived },
 ]
 
 const rows = computed(() => {
