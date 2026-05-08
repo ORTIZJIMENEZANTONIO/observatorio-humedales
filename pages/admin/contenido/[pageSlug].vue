@@ -137,7 +137,7 @@ const fieldLabels: Record<string, string> = {
   description: 'Descripción',
   body: 'Contenido',
   label: 'Etiqueta',
-  icon: 'Icono',
+  icon: 'Icono (lucide:*)',
   to: 'Enlace interno',
   href: 'URL externa',
   cta: 'Texto del botón',
@@ -151,6 +151,17 @@ const fieldLabels: Record<string, string> = {
   accentColor: 'Color de acento',
   copyright: 'Aviso de copyright',
   id: 'ID',
+  // Hero fields
+  eyebrow: 'Etiqueta superior (eyebrow)',
+  titleLine1: 'Título — línea 1',
+  titleLine2: 'Título — línea 2 (resaltada)',
+  titleLine3: 'Título — línea 3',
+  primaryLabel: 'Botón primario — texto',
+  primaryTo: 'Botón primario — destino',
+  primaryIcon: 'Botón primario — icono',
+  secondaryLabel: 'Botón secundario — texto',
+  secondaryTo: 'Botón secundario — destino',
+  secondaryIcon: 'Botón secundario — icono',
 }
 
 const colorFields = ['bg', 'iconColor', 'accentColor', 'badgeClass'] as const
@@ -158,6 +169,12 @@ type ColorField = typeof colorFields[number]
 
 function isColorField(field: string): field is ColorField {
   return (colorFields as readonly string[]).includes(field)
+}
+
+// Campos que se renderizan como textarea (texto largo). Los demas son input.
+const longTextFields = new Set(['description', 'subtitle', 'body', 'bio', 'copyright', 'requirements'])
+function isLongText(field: string): boolean {
+  return longTextFields.has(field)
 }
 </script>
 
@@ -230,7 +247,7 @@ function isColorField(field: string): field is ColorField {
             <div v-else class="bg-primary-50/30 p-5 space-y-3">
               <div v-for="field in getFieldKeys(sectionKey)" :key="field" class="form-group">
                 <label class="form-label">{{ fieldLabels[field] || field }}</label>
-                <textarea v-if="field === 'description'" v-model="editForm[field]" class="input" rows="2" />
+                <textarea v-if="isLongText(field)" v-model="editForm[field]" class="input" rows="3" />
                 <AdminColorClassPicker
                   v-else-if="isColorField(field)"
                   v-model="editForm[field]"

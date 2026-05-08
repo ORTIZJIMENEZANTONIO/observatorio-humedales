@@ -66,7 +66,7 @@ observatorio-humedales/
     ods-alignment.ts        # 4 ODS goals (6, 11, 13, 15) with targets, indicators, related wetlands
     hallazgos.ts            # 4 findings + recommendations + cost comparison (policy brief)
     notihumedal.ts          # Blog articles (static data, ArticuloNotihumedal[])
-    cms-defaults.ts         # Default CMS content for editable page sections (home, sobre, analisis)
+    cms-defaults.ts         # Default CMS content para 12 paginas; incluye home.hero editable (eyebrow, titleLine1/2/3, subtitle, primary/secondary CTA)
   layouts/default.vue       # AppHeader + slot + AppFooter
   middleware/
     redirects.global.ts     # Redirects: /indicadores→/analisis/indicadores, /brecha, /hallazgos, /metodologia
@@ -836,11 +836,18 @@ E2E mockea autenticación poniendo `obs_token` y `obs_admin` en `localStorage` (
   - Tipo HSSF inferido; vegetación documentada: papiro, carrizo, cola de caballo; sustrato: gravas con biopelícula
   - Fuentes: Gaceta UNAM (2023); DGCS-UNAM Boletín 1060/2022; UNAM Global; Fundación UNAM; PortalAmbiental.com.mx (2022)
   - Idempotente (verifica por `nombre LIKE '%CCH Oriente%'` antes de INSERT)
+- **Migración 9:** `1738000000000-CreateHumedalTiersAndContributors.ts`
+  - Crea `obs_humedales_tiers` y `obs_humedales_contributors` + agrega `contributorId` a `obs_prospect_submissions`
+- **Migración 10:** `1740000000000-SeedExpandedCmsSections.ts`
+  - Siembra ~25 secciones del CMS expandido (incluye `home.hero`, `inventario/hero`, `mapa/legend`, `footer/*`, etc.) en BBDDs en producción que ya tenían las 3 secciones originales pero les faltaba el resto
+  - Patrón `upsertSection`: salta secciones que ya existen (preserva ediciones humanas), solo inserta lo que falta
+  - Marca `updatedBy='migration:1740'` para rollback selectivo
+  - **Resuelve el bug:** `home.hero` NO aparecía en `/admin/contenido/home` antes de esta migración
 - **Ejecutar:** `npm run migration:run`
 
 ### Seeds
 - **Admin seed** (`observatory-admin.seed.ts`): Crea/actualiza superadmin desde `.env`. Preserva role/permissions si ya existen. NO sobreescribe usuarios creados manualmente.
-- **Content seed** (`observatory-content.seed.ts`): 12 humedales del inventario, 4 hallazgos, 3 articulos notihumedal, CMS sections, prospectos. Solo inserta si `count() === 0` por tabla.
+- **Content seed** (`observatory-content.seed.ts`): 15 humedales del inventario, 4 hallazgos, 3 articulos notihumedal, prospectos, **CMS expandido (~25 secciones espejo de `data/cms-defaults.ts`)** + 5 tiers + 3 contribuyentes. Solo inserta si `count() === 0` por tabla.
 - **Ejecutar:** `npm run seed`
 
 ### Entidades observatory (tablas obs_*)
@@ -1090,7 +1097,12 @@ Página pública → GET /cms/{page}/{section} → BD → useCmsContent() → re
 - Auto-guardado a API en cada edición (aplicar cambio, reordenar)
 - Indicador "Guardando..." / "Guardado" por sección
 - `ColorClassPicker` visual para campos de color (bg, iconColor, accentColor, badgeClass)
+- **Textareas automáticos** para campos largos: `description`, `subtitle`, `body`, `bio`, `copyright`, `requirements` (set en `longTextFields`)
+- Labels en español para todos los campos del hero (eyebrow, titleLine1/2/3, primary/secondaryLabel/To/Icon)
 - Botones de edición deshabilitados sin backend
+
+**Hero del home editable:**
+La sección `home.hero` en `cms-defaults.ts` define los campos del hero (eyebrow, titleLine1, titleLine2 — la línea resaltada con gradiente, titleLine3, subtitle, primaryLabel/To/Icon, secondaryLabel/To). `pages/index.vue` lee esos campos vía `useCmsContent('home', 'hero')` con un computed que cae al primer item del array, y pinta `<template v-if>` por cada campo para tolerar cambios parciales sin romper el layout.
 
 **Backend endpoints** (cercu-backend, ya implementados):
 ```

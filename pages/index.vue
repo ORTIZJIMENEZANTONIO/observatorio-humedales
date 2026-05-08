@@ -19,41 +19,42 @@
         >
           <div class="max-w-2xl">
             <span
+              v-if="hero.eyebrow"
               class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-secondary-light backdrop-blur-sm ring-1 ring-white/10"
             >
               <span
                 class="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse-glow"
               />
-              Plataforma abierta
+              {{ hero.eyebrow }}
             </span>
             <h1
               class="mt-6 text-4xl font-extrabold leading-[1.1] text-white md:text-5xl lg:text-6xl"
             >
-              Observatorio de<br />
-              <span class="text-gradient-hero">Humedales Artificiales</span
-              ><br />
-              CDMX
+              <template v-if="hero.titleLine1">{{ hero.titleLine1 }}<br /></template>
+              <span v-if="hero.titleLine2" class="text-gradient-hero">{{ hero.titleLine2 }}</span>
+              <template v-if="hero.titleLine3"><br />{{ hero.titleLine3 }}</template>
             </h1>
             <p
+              v-if="hero.subtitle"
               class="mt-6 max-w-lg text-base leading-relaxed text-white/75 md:text-lg"
             >
-              Monitoreo, inventario y análisis de humedales artificiales en la
-              Ciudad de México. Infraestructura verde y soluciones basadas en la
-              naturaleza.
+              {{ hero.subtitle }}
             </p>
             <div class="mt-10 flex flex-wrap gap-3">
               <NuxtLink
-                to="/inventario"
+                v-if="hero.primaryLabel && hero.primaryTo"
+                :to="hero.primaryTo"
                 class="btn-lg bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 inline-flex items-center gap-2 px-7 py-3.5 transition-all duration-300 hover:-translate-y-0.5"
               >
-                <Icon name="lucide:compass" size="20" />
-                Explorar inventario
+                <Icon v-if="hero.primaryIcon" :name="hero.primaryIcon" size="20" />
+                {{ hero.primaryLabel }}
               </NuxtLink>
               <NuxtLink
-                to="/registra"
+                v-if="hero.secondaryLabel && hero.secondaryTo"
+                :to="hero.secondaryTo"
                 class="btn btn-lg border border-white/25 text-white hover:bg-white/10 backdrop-blur-sm"
               >
-                Registra tu humedal
+                {{ hero.secondaryLabel }}
               </NuxtLink>
             </div>
           </div>
@@ -466,6 +467,21 @@ const { items: features } = useCmsContent("home", "features");
 const { items: steps } = useCmsContent("home", "steps");
 const { items: tipologias } = useCmsContent("home", "tipologias");
 const { items: servicios } = useCmsContent("home", "servicios");
+// Hero (editable via /admin/contenido/home → seccion "Hero")
+type HeroItem = {
+  eyebrow?: string;
+  titleLine1?: string;
+  titleLine2?: string;
+  titleLine3?: string;
+  subtitle?: string;
+  primaryLabel?: string;
+  primaryTo?: string;
+  primaryIcon?: string;
+  secondaryLabel?: string;
+  secondaryTo?: string;
+};
+const { items: heroItems } = useCmsContent<HeroItem>("home", "hero");
+const hero = computed<HeroItem>(() => heroItems.value[0] ?? {});
 </script>
 
 <style scoped>

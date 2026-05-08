@@ -5,6 +5,20 @@
 // sin tocar código.
 export const cmsDefaults: Record<string, Record<string, any[]>> = {
   home: {
+    hero: [
+      {
+        eyebrow: 'Plataforma abierta',
+        titleLine1: 'Observatorio de',
+        titleLine2: 'Humedales Artificiales',
+        titleLine3: 'CDMX',
+        subtitle: 'Monitoreo, inventario y análisis de humedales artificiales en la Ciudad de México. Infraestructura verde y soluciones basadas en la naturaleza.',
+        primaryLabel: 'Explorar inventario',
+        primaryTo: '/inventario',
+        primaryIcon: 'lucide:compass',
+        secondaryLabel: 'Registra tu humedal',
+        secondaryTo: '/registra',
+      },
+    ],
     features: [
       { title: 'Inventario geoespacial', description: 'Localización y caracterización de humedales artificiales en la Ciudad de México, con datos de ubicación, superficie y vegetación.', to: '/inventario', bg: 'bg-primary-50', iconColor: 'text-primary', icon: 'lucide:map-pin' },
       { title: 'Servicios ecosistémicos', description: 'Análisis de los beneficios ambientales: tratamiento de agua, hábitat para fauna, captura de carbono y regulación térmica.', to: '/analisis/indicadores', bg: 'bg-eco/10', iconColor: 'text-eco', icon: 'lucide:droplets' },

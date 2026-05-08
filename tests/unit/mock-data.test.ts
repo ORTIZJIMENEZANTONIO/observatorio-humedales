@@ -181,8 +181,17 @@ describe('Data Integrity — CMS Defaults', () => {
     expect(keys).toContain('analisis-brecha')
     expect(keys).toContain('analisis-hallazgos')
   })
-  it('home keeps its original 4 sections', () => {
-    expect(Object.keys(cmsDefaults.home)).toEqual(['features', 'steps', 'tipologias', 'servicios'])
+  it('home expone hero + 4 secciones existentes', () => {
+    expect(Object.keys(cmsDefaults.home)).toEqual(['hero', 'features', 'steps', 'tipologias', 'servicios'])
+  })
+  it('home.hero tiene los campos editables esperados', () => {
+    const hero = cmsDefaults.home.hero[0] as any
+    expect(hero.eyebrow).toBeTruthy()
+    expect(hero.titleLine1).toBeTruthy()
+    expect(hero.titleLine2).toBeTruthy()
+    expect(hero.subtitle).toBeTruthy()
+    expect(hero.primaryLabel).toBeTruthy()
+    expect(hero.primaryTo).toMatch(/^\//)
   })
   it('sobre keeps its original 3 sections', () => {
     expect(Object.keys(cmsDefaults.sobre)).toEqual(['objetivos', 'criterios', 'normativas'])
