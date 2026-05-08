@@ -1,7 +1,7 @@
 # Observatorio de Humedales Artificiales CDMX
 
 ## Product
-Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 13 humedales artificiales identificados en 7 alcaldias.
+Plataforma digital de monitoreo, inventario y analisis de humedales artificiales en la Ciudad de Mexico. Sistematiza informacion geoespacial, caracteristicas tecnicas (vegetacion, sustrato, tipo de flujo, volumen), servicios ecosistemicos y tipologias de 14 humedales artificiales publicos identificados en 7 alcaldias (15 registros totales, 1 pendiente de verificacion).
 
 Basado en el inventario Fase 1 elaborado por M. en C. Diego Dominguez Solis — Instituto Politecnico Nacional, y en evidencia academica publicada (Luna-Pabello & Aburto-Castañeda, 2014; Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa, 2009; GAIA — Facultad de Quimica, UNAM).
 
@@ -136,7 +136,7 @@ Public endpoints already filter `visible=true, archivado=false` server-side. The
 - `NUXT_PUBLIC_API_BASE_URL`: cercu-backend API URL (default: `http://localhost:3003/api/v1`)
 
 ### Data Source
-The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Additional entries: SHATTO and ENCiT (UNAM CU, 2024/2022), CIIEMAD-IPN experimental (Dominguez Solis, 2025), San Mateo Tlaltenango (UAM Cuajimalpa, 2019), and the UAM-Azcapotzalco pilot (Barcelo et al., IMTA 2014). Total: 13 wetland records.
+The inventory comes from "Inventario de humedales artificiales en la Ciudad de Mexico, Fase 1" by M. en C. Diego Dominguez Solis (IPN). Data was extracted from PDF and Excel files. The Bosque de Aragon entries (STHA 2012 + Segundo Humedal 2020) are cross-referenced with Luna-Pabello & Aburto-Castañeda (2014), TIP Rev., Facultad de Quimica, UNAM. The CIBAC Cuemanco entry is documented in Ramirez-Carrillo, Luna-Pabello & Arredondo-Figueroa (2009), Rev. Mex. Ing. Quim. Additional entries: SHATTO and ENCiT (UNAM CU, 2024/2022), CIIEMAD-IPN experimental (Dominguez Solis, 2025), San Mateo Tlaltenango (UAM Cuajimalpa, 2019), the UAM-Azcapotzalco pilot (Barcelo et al., IMTA 2014), and the CCH Oriente UNAM wetland (SECTEI–UNAM–GMI, 2019). Total: 14 public wetland records + 1 pending verification = 15 total.
 
 ### References
 
@@ -192,6 +192,10 @@ The inventory comes from "Inventario de humedales artificiales en la Ciudad de M
 - Facultad de Quimica, UNAM (2024) — [Inauguracion SHATTO](https://quimica.unam.mx/inauguracion-shatto-humedal-fq-2024/)
 - DGCS-UNAM (2024) — [Con humedal artificial tratan orina](https://www.dgcs.unam.mx/boletin/bdboletin/2024_489.html), Boletin 489
 - Gaceta UNAM (2025) — [En la ENCiT consolidan humedal con ecotecnologia](https://www.gaceta.unam.mx/en-la-encit-consolidan-humedal-con-ecotecnologia/)
+- Gaceta UNAM (2023) — [Instala la UNAM humedales para tratamiento y reutilizacion del agua](https://www.gaceta.unam.mx/instala-la-unam-humedales-para-tratamiento-y-reutilizacion-del-agua/) (CCH Oriente + ENCiT, programa SECTEI-UNAM-GMI)
+- DGCS-UNAM (2022) — [Con humedales, la UNAM cuenta con instalaciones sustentables](https://www.dgcs.unam.mx/boletin/bdboletin/2022_1060.html), Boletin 1060/2022 (CCH Oriente + ENCiT + Magdalena Contreras)
+- UNAM Global — [Humedal artificial en la UNAM: innovacion en tratamiento de aguas residuales](https://unamglobal.unam.mx/global_revista/humedal-artificial-en-la-unam-innovacion-en-tratamiento-de-aguas-residuales/) (CCH Oriente: papiro, carrizo, cola de caballo)
+- Fundacion UNAM — [Humedales en la UNAM](https://www.fundacionunam.org.mx/donde-paso/humedales-en-la-unam/) (CCH Oriente operativo, riego de areas verdes)
 - Semanario de la UAM (2019) — La UAM instala primeros humedales artificiales en San Mateo Tlaltenango. Ano 1, Num. 12
 
 ## Key Types
@@ -308,7 +312,7 @@ interface Hallazgo {
 }
 ```
 
-## Inventario de Humedales Artificiales (14 registros — 13 publicos + 1 pendiente de verificacion)
+## Inventario de Humedales Artificiales (15 registros — 14 publicos + 1 pendiente de verificacion)
 
 | # | Nombre | Alcaldia | Tipo HA | Superficie | Ano | Fuente academica |
 |---|--------|----------|---------|-----------|-----|------------------|
@@ -325,13 +329,16 @@ interface Hallazgo {
 | 11 | Experimental CIIEMAD-IPN | Gustavo A. Madero | HSSF | — | 2024 | Dominguez Solis (2025), tesis |
 | 12 | San Mateo Tlaltenango — UAM Cuajimalpa | Cuajimalpa | Hibrido | — | 2019 | Semanario UAM (2019) |
 | 13 | Piloto UAM-Azcapotzalco (humedal-laguna-pulimento) | Azcapotzalco | Hibrido | ~143 m² | 2010 | Barcelo et al. (2014), IMTA |
+| 15 | CCH Oriente — UNAM | Iztapalapa | HSSF (inferido) | s/d | 2019 | Gaceta UNAM 2023; DGCS-UNAM Boletin 1060/2022; UNAM Global; Fundacion UNAM |
 | 14* | Foro Cultural Magdalena Contreras (PROVISIONAL, `visible: false`) | Magdalena Contreras | HSSF (inferido) | s/d | 2022 | SECTEI 2022; Gaceta UNAM 2023; DGCS-UNAM Boletin 1060/2022 |
 
 \* **Registro #14 esta marcado `visible: false` en mock y migracion** porque la atribucion exacta del sitio no se ha confirmado en comunicado oficial UNAM o SECTEI. Solo aparece en `/admin/humedales`, no en `/inventario` publico ni se cuenta en KPIs publicos. Para promoverlo a publico hay que verificar con Dra. Alma Chavez Mejia (IIngen UNAM) tipo, superficie, capacidad y vegetacion, luego cambiar `visible` a `true`.
 
+**Registro #15 (CCH Oriente):** Confirmado operativo desde fines de 2019 por multiples fuentes UNAM/SECTEI (Gaceta UNAM 2023, DGCS-UNAM Boletin 1060/2022, UNAM Global, Fundacion UNAM). Vegetacion documentada: papiro, carrizo, cola de caballo. Sustrato: gravas con biopelicula. Tipo HSSF inferido por descripcion del proceso. Capacidad y eficiencias cuantitativas no publicadas (referencia del programa: ENCiT 600 L/d). `visible: true`.
+
 ### Tipologias por sistema de flujo
 1. **HA flujo superficial (FWS):** Anfibium, Playa de Aves, Cerro de la Estrella, Vivero Tlaxialtemalco — agua visible
-2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF), SHATTO (HSSF), CIIEMAD-IPN (HSSF) — agua a traves del sustrato
+2. **HA flujo subsuperficial (SFS):** Cuitlahuac (HSSF), Segundo Aragon (HSSF), CIBAC Cuemanco (VSSF), SHATTO (HSSF), CIIEMAD-IPN (HSSF), CCH Oriente UNAM (HSSF) — agua a traves del sustrato
 3. **HA hibrido (FWS + SFS):** Aragon STHA, ENCiT UNAM, San Mateo Tlaltenango (UAM Cuajimalpa), Piloto UAM-Azcapotzalco (humedal-laguna-pulimento) — sistemas combinados en serie
 
 ### Limitaciones del inventario
@@ -799,6 +806,11 @@ This project shares the same design system and stack as `observatorio-techos-ver
   - Marcado `visible=false` (PENDIENTE DE VERIFICACIÓN con IIngen UNAM)
   - Fuente: SECTEI CDMX (2022); Gaceta UNAM (2023); DGCS-UNAM Boletín 1060/2022
   - Idempotente (verifica por nombre con LIKE antes de INSERT)
+- **Migración 8:** `1737000000000-AddCCHOrienteHumedal.ts`
+  - Inserta el humedal artificial del CCH Oriente UNAM (programa SECTEI–UNAM–GMI, fines de 2019), `visible=true`
+  - Tipo HSSF inferido; vegetación documentada: papiro, carrizo, cola de caballo; sustrato: gravas con biopelícula
+  - Fuentes: Gaceta UNAM (2023); DGCS-UNAM Boletín 1060/2022; UNAM Global; Fundación UNAM; PortalAmbiental.com.mx (2022)
+  - Idempotente (verifica por `nombre LIKE '%CCH Oriente%'` antes de INSERT)
 - **Ejecutar:** `npm run migration:run`
 
 ### Seeds
