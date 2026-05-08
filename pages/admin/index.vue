@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { GLOSSARY } from '~/data/admin-glossary'
+import AdminManual from '~/components/admin/Manual.vue'
 
 definePageMeta({ layout: 'admin', middleware: 'admin', pageTransition: false })
 
@@ -405,6 +406,11 @@ const estadoLabel: Record<string, string> = {
           Bloques editables sembrados (home, sobre, análisis). Edita el copy del sitio público sin tocar código.
         </p>
       </NuxtLink>
+    </div>
+
+    <!-- Manual del observatorio -->
+    <div class="mt-8">
+      <AdminManual />
     </div>
   </div>
 </template>

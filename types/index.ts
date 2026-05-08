@@ -119,6 +119,8 @@ export type AdminPermission =
   | 'manage_hallazgos'
   | 'manage_notihumedal'
   | 'manage_prospectos'
+  | 'manage_tiers'
+  | 'manage_contributors'
 
 export interface AdminUser {
   id: string
@@ -201,4 +203,103 @@ export interface ComparativoCostos {
   ventajas: string[]
   desventajas: string[]
   fuente: string
+}
+
+// ── Tiers (modos de participacion / escalas reputacionales) ──
+export type ContributorTierSlug =
+  | 'aprendiz'
+  | 'observador'
+  | 'caracterizador'
+  | 'especialista'
+  | 'custodio'
+  | string  // permite slugs custom desde admin
+
+export interface Tier {
+  id?: number
+  slug: ContributorTierSlug
+  label: string
+  description?: string | null
+  minScore: number
+  maxScore?: number | null
+  color: string                         // primary | eco | secondary | accent | slate | ...
+  requirements?: string | null
+  icon?: string | null                  // lucide icon name
+  sortOrder: number
+  visible?: boolean
+  archived?: boolean
+  // Modo de participacion
+  modeTitle?: string | null
+  audience?: string | null
+  contributions?: string[] | null
+  bridge?: string | null
+}
+
+// ── Contributors ──
+export type ContributorRole =
+  | 'ciudadano'
+  | 'investigador'
+  | 'estudiante'
+  | 'institucion'
+  | 'gobierno'
+  | 'ong'
+  | 'tecnico_campo'
+
+export interface Contributor {
+  id: number
+  displayName: string
+  handle: string
+  role: ContributorRole
+  affiliation?: string | null
+  bio?: string | null
+  avatarUrl?: string | null
+  alcaldia?: string | null
+  joinedAt?: string | null
+  // Reputacion
+  tier: ContributorTierSlug
+  reputationScore: number
+  validatedContributions: number
+  rejectedContributions: number
+  acceptanceRate: number
+  averageQuality: number
+  consecutiveMonthsActive: number
+  badges?: ContributorBadge[] | null
+  publicProfile: boolean
+  verified: boolean
+  visible?: boolean
+  archived?: boolean
+}
+
+export interface ContributorBadge {
+  id: string
+  label: string
+  description: string
+  icon: string
+  earnedAt: string
+}
+
+// ── Prospecto (extendido con atribucion) ──
+export interface ProspectoHumedal {
+  id: number
+  status: 'pendiente' | 'aprobado' | 'rechazado'
+  source: 'formulario' | 'ia_detector'
+  createdAt: string
+  notasAdmin?: string
+  contributorId?: number | null  // atribucion al contribuyente que aporto el reporte
+  data: {
+    nombre: string
+    alcaldia: string
+    ubicacion?: string
+    tipoHumedal: string
+    tipoVegetacion?: string[]
+    funcionPrincipal: string
+    superficie?: number | null
+    volumen?: number | null
+    anio?: string
+    sustrato?: string
+    vegetacion?: string
+    documentoLink?: string
+    documentoDescripcion?: string
+    institucion?: string
+    email?: string
+  }
 }

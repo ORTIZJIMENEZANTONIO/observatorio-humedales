@@ -739,14 +739,39 @@ This project shares the same design system and stack as `observatorio-techos-ver
 - **Vitest** — unit, integration, stress tests
 - **@vue/test-utils** — Vue component testing
 - **happy-dom** — lightweight DOM environment
+- **@playwright/test** — end-to-end browser tests (chromium)
 
-### Test Files (87 tests total)
+### Test Files (138 unit/integration tests + 17 E2E)
 | File | Type | Count | Coverage |
 |------|------|-------|----------|
 | `tests/unit/useFormatters.test.ts` | Unit | 26 | All formatters (TipoHumedal ha_fws/sfs/hibrido, badges, KPI) |
 | `tests/unit/auth.store.test.ts` | Unit | 15 | Auth state, roles (granular admin perms), backward compat |
-| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 12 humedales (ha_ prefix validation), KPIs, ODS, hallazgos, notihumedal, CMS defaults |
+| `tests/unit/mock-data.test.ts` | Data integrity | 30 | 15 humedales (ha_ prefix validation), KPIs, ODS, hallazgos, notihumedal, CMS defaults |
+| `tests/unit/tiers.store.test.ts` | Unit | 16 | Tiers store: 5 modos default, getTier, tierForScore boundaries, CRUD soft-delete, persistencia localStorage |
+| `tests/unit/contributors.store.test.ts` | Unit | 11 | Contributors store: defaults, addContributor con overrides, filtros (role/tier/verified/search), clearFilters |
+| `tests/unit/prospectos.attribution.test.ts` | Unit | 6 | ProspectoHumedal.contributorId: asignar/desvincular, atribución sobrevive a aprobar/rechazar |
+| `tests/unit/cms-defaults.test.ts` | Data integrity | 6 | CMS expandido: 12 páginas, todas con secciones no vacías, hero con título, footer con URLs válidas |
 | `tests/stress/data-volume.test.ts` | Stress | 16 | 1000-5000 items: filter/sort/paginate (<50ms) |
+| `tests/useAnalyticsMath.test.ts` | Unit | 12 | Estadísticas analytics |
+
+### E2E Tests (Playwright)
+| File | Tests | Coverage |
+|------|-------|----------|
+| `tests/e2e/public.spec.ts` | 5 | Smoke público: home + favicon, /inventario, /mapa, /registra, navegación |
+| `tests/e2e/admin-manual.spec.ts` | 7 | Manual del observatorio: 9 secciones, sidebar items nuevos, /admin/contenido expandido |
+| `tests/e2e/admin-tiers-contributors.spec.ts` | 5 | CRUD de tiers/contributors, filtros por tier |
+
+### Comandos
+```bash
+npm test              # Vitest unit+integration (138 tests, ~1s)
+npm run test:watch    # Vitest watch mode
+npm run test:coverage # Coverage v8
+npm run test:e2e      # Playwright E2E (necesita dev server en :3000 o usa preview en CI)
+npm run test:e2e:install  # Descarga Chromium una vez
+npm run test:e2e:ui   # UI interactiva de Playwright para depurar
+```
+
+E2E mockea autenticación poniendo `obs_token` y `obs_admin` en `localStorage` (el middleware `admin.ts` solo valida `isAuthenticated`, no el JWT contra backend), por lo que las pruebas admin corren sin un cercu-backend activo. El listado de humedales en `/inventario` cae a `mock-humedales.ts` cuando el backend no responde.
 
 ### Backend Tests (cercu-backend, 25 tests)
 | File | Type | Count | Coverage |
@@ -887,7 +912,7 @@ El procesamiento de GEE/Sentinel Hub ocurre en **cercu-backend**, no en Nitro. E
 | `admin` | Solo permisos asignados explicitamente (sin `manage_users`) |
 | `editor` | Solo permisos asignados explicitamente (sin `manage_users`) |
 
-Permisos asignables: `manage_cms`, `manage_humedales`, `manage_hallazgos`, `manage_notihumedal`, `manage_prospectos`, `manage_users` (solo superadmin).
+Permisos asignables: `manage_cms`, `manage_humedales`, `manage_hallazgos`, `manage_notihumedal`, `manage_prospectos`, `manage_tiers`, `manage_contributors`, `manage_users` (solo superadmin).
 Route-level enforcement in `middleware/admin.ts`. Sidebar filters nav items by `hasPermission()`. Role badge visible in sidebar.
 
 ### Pipeline
@@ -909,7 +934,10 @@ Contenido CMS ↔ paginas publicas (home, sobre, analisis)
 stores/auth.ts              # Pinia auth store (login, logout, granular permissions per role)
 stores/cms.ts               # Pinia CMS store (page sections, API persistence, shared state)
 stores/notihumedal.ts       # Pinia notihumedal store (shared admin↔public, CRUD)
-stores/prospectos.ts        # Pinia prospectos store (formulario→admin pipeline)
+stores/prospectos.ts        # Pinia prospectos store (formulario→admin pipeline + atribución contributorId)
+stores/tiers.ts             # Pinia tiers store (5 modos default, CRUD soft-delete, tierForScore)
+stores/contributors.ts      # Pinia contributors store (CRUD + filtros, vinculo con prospectos via contributorId)
+data/tiers-defaults.ts      # 5 tiers (aprendiz/observador/caracterizador/especialista/custodio) + 3 contribuyentes seed
 composables/useApi.ts       # $fetch wrapper with Bearer token + 401 handling
 composables/useCmsContent.ts # CMS composable (computed from cms store, fetches on mount)
 middleware/admin.ts          # Nuxt route middleware (auth + route-level permission check)
@@ -918,16 +946,19 @@ components/admin/
   AdminDataTable.vue         # Tabla con búsqueda, paginación, acciones, responsive
   ArticleEditor.client.vue   # GrapesJS visual editor (fullscreen, dynamic import, Axend-based)
   ColorClassPicker.vue       # Visual color picker for CMS content (bg, icon, badge, accent)
+  Manual.vue                 # Manual del observatorio: 9 secciones acordeón embebido en /admin
 pages/admin/
   login.vue                  # Email + password login form
-  index.vue                  # Dashboard: stats from stores (humedales, hallazgos, articulos, prospectos) + pipeline visual
-  prospectos/index.vue       # Tabs: Cola de aprobación (prospectos store) + Detector geoespacial
+  index.vue                  # Dashboard: stats from stores + pipeline visual + Manual.vue
+  prospectos/index.vue       # Tabs: Cola de aprobación + Detector geoespacial + selector de atribución (contributorId)
   humedales/index.vue        # CRUD inventario (humedales store, mismos datos que /inventario)
   hallazgos/index.vue        # Lista hallazgos (hallazgos store, mismos datos que /analisis/hallazgos)
   hallazgos/[id].vue         # Página de edición/creación de hallazgo (full page, no modal)
   notihumedal/index.vue      # CRUD artículos (notihumedal store, mismos datos que /notihumedal)
+  contributors/index.vue     # CRUD red de colaboradores (filtros role/tier/verified/search)
+  tiers/index.vue            # CRUD modos de participación (5 tiers default, modal de edición)
   usuarios/index.vue         # Gestión de usuarios y permisos (solo superadmin)
-  contenido/index.vue        # CMS page list (home, sobre, analisis)
+  contenido/index.vue        # CMS page list expandido (12 páginas agrupadas)
   contenido/[pageSlug].vue   # CMS section editor (accordion, color pickers, auto-save to API)
   detector/index.vue         # Redirect → /admin/prospectos
 ```
@@ -943,14 +974,50 @@ Pipeline visual + quick links a Prospectos, Inventario, Hallazgos, Notihumedal.
 
 ### Admin Routes (orden de pipeline, filtradas por permisos)
 - `/admin/login` — login (layout default)
-- `/admin` — dashboard con stats de stores + pipeline visual (acceso: todos los autenticados)
-- `/admin/prospectos` — cola de aprobación + detector (perm: `manage_prospectos`)
+- `/admin` — dashboard con stats de stores + pipeline visual + Manual del observatorio (acceso: todos los autenticados)
+- `/admin/prospectos` — cola de aprobación + detector + selector de atribución por contribuyente (perm: `manage_prospectos`)
 - `/admin/humedales` — CRUD inventario, mismos datos que /inventario (perm: `manage_humedales`)
 - `/admin/hallazgos` — lista + `/admin/hallazgos/nuevo` o `/admin/hallazgos/:id` para editar (perm: `manage_hallazgos`)
 - `/admin/notihumedal` — CRUD artículos, mismos datos que /notihumedal (perm: `manage_notihumedal`)
-- `/admin/contenido` — CMS páginas públicas (perm: `manage_cms`)
+- `/admin/contributors` — CRUD red de colaboradores (perm: `manage_contributors`)
+- `/admin/tiers` — CRUD modos de participación (perm: `manage_tiers`)
+- `/admin/contenido` — CMS páginas públicas, listado agrupado (perm: `manage_cms`)
 - `/admin/usuarios` — gestión de usuarios y roles (perm: `manage_users`, solo superadmin)
 - `/admin/contenido/{pageSlug}` — editor de secciones con auto-guardado a API
+
+### Manual del observatorio (`components/admin/Manual.vue`)
+Componente embebido en `/admin/index.vue`. 9 secciones acordeón en español accesible para personas sin formación técnica:
+1. **¿Qué es este observatorio?** — propósito, cuatro fuentes de datos integradas, meta no-competitiva con CONAGUA/CONABIO.
+2. **Flujo de los datos** — recorrido típico de un dato: origen → captura → almacenamiento → validación → publicación → visualización.
+3. **Percepción remota e índices** — NDVI / NDWI / LST con fórmulas Sentinel-2 y Landsat 8/9. De dónde vienen las imágenes (GEE → Sentinel Hub → fallback local).
+4. **Detector geoespacial OSM** — Overpass API + Turf.js, scoring por tipo de feature (`natural=wetland` = 35 hasta `park` = 10), bonus por superficie/nombre.
+5. **Tipologías de humedal artificial** — FWS / HSSF / VSSF / híbrido con ejemplos del inventario y referencia a Vymazal (2010) + Domínguez-Solís et al. (2025).
+6. **Estadística aplicada** — fórmula del índice de necesidad por alcaldía, pesos y limitaciones honestas.
+7. **Tracking de uso** — eventos sin cookies, agregados en `/admin/analytics`.
+8. **Glosario de siglas** — HA, FWS/SFS/VSSF/HSSF, DBO5, DQO, SST, NOM-001/003, ODS, SECTEI, CIIEMAD, GAIA, IIngen, ENCiT.
+9. **Limitaciones honestas** — qué el observatorio NO hace bien (sin monitoreo en campo, cobertura sesgada, coordenadas aproximadas, registro #14 pendiente).
+
+### Tiers + Contributors System
+**Modelo:** cada Contributor tiene un `tier` (slug). Los tiers se editan en `/admin/tiers` y se presentan como **modos de participación distintos** (no niveles a alcanzar) — patrón inspirado en el de arrecifes pero con vocabulario propio del dominio humedales.
+
+**5 tiers default:**
+| Slug | Modo | Score | Quién aporta así |
+|------|------|-------|------------------|
+| `aprendiz` | Curiosidad ciudadana | 0–19 | Vecinas/vecinos que reportan |
+| `observador` | Observación sostenida | 20–99 | Personas que siguen un sitio |
+| `caracterizador` | Caracterización técnica | 100–299 | Estudiantes, técnicos, ONGs locales |
+| `especialista` | Investigación científica | 300–999 | Academia (UNAM, IPN, UAM, IMTA) |
+| `custodio` | Custodia institucional | 1000+ | Universidades, dependencias, ONGs grandes |
+
+**Score auto-calculado:** `validatedContributions × 10 − rejectedContributions × 2`. Al aprobar un prospecto con `contributorId` asignado, el contributor incrementa contadores y `tierForScore()` recalcula su tier.
+
+**Atribución a prospectos:** `ProspectoHumedal.contributorId?: number | null`. UI en `/admin/prospectos` (selector dentro de cada card del prospecto) para vincular un reporte con la persona/institución que lo aportó. Persiste tanto en backend (PATCH `/admin/prospectos/:id/contributor`) como en localStorage como fallback.
+
+**Backend (cercu-backend):**
+- Tablas separadas: `obs_humedales_tiers` y `obs_humedales_contributors` (NO comparten con arrecifes para evitar colisión de slugs/handles).
+- Migración: `1738000000000-CreateHumedalTiersAndContributors.ts` (idempotente, también añade `contributorId` a `obs_prospect_submissions`).
+- Service: `src/modules/observatory/humedales/humedales-attribution.service.ts` (CRUD + `attachContributorToProspect` + `incrementContributorOnApproval`).
+- Routes: `/observatory/humedales/admin/tiers`, `.../admin/contributors`, públicas en `/observatory/humedales/tiers` y `.../contributors` (filtran a `visible+publicProfile`).
 
 ### Notihumedal Admin (CRUD + Scraping Pipeline)
 

@@ -163,16 +163,31 @@ describe('Data Integrity — Notihumedal', () => {
 })
 
 describe('Data Integrity — CMS Defaults', () => {
-  it('has 3 pages', () => {
-    expect(Object.keys(cmsDefaults)).toEqual(['home', 'sobre', 'analisis'])
+  it('contains all expected pages', () => {
+    const keys = Object.keys(cmsDefaults)
+    // Páginas principales heredadas
+    expect(keys).toContain('home')
+    expect(keys).toContain('sobre')
+    expect(keys).toContain('analisis')
+    // Páginas nuevas (CMS expandido)
+    expect(keys).toContain('inventario')
+    expect(keys).toContain('mapa')
+    expect(keys).toContain('notihumedal')
+    expect(keys).toContain('registra')
+    expect(keys).toContain('contributors')
+    expect(keys).toContain('footer')
+    // Subpáginas de análisis
+    expect(keys).toContain('analisis-indicadores')
+    expect(keys).toContain('analisis-brecha')
+    expect(keys).toContain('analisis-hallazgos')
   })
-  it('home has 4 sections', () => {
+  it('home keeps its original 4 sections', () => {
     expect(Object.keys(cmsDefaults.home)).toEqual(['features', 'steps', 'tipologias', 'servicios'])
   })
-  it('sobre has 3 sections', () => {
+  it('sobre keeps its original 3 sections', () => {
     expect(Object.keys(cmsDefaults.sobre)).toEqual(['objetivos', 'criterios', 'normativas'])
   })
-  it('analisis has 1 section', () => {
+  it('analisis hub has its sections card', () => {
     expect(Object.keys(cmsDefaults.analisis)).toEqual(['sections'])
   })
   it('all sections have non-empty arrays', () => {

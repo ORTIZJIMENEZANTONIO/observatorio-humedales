@@ -53,7 +53,8 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#0D6B7E' },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/favicon.svg' },
       ],
     },
   },

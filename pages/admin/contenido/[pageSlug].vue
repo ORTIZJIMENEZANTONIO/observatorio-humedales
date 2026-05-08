@@ -14,18 +14,40 @@ const cmsStore = useCmsStore()
 const pageTitles: Record<string, string> = {
   home: 'Inicio',
   sobre: 'Sobre',
-  analisis: 'Analisis',
+  analisis: 'Análisis',
+  inventario: 'Inventario',
+  mapa: 'Mapa',
+  notihumedal: 'Notihumedal',
+  registra: 'Registra un humedal',
+  contributors: 'Contribuyentes',
+  'analisis-indicadores': 'Análisis · Indicadores',
+  'analisis-brecha': 'Análisis · Brecha',
+  'analisis-hallazgos': 'Análisis · Hallazgos',
+  footer: 'Footer',
 }
 
 const sectionLabels: Record<string, string> = {
   features: 'Features principales',
   steps: 'Pasos del proceso',
-  tipologias: 'Tipologias',
-  servicios: 'Servicios ecosistemicos',
+  tipologias: 'Tipologías',
+  servicios: 'Servicios ecosistémicos',
   objetivos: 'Objetivos',
-  criterios: 'Criterios de sistematizacion',
+  criterios: 'Criterios de sistematización',
   normativas: 'Marco normativo',
   sections: 'Secciones del hub',
+  hero: 'Hero (encabezado)',
+  helpText: 'Texto de ayuda',
+  legend: 'Leyenda del mapa',
+  emptyState: 'Estado vacío',
+  confirmation: 'Mensaje de confirmación',
+  tabs: 'Pestañas / Tabs',
+  methodology: 'Metodología',
+  callToAction: 'Llamado a la acción',
+  intro: 'Introducción',
+  brand: 'Marca',
+  sources: 'Fuentes (footer)',
+  quickLinks: 'Enlaces rápidos',
+  legal: 'Aviso legal',
 }
 
 const pageDefaults = cmsDefaults[pageSlug] || {}
@@ -110,16 +132,25 @@ function getFieldKeys(section: string): string[] {
 }
 
 const fieldLabels: Record<string, string> = {
-  title: 'Titulo',
-  description: 'Descripcion',
+  title: 'Título',
+  subtitle: 'Subtítulo',
+  description: 'Descripción',
+  body: 'Contenido',
+  label: 'Etiqueta',
   icon: 'Icono',
-  to: 'Enlace',
+  to: 'Enlace interno',
+  href: 'URL externa',
+  cta: 'Texto del botón',
+  ctaLink: 'Destino del botón',
   bg: 'Color de fondo',
+  color: 'Color',
   iconColor: 'Color de icono',
   examples: 'Ejemplos',
   badge: 'Badge texto',
   badgeClass: 'Color de badge',
   accentColor: 'Color de acento',
+  copyright: 'Aviso de copyright',
+  id: 'ID',
 }
 
 const colorFields = ['bg', 'iconColor', 'accentColor', 'badgeClass'] as const

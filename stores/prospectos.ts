@@ -7,6 +7,7 @@ export interface ProspectoHumedal {
   source: 'formulario' | 'ia_detector'
   createdAt: string
   notasAdmin?: string
+  contributorId?: number | null  // atribucion: vincula el reporte a un contribuyente
   data: {
     nombre: string
     alcaldia: string
@@ -67,5 +68,15 @@ export const useProspectosStore = defineStore('prospectos', () => {
     prospectos.value = items
   }
 
-  return { prospectos, loading, pendientes, aprobados, rechazados, byStatus, addProspecto, aprobar, rechazar, setProspectos }
+  function asignarContributor(id: number, contributorId: number | null) {
+    prospectos.value = prospectos.value.map(p =>
+      p.id === id ? { ...p, contributorId } : p
+    )
+  }
+
+  return {
+    prospectos, loading, pendientes, aprobados, rechazados,
+    byStatus, addProspecto, aprobar, rechazar, setProspectos,
+    asignarContributor,
+  }
 })

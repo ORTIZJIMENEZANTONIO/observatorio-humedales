@@ -6,6 +6,7 @@ const config = useRuntimeConfig()
 const observatory = config.public.observatory as string
 const prospectosStore = useProspectosStore()
 const humedalesStore = useHumedalesStore()
+const contribStore = useContributorsStore()
 const formatters = useFormatters()
 const { available: backendUp, check: checkBackend } = useBackendStatus()
 
@@ -48,14 +49,13 @@ onMounted(loadProspects)
 watch(filter, () => { if (isOnline.value) loadProspects() })
 
 async function approve(id: number) {
+  const p = prospectosStore.prospectos.find(x => x.id === id)
   try {
     if (isOnline.value) {
       await apiFetch(`/observatory/${observatory}/admin/prospectos/${id}/aprobar`, { method: 'POST' })
       await loadProspects()
     } else {
-      const p = prospectosStore.prospectos.find(x => x.id === id)
       if (p) {
-        // Move to humedales store
         humedalesStore.addHumedal({
           nombre: p.data.nombre,
           alcaldia: p.data.alcaldia as any,
@@ -71,6 +71,22 @@ async function approve(id: number) {
           fuente: p.data.documentoDescripcion || p.data.institucion || 'Propuesta ciudadana',
         })
         prospectosStore.aprobar(id)
+      }
+    }
+    // Si hay contributor atribuido, sumarle una validacion (en cliente).
+    if (p?.contributorId) {
+      const c = contribStore.getContributor(p.contributorId)
+      if (c) {
+        const validated = c.validatedContributions + 1
+        const total = validated + c.rejectedContributions
+        const score = validated * 10 - c.rejectedContributions * 2
+        const tier = useTiersStore().tierForScore(score)
+        contribStore.updateContributor(p.contributorId, {
+          validatedContributions: validated,
+          reputationScore: score,
+          acceptanceRate: total > 0 ? Number((validated / total).toFixed(3)) : 0,
+          tier,
+        })
       }
     }
   } catch {
@@ -102,6 +118,31 @@ async function confirmReject() {
     prospectosStore.rechazar(rejectingId.value!, rejectNotes.value)
   }
   rejectingId.value = null
+}
+
+// ══════════════════════════════════════════
+//  Atribucion: vincular prospecto a contribuyente
+// ══════════════════════════════════════════
+async function setProspectContributor(prospectId: number, contributorId: number | null) {
+  try {
+    if (isOnline.value) {
+      await apiFetch(`/observatory/${observatory}/admin/prospectos/${prospectId}/contributor`, {
+        method: 'PATCH',
+        body: { contributorId },
+      })
+    }
+    prospectosStore.asignarContributor(prospectId, contributorId)
+  } catch (e: any) {
+    // fallback local
+    prospectosStore.asignarContributor(prospectId, contributorId)
+  }
+}
+
+function contributorLabel(id: number | null | undefined): string {
+  if (!id) return ''
+  const c = contribStore.getContributor(id)
+  if (!c) return `#${id}`
+  return c.displayName
 }
 
 // ══════════════════════════════════════════
@@ -392,6 +433,38 @@ function barWidth(val: number, max: number) { return `${Math.round((val / max) *
                 {{ new Date(p.createdAt).toLocaleDateString('es-MX', { dateStyle: 'medium' }) }}
                 <span v-if="p.source" class="ml-2 badge bg-gray-100 text-ink-muted text-[10px]">{{ p.source === 'formulario' ? 'Formulario público' : 'Detector IA' }}</span>
               </p>
+
+              <!-- Selector de atribución -->
+              <div class="mt-3 rounded-lg border border-primary/15 bg-primary/5 p-3">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex items-center gap-2 text-xs text-ink">
+                    <Icon name="lucide:badge-check" size="14" class="text-primary" />
+                    <strong>Atribución:</strong>
+                    <span v-if="p.contributorId" class="text-primary font-medium">
+                      {{ contributorLabel(p.contributorId) }}
+                    </span>
+                    <span v-else class="text-ink-muted italic">sin asignar</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <select
+                      :value="p.contributorId ?? ''"
+                      @change="setProspectContributor(p.id, ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null)"
+                      class="select text-xs !py-1.5 max-w-[220px]"
+                    >
+                      <option value="">— Sin atribución —</option>
+                      <option v-for="c in contribStore.items.filter(x => !x.archived)" :key="c.id" :value="c.id">
+                        {{ c.displayName }}
+                      </option>
+                    </select>
+                    <NuxtLink to="/admin/contributors" class="text-xs text-primary hover:underline whitespace-nowrap">
+                      + Crear
+                    </NuxtLink>
+                  </div>
+                </div>
+                <p class="mt-1 text-[11px] text-ink-muted">
+                  Vincula este prospecto al contribuyente que lo aportó. Su tier se actualiza al aprobar.
+                </p>
+              </div>
             </div>
 
             <div v-if="p.status === 'pendiente'" class="flex flex-shrink-0 gap-2">
